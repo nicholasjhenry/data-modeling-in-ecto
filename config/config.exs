@@ -66,6 +66,12 @@ config :logger, :default_formatter,
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 
+config :nomify, :generators,
+  migration: true,
+  binary_id: false,
+  timestamp_type: :utc_datetime,
+  sample_binary_id: "11111111-1111-1111-1111-111111111111"
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"
