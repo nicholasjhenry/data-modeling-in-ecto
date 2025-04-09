@@ -7,7 +7,10 @@ defmodule Nomify.Umbrella.MixProject do
       version: "0.1.0",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
-      aliases: aliases()
+      aliases: aliases(),
+      preferred_cli_env: [
+         "test.watch": :test
+       ]
     ]
   end
 
@@ -27,7 +30,9 @@ defmodule Nomify.Umbrella.MixProject do
     [
       {:phoenix, "~> 1.8.0-rc.0", override: true},
       # Required to run "mix format" on ~H/.heex files from the umbrella root
-      {:phoenix_live_view, ">= 0.0.0"}
+      {:phoenix_live_view, ">= 0.0.0"},
+      # Application dependencies
+      {:mix_test_watch, "~> 1.0", only: [:dev, :test], runtime: false}
     ]
   end
 
