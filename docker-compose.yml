@@ -1,0 +1,15 @@
+name: nomify-next
+services:
+  db:
+    image: postgres:17.4-alpine3.21
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      PGDATA: /pgdata
+    volumes:
+      - pgdata:/pgdata
+
+volumes:
+  pgdata: {}
