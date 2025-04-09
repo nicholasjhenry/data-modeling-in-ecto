@@ -8,9 +8,10 @@ defmodule Nomify.Umbrella.MixProject do
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       aliases: aliases(),
+      listeners: [Phoenix.CodeReloader],
       preferred_cli_env: [
-         "test.watch": :test
-       ]
+        "test.watch": :test
+      ]
     ]
   end
 
