@@ -65,4 +65,60 @@ defmodule Nomify.ResourcesTest do
       assert %Ecto.Changeset{} = Resources.change_person(person)
     end
   end
+
+  describe "teams" do
+    alias Nomify.Resources.Team
+
+    import Nomify.ResourcesFixtures
+
+    @invalid_attrs %{format: nil, description: nil}
+
+    test "list_teams/0 returns all teams" do
+      team = team_fixture()
+      assert Resources.list_teams() == [team]
+    end
+
+    test "get_team!/1 returns the team with given id" do
+      team = team_fixture()
+      assert Resources.get_team!(team.id) == team
+    end
+
+    test "create_team/1 with valid data creates a team" do
+      valid_attrs = %{format: :none, description: "some description"}
+
+      assert {:ok, %Team{} = team} = Resources.create_team(valid_attrs)
+      assert team.format == :none
+      assert team.description == "some description"
+    end
+
+    test "create_team/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = Resources.create_team(@invalid_attrs)
+    end
+
+    test "update_team/2 with valid data updates the team" do
+      team = team_fixture()
+      update_attrs = %{format: :single, description: "some updated description"}
+
+      assert {:ok, %Team{} = team} = Resources.update_team(team, update_attrs)
+      assert team.format == :single
+      assert team.description == "some updated description"
+    end
+
+    test "update_team/2 with invalid data returns error changeset" do
+      team = team_fixture()
+      assert {:error, %Ecto.Changeset{}} = Resources.update_team(team, @invalid_attrs)
+      assert team == Resources.get_team!(team.id)
+    end
+
+    test "delete_team/1 deletes the team" do
+      team = team_fixture()
+      assert {:ok, %Team{}} = Resources.delete_team(team)
+      assert_raise Ecto.NoResultsError, fn -> Resources.get_team!(team.id) end
+    end
+
+    test "change_team/1 returns a team changeset" do
+      team = team_fixture()
+      assert %Ecto.Changeset{} = Resources.change_team(team)
+    end
+  end
 end

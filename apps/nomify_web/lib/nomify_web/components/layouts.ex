@@ -26,6 +26,9 @@ defmodule NomifyWeb.Layouts do
             <a href={~p"/people"} class="btn btn-ghost">People</a>
           </li>
           <li>
+            <a href={~p"/teams"} class="btn btn-ghost">Teams</a>
+          </li>
+          <li>
             <.theme_toggle />
           </li>
         </ul>

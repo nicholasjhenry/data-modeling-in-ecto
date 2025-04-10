@@ -19,4 +19,19 @@ defmodule Nomify.ResourcesFixtures do
 
     person
   end
+
+  @doc """
+  Generate a team.
+  """
+  def team_fixture(attrs \\ %{}) do
+    {:ok, team} =
+      attrs
+      |> Enum.into(%{
+        description: "some description",
+        format: :none
+      })
+      |> Nomify.Resources.create_team()
+
+    team
+  end
 end

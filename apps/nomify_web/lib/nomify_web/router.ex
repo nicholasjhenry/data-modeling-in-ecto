@@ -19,10 +19,17 @@ defmodule NomifyWeb.Router do
 
     get "/", PageController, :home
 
+    # people
     live "/people", PersonLive.Index, :index
     live "/people/new", PersonLive.Form, :new
     live "/people/:id", PersonLive.Show, :show
     live "/people/:id/edit", PersonLive.Form, :edit
+
+    # teams
+    live "/teams", TeamLive.Index, :index
+    live "/teams/new", TeamLive.Form, :new
+    live "/teams/:id", TeamLive.Show, :show
+    live "/teams/:id/edit", TeamLive.Form, :edit
   end
 
   # Other scopes may use custom stacks.
