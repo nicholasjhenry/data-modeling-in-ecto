@@ -4,11 +4,11 @@ defmodule NomifyWeb.PersonLiveTest do
   import Phoenix.LiveViewTest
   import Nomify.ResourcesFixtures
 
-  @create_attrs %{name: "some name", title: "some title", email: "some email"}
+  @create_attrs %{name: "some name", title: "some title", email: "foo@example.com"}
   @update_attrs %{
     name: "some updated name",
     title: "some updated title",
-    email: "some updated email"
+    email: "foo.bar@example.com"
   }
   @invalid_attrs %{name: nil, title: nil, email: nil}
   defp create_person(_) do

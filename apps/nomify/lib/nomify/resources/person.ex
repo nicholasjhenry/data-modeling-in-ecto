@@ -5,7 +5,7 @@ defmodule Nomify.Resources.Person do
   schema "resource_people" do
     field :title, :string
     field :name, :string
-    field :email, :string
+    field :email, Nomify.Util.EmailAddress.Ecto.Type
 
     timestamps()
   end

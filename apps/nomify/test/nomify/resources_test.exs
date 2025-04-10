@@ -21,12 +21,12 @@ defmodule Nomify.ResourcesTest do
     end
 
     test "create_person/1 with valid data creates a person" do
-      valid_attrs = %{name: "some name", title: "some title", email: "some email"}
+      valid_attrs = %{name: "some name", title: "some title", email: "foo@example.com"}
 
       assert {:ok, %Person{} = person} = Resources.create_person(valid_attrs)
       assert person.name == "some name"
       assert person.title == "some title"
-      assert person.email == "some email"
+      assert person.email == "foo@example.com"
     end
 
     test "create_person/1 with invalid data returns error changeset" do
@@ -39,13 +39,13 @@ defmodule Nomify.ResourcesTest do
       update_attrs = %{
         name: "some updated name",
         title: "some updated title",
-        email: "some updated email"
+        email: "foo.bar@example.com"
       }
 
       assert {:ok, %Person{} = person} = Resources.update_person(person, update_attrs)
       assert person.name == "some updated name"
       assert person.title == "some updated title"
-      assert person.email == "some updated email"
+      assert person.email == "foo.bar@example.com"
     end
 
     test "update_person/2 with invalid data returns error changeset" do

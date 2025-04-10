@@ -11,7 +11,7 @@ defmodule Nomify.ResourcesFixtures do
     {:ok, person} =
       attrs
       |> Enum.into(%{
-        email: "some email",
+        email: "foo@example.com",
         name: "some name",
         title: "some title"
       })
