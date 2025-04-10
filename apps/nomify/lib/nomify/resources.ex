@@ -200,6 +200,8 @@ defmodule Nomify.Resources do
 
   alias Nomify.Resources.TeamMember
 
+  import Ecto.Changeset, only: [put_assoc: 3]
+
   @doc """
   Returns the list of team_members.
 
@@ -241,9 +243,23 @@ defmodule Nomify.Resources do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_team_member(attrs \\ %{}) do
+  # NOTE: How to pass in associated structs?
+  # attrs has a default so felt natural to place at the end of the function
+  # team or person first? Both of these felt equal weight, so since it's a `team_member`
+  # placed `team` as the first argument.
+  #
+  def create_team_member(team, person, attrs \\ %{}) do
     %TeamMember{}
+    # NOTE: Streamlined Object Modeling
+    #
+    # Principle 75: Properties Before Collaborators
+    #
+    # Object construction methods initialize properties before establishing collaborations because
+    # collaboration rules may check property values.
+    #
     |> TeamMember.changeset(attrs)
+    |> put_assoc(:team, team)
+    |> put_assoc(:person, person)
     |> Repo.insert()
   end
 
@@ -292,5 +308,14 @@ defmodule Nomify.Resources do
   """
   def change_team_member(%TeamMember{} = team_member, attrs \\ %{}) do
     TeamMember.changeset(team_member, attrs)
+  end
+
+  def team_member_equal?(lhs, rhs) do
+    lhs.id == rhs.id &&
+      lhs.team_role == rhs.team_role &&
+      lhs.privileges == rhs.privileges &&
+      lhs.security_level == rhs.security_level &&
+      lhs.person_id == rhs.person_id &&
+      lhs.team_id == rhs.team_id
   end
 end

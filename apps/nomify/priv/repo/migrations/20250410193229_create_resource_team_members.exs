@@ -6,8 +6,8 @@ defmodule Nomify.Repo.Migrations.CreateResourceTeamMembers do
       add :team_role, :string
       add :privileges, :integer
       add :security_level, :string
-      add :person_id, references(:resource_people, on_delete: :nothing)
-      add :team_id, references(:resource_teams, on_delete: :nothing)
+      add :person_id, references(:resource_people, on_delete: :nothing), null: false
+      add :team_id, references(:resource_teams, on_delete: :nothing), null: false
 
       timestamps()
     end

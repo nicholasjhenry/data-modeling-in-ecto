@@ -127,29 +127,47 @@ defmodule Nomify.ResourcesTest do
 
     import Nomify.ResourcesFixtures
 
+    setup do
+      team = team_fixture()
+      person = person_fixture()
+
+      %{team: team, person: person}
+    end
+
     @invalid_attrs %{team_role: nil, privileges: nil, security_level: nil}
 
     test "list_team_members/0 returns all team_members" do
       team_member = team_member_fixture()
-      assert Resources.list_team_members() == [team_member]
+      assert [listed_team_member] = Resources.list_team_members()
+      assert listed_team_member.id == team_member.id
     end
 
     test "get_team_member!/1 returns the team_member with given id" do
       team_member = team_member_fixture()
-      assert Resources.get_team_member!(team_member.id) == team_member
+      assert fetched_team_member = Resources.get_team_member!(team_member.id)
+      assert fetched_team_member.id == team_member.id
     end
 
-    test "create_team_member/1 with valid data creates a team_member" do
+    test "create_team_member/1 with valid data creates a team_member", %{
+      team: team,
+      person: person
+    } do
       valid_attrs = %{team_role: :admin, privileges: 42, security_level: :low}
 
-      assert {:ok, %TeamMember{} = team_member} = Resources.create_team_member(valid_attrs)
+      assert {:ok, %TeamMember{} = team_member} =
+               Resources.create_team_member(team, person, valid_attrs)
+
       assert team_member.team_role == :admin
       assert team_member.privileges == 42
       assert team_member.security_level == :low
     end
 
-    test "create_team_member/1 with invalid data returns error changeset" do
-      assert {:error, %Ecto.Changeset{}} = Resources.create_team_member(@invalid_attrs)
+    test "create_team_member/1 with invalid data returns error changeset", %{
+      team: team,
+      person: person
+    } do
+      assert {:error, %Ecto.Changeset{}} =
+               Resources.create_team_member(team, person, @invalid_attrs)
     end
 
     test "update_team_member/2 with valid data updates the team_member" do
@@ -170,7 +188,10 @@ defmodule Nomify.ResourcesTest do
       assert {:error, %Ecto.Changeset{}} =
                Resources.update_team_member(team_member, @invalid_attrs)
 
-      assert team_member == Resources.get_team_member!(team_member.id)
+      assert Resources.team_member_equal?(
+               team_member,
+               Resources.get_team_member!(team_member.id)
+             )
     end
 
     test "delete_team_member/1 deletes the team_member" do

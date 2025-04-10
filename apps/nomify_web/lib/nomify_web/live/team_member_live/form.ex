@@ -14,6 +14,9 @@ defmodule NomifyWeb.TeamMemberLive.Form do
       </.header>
 
       <.form for={@form} id="team_member-form" phx-change="validate" phx-submit="save">
+        <.input field={@form[:team_id]} type="number" label="Team ID" />
+        <.input field={@form[:person_id]} type="number" label="Person ID" />
+
         <.input
           field={@form[:team_role]}
           type="select"
@@ -91,7 +94,10 @@ defmodule NomifyWeb.TeamMemberLive.Form do
   end
 
   defp save_team_member(socket, :new, team_member_params) do
-    case Resources.create_team_member(team_member_params) do
+    team = Resources.get_team!(team_member_params["team_id"])
+    person = Resources.get_person!(team_member_params["person_id"])
+
+    case Resources.create_team_member(team, person, team_member_params) do
       {:ok, team_member} ->
         {:noreply,
          socket

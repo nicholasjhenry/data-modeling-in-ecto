@@ -23,6 +23,9 @@ defmodule NomifyWeb.TeamMemberLiveTest do
     end
 
     test "saves new team_member", %{conn: conn} do
+      team = team_fixture()
+      person = person_fixture()
+
       {:ok, index_live, _html} = live(conn, ~p"/team_members")
 
       assert {:ok, form_live, _} =
@@ -33,8 +36,10 @@ defmodule NomifyWeb.TeamMemberLiveTest do
 
       assert render(form_live) =~ "New Team member"
 
+      assoc_attrs = %{team_id: team.id, person_id: person.id}
+
       assert form_live
-             |> form("#team_member-form", team_member: @invalid_attrs)
+             |> form("#team_member-form", team_member: Map.merge(@invalid_attrs, assoc_attrs))
              |> render_change() =~ "can&#39;t be blank"
 
       assert {:ok, index_live, _html} =
