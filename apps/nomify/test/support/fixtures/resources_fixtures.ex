@@ -34,4 +34,20 @@ defmodule Nomify.ResourcesFixtures do
 
     team
   end
+
+  @doc """
+  Generate a team_member.
+  """
+  def team_member_fixture(attrs \\ %{}) do
+    {:ok, team_member} =
+      attrs
+      |> Enum.into(%{
+        privileges: 42,
+        security_level: :low,
+        team_role: :admin
+      })
+      |> Nomify.Resources.create_team_member()
+
+    team_member
+  end
 end
