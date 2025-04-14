@@ -131,7 +131,11 @@ defmodule Nomify.Resources do
       ** (Ecto.NoResultsError)
 
   """
-  def get_team!(id), do: Repo.get!(Team, id)
+  def get_team!(id) do
+    Team
+    |> Repo.get!(id)
+    |> Repo.preload(team_members: :person)
+  end
 
   @doc """
   Creates a team.
@@ -198,6 +202,12 @@ defmodule Nomify.Resources do
     Team.changeset(team, attrs)
   end
 
+  def team_equal?(lhs, rhs) do
+    lhs.id == rhs.id &&
+      lhs.description == rhs.description &&
+      lhs.format == rhs.format
+  end
+
   alias Nomify.Resources.TeamMember
 
   import Ecto.Changeset, only: [put_assoc: 3]
@@ -229,7 +239,12 @@ defmodule Nomify.Resources do
       ** (Ecto.NoResultsError)
 
   """
-  def get_team_member!(id), do: Repo.get!(TeamMember, id)
+  # NOTE: group-member always scoped by group
+  def get_team_member!(team, id) do
+    TeamMember
+    |> Repo.get_by!(id: id, team_id: team.id)
+    |> Repo.preload([:team, :person])
+  end
 
   @doc """
   Creates a team_member.

@@ -14,7 +14,6 @@ defmodule NomifyWeb.TeamMemberLive.Form do
       </.header>
 
       <.form for={@form} id="team_member-form" phx-change="validate" phx-submit="save">
-        <.input field={@form[:team_id]} type="number" label="Team ID" />
         <.input field={@form[:person_id]} type="number" label="Person ID" />
 
         <.input
@@ -34,7 +33,7 @@ defmodule NomifyWeb.TeamMemberLive.Form do
         />
         <footer>
           <.button phx-disable-with="Saving..." variant="primary">Save Team member</.button>
-          <.button navigate={return_path(@return_to, @team_member)}>Cancel</.button>
+          <.button navigate={return_path(@return_to, @team, @team_member)}>Cancel</.button>
         </footer>
       </.form>
     </Layouts.app>
@@ -43,9 +42,12 @@ defmodule NomifyWeb.TeamMemberLive.Form do
 
   @impl true
   def mount(params, _session, socket) do
+    team = Resources.get_team!(params["team_id"])
+
     {:ok,
      socket
      |> assign(:return_to, return_to(params["return_to"]))
+     |> assign(:team, team)
      |> apply_action(socket.assigns.live_action, params)}
   end
 
@@ -53,7 +55,7 @@ defmodule NomifyWeb.TeamMemberLive.Form do
   defp return_to(_), do: "index"
 
   defp apply_action(socket, :edit, %{"id" => id}) do
-    team_member = Resources.get_team_member!(id)
+    team_member = Resources.get_team_member!(socket.assigns.team, id)
 
     socket
     |> assign(:page_title, "Edit Team member")
@@ -86,7 +88,9 @@ defmodule NomifyWeb.TeamMemberLive.Form do
         {:noreply,
          socket
          |> put_flash(:info, "Team member updated successfully")
-         |> push_navigate(to: return_path(socket.assigns.return_to, team_member))}
+         |> push_navigate(
+           to: return_path(socket.assigns.return_to, socket.assigns.team, team_member)
+         )}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, form: to_form(changeset))}
@@ -94,21 +98,22 @@ defmodule NomifyWeb.TeamMemberLive.Form do
   end
 
   defp save_team_member(socket, :new, team_member_params) do
-    team = Resources.get_team!(team_member_params["team_id"])
     person = Resources.get_person!(team_member_params["person_id"])
 
-    case Resources.create_team_member(team, person, team_member_params) do
+    case Resources.create_team_member(socket.assigns.team, person, team_member_params) do
       {:ok, team_member} ->
         {:noreply,
          socket
          |> put_flash(:info, "Team member created successfully")
-         |> push_navigate(to: return_path(socket.assigns.return_to, team_member))}
+         |> push_navigate(
+           to: return_path(socket.assigns.return_to, socket.assigns.team, team_member)
+         )}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, form: to_form(changeset))}
     end
   end
 
-  defp return_path("index", _team_member), do: ~p"/team_members"
-  defp return_path("show", team_member), do: ~p"/team_members/#{team_member}"
+  defp return_path("show", team, team_member), do: ~p"/teams/#{team}/members/#{team_member}"
+  defp return_path("index", team, _team_member), do: ~p"/teams/#{team}"
 end

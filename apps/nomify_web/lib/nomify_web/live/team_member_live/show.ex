@@ -11,10 +11,13 @@ defmodule NomifyWeb.TeamMemberLive.Show do
         Team member {@team_member.id}
         <:subtitle>This is a team_member record from your database.</:subtitle>
         <:actions>
-          <.button navigate={~p"/team_members"}>
+          <.button navigate={~p"/teams/#{@team}"}>
             <.icon name="hero-arrow-left" />
           </.button>
-          <.button variant="primary" navigate={~p"/team_members/#{@team_member}/edit?return_to=show"}>
+          <.button
+            variant="primary"
+            navigate={~p"/teams/#{@team}/members/#{@team_member}/edit?return_to=show"}
+          >
             <.icon name="hero-pencil-square" /> Edit team_member
           </.button>
         </:actions>
@@ -30,10 +33,14 @@ defmodule NomifyWeb.TeamMemberLive.Show do
   end
 
   @impl true
-  def mount(%{"id" => id}, _session, socket) do
+  def mount(%{"team_id" => team_id, "id" => id}, _session, socket) do
+    team = Resources.get_team!(team_id)
+    team_member = Resources.get_team_member!(team, id)
+
     {:ok,
      socket
      |> assign(:page_title, "Show Team member")
-     |> assign(:team_member, Resources.get_team_member!(id))}
+     |> assign(:team, team)
+     |> assign(:team_member, team_member)}
   end
 end

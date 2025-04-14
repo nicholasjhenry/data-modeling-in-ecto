@@ -80,7 +80,7 @@ defmodule Nomify.ResourcesTest do
 
     test "get_team!/1 returns the team with given id" do
       team = team_fixture()
-      assert Resources.get_team!(team.id) == team
+      assert Resources.get_team!(team.id).id == team.id
     end
 
     test "create_team/1 with valid data creates a team" do
@@ -107,7 +107,11 @@ defmodule Nomify.ResourcesTest do
     test "update_team/2 with invalid data returns error changeset" do
       team = team_fixture()
       assert {:error, %Ecto.Changeset{}} = Resources.update_team(team, @invalid_attrs)
-      assert team == Resources.get_team!(team.id)
+
+      assert Resources.team_equal?(
+               team,
+               Resources.get_team!(team.id)
+             )
     end
 
     test "delete_team/1 deletes the team" do
@@ -144,7 +148,8 @@ defmodule Nomify.ResourcesTest do
 
     test "get_team_member!/1 returns the team_member with given id" do
       team_member = team_member_fixture()
-      assert fetched_team_member = Resources.get_team_member!(team_member.id)
+      team = team_member.team
+      assert fetched_team_member = Resources.get_team_member!(team, team_member.id)
       assert fetched_team_member.id == team_member.id
     end
 
@@ -184,20 +189,23 @@ defmodule Nomify.ResourcesTest do
 
     test "update_team_member/2 with invalid data returns error changeset" do
       team_member = team_member_fixture()
+      team = team_member.team
 
       assert {:error, %Ecto.Changeset{}} =
                Resources.update_team_member(team_member, @invalid_attrs)
 
       assert Resources.team_member_equal?(
                team_member,
-               Resources.get_team_member!(team_member.id)
+               Resources.get_team_member!(team, team_member.id)
              )
     end
 
     test "delete_team_member/1 deletes the team_member" do
       team_member = team_member_fixture()
+      team = team_member.team
+
       assert {:ok, %TeamMember{}} = Resources.delete_team_member(team_member)
-      assert_raise Ecto.NoResultsError, fn -> Resources.get_team_member!(team_member.id) end
+      assert_raise Ecto.NoResultsError, fn -> Resources.get_team_member!(team, team_member.id) end
     end
 
     test "change_team_member/1 returns a team_member changeset" do
