@@ -89,6 +89,7 @@ defmodule NomifyWeb.CoreComponents do
   """
   attr :rest, :global, include: ~w(href navigate patch)
   attr :variant, :string, values: ~w(primary)
+  attr :disabled, :boolean, default: false
   slot :inner_block, required: true
 
   def button(%{rest: rest} = assigns) do
@@ -103,7 +104,7 @@ defmodule NomifyWeb.CoreComponents do
       """
     else
       ~H"""
-      <button class={["btn", @class]} {@rest}>
+      <button class={["btn", @class]} disabled={@disabled} {@rest}>
         {render_slot(@inner_block)}
       </button>
       """

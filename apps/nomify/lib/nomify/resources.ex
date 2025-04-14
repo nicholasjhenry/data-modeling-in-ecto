@@ -21,6 +21,12 @@ defmodule Nomify.Resources do
     Repo.all(Person)
   end
 
+  def search_people_by_name(name) do
+    query = from person in Person, where: ilike(person.name, ^"%#{name}%")
+
+    Repo.all(query)
+  end
+
   @doc """
   Gets a single person.
 

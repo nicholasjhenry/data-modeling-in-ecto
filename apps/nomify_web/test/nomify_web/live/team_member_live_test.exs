@@ -37,10 +37,16 @@ defmodule NomifyWeb.TeamMemberLiveTest do
 
       assert render(form_live) =~ "New Team member"
 
-      assoc_attrs = %{person_id: person.id}
+      assert form_live
+             |> form("#people_search-form", %{person_name: person.name})
+             |> render_submit()
 
       assert form_live
-             |> form("#team_member-form", team_member: Map.merge(@invalid_attrs, assoc_attrs))
+             |> element("#people-#{person.id}")
+             |> render_click()
+
+      assert form_live
+             |> form("#team_member-form", team_member: @invalid_attrs)
              |> render_change() =~ "can&#39;t be blank"
 
       assert {:ok, index_live, _html} =

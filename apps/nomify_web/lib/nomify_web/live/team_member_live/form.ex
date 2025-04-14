@@ -13,9 +13,13 @@ defmodule NomifyWeb.TeamMemberLive.Form do
         <:subtitle>Use this form to manage team_member records in your database.</:subtitle>
       </.header>
 
-      <.form for={@form} id="team_member-form" phx-change="validate" phx-submit="save">
-        <.input field={@form[:person_id]} type="number" label="Person ID" />
+      <%= if @live_action == :new do %>
+        <.person_search_form person_name={@person_name} people={@people} />
+      <% else %>
+        <h2>{@person.name} ({@person.title})</h2>
+      <% end %>
 
+      <.form for={@form} id="team_member-form" phx-change="validate" phx-submit="save">
         <.input
           field={@form[:team_role]}
           type="select"
@@ -32,11 +36,47 @@ defmodule NomifyWeb.TeamMemberLive.Form do
           options={Ecto.Enum.values(Nomify.Resources.TeamMember, :security_level)}
         />
         <footer>
-          <.button phx-disable-with="Saving..." variant="primary">Save Team member</.button>
+          <.button phx-disable-with="Saving..." variant="primary" disabled={@person == nil}>
+            Save Team member
+          </.button>
           <.button navigate={return_path(@return_to, @team, @team_member)}>Cancel</.button>
         </footer>
       </.form>
     </Layouts.app>
+    """
+  end
+
+  def person_search_form(assigns) do
+    ~H"""
+    <h2>Find a Person</h2>
+    <div id="people">
+      <form id="people_search-form" phx-submit="search">
+        <input
+          type="text"
+          name="person_name"
+          value={@person_name}
+          placeholder="Person Name"
+          autofocus
+          autocomplete="off"
+          class="w-full input"
+        />
+      </form>
+
+      <div class={["people", @people == [] && "dropdown"]}>
+        <ul class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-full">
+          <li
+            :for={person <- @people}
+            id={"people-#{person.id}"}
+            phx-click="person_selected"
+            phx-value-id={person.id}
+          >
+            <div>
+              {person.name} ({person.title})
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
     """
   end
 
@@ -48,6 +88,9 @@ defmodule NomifyWeb.TeamMemberLive.Form do
      socket
      |> assign(:return_to, return_to(params["return_to"]))
      |> assign(:team, team)
+     |> assign(:people, [])
+     |> assign(:person_name, "")
+     |> assign(:person, nil)
      |> apply_action(socket.assigns.live_action, params)}
   end
 
@@ -60,6 +103,7 @@ defmodule NomifyWeb.TeamMemberLive.Form do
     socket
     |> assign(:page_title, "Edit Team member")
     |> assign(:team_member, team_member)
+    |> assign(:person, team_member.person)
     |> assign(:form, to_form(Resources.change_team_member(team_member)))
   end
 
@@ -82,6 +126,24 @@ defmodule NomifyWeb.TeamMemberLive.Form do
     save_team_member(socket, socket.assigns.live_action, team_member_params)
   end
 
+  def handle_event("search", %{"person_name" => person_name}, socket) do
+    people = Resources.search_people_by_name(person_name)
+
+    {:noreply, assign(socket, :people, people)}
+  end
+
+  def handle_event("person_selected", %{"id" => id}, socket) do
+    person = Resources.get_person!(id)
+
+    socket =
+      socket
+      |> assign(:person, person)
+      |> assign(:person_name, person.name)
+      |> assign(:people, [])
+
+    {:noreply, socket}
+  end
+
   defp save_team_member(socket, :edit, team_member_params) do
     case Resources.update_team_member(socket.assigns.team_member, team_member_params) do
       {:ok, team_member} ->
@@ -98,9 +160,11 @@ defmodule NomifyWeb.TeamMemberLive.Form do
   end
 
   defp save_team_member(socket, :new, team_member_params) do
-    person = Resources.get_person!(team_member_params["person_id"])
-
-    case Resources.create_team_member(socket.assigns.team, person, team_member_params) do
+    case Resources.create_team_member(
+           socket.assigns.team,
+           socket.assigns.person,
+           team_member_params
+         ) do
       {:ok, team_member} ->
         {:noreply,
          socket
