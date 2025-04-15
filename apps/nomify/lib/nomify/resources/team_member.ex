@@ -26,8 +26,34 @@ defmodule Nomify.Resources.TeamMember do
   @doc false
   def changeset(team_member, attrs) do
     team_member
-    |> cast(attrs, [:team_role, :privileges, :security_level])
-    |> validate_required([:team_role, :privileges, :security_level])
+    |> cast(attrs, [:privileges, :security_level])
+    |> validate_required([:privileges, :security_level])
+  end
+
+  def team_role_changeset(team_member, attrs) do
+    team_member
+    |> cast(attrs, [:team_role])
+    |> validate_required([:team_role])
+    |> validate_team_role
+  end
+
+  defp validate_team_role(changeset) do
+    team_role = get_change(changeset, :team_role)
+    test_team_role(changeset, team_role)
+  end
+
+  defp test_team_role(changeset, :chair) do
+    case Team.test_chair_eligibility(changeset.data.team) do
+      :ok ->
+        changeset
+
+      {:error, message} ->
+        add_error(changeset, :team_role, message)
+    end
+  end
+
+  defp test_team_role(changeset, _value) do
+    changeset
   end
 
   @doc false

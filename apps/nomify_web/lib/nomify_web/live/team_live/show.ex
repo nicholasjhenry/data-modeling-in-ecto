@@ -53,7 +53,15 @@ defmodule NomifyWeb.TeamLive.Show do
         <div class="sr-only">
           <.link navigate={~p"/teams/#{@team}/members/#{team_member}"}>Show</.link>
         </div>
-        <.link navigate={~p"/teams/#{@team}/members/#{team_member}/edit"}>Edit</.link>
+        <.link data-role="edit" navigate={~p"/teams/#{@team}/members/#{team_member}/edit"}>
+          Edit
+        </.link>
+        <.link
+          data-role="edit-team-role"
+          navigate={~p"/teams/#{@team}/members/#{team_member}/team_role/edit"}
+        >
+          Edit team role
+        </.link>
       </:action>
       <:action :let={{id, team_member}}>
         <.link

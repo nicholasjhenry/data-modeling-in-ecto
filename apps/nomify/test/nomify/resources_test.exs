@@ -138,7 +138,7 @@ defmodule Nomify.ResourcesTest do
       %{team: team, person: person}
     end
 
-    @invalid_attrs %{team_role: nil, privileges: nil, security_level: nil}
+    @invalid_attrs %{privileges: nil, security_level: nil}
 
     test "list_team_members/0 returns all team_members" do
       team_member = team_member_fixture()
@@ -191,13 +191,14 @@ defmodule Nomify.ResourcesTest do
     end
 
     test "update_team_member/2 with valid data updates the team_member" do
+      # default team_role :member
       team_member = team_member_fixture()
-      update_attrs = %{team_role: :chair, privileges: 43, security_level: :medium}
+      update_attrs = %{privileges: 43, security_level: :medium}
 
       assert {:ok, %TeamMember{} = team_member} =
                Resources.update_team_member(team_member, update_attrs)
 
-      assert team_member.team_role == :chair
+      assert team_member.team_role == :member
       assert team_member.privileges == 43
       assert team_member.security_level == :medium
     end
@@ -213,6 +214,73 @@ defmodule Nomify.ResourcesTest do
                team_member,
                Resources.get_team_member!(team, team_member.id)
              )
+    end
+
+    test "update_team_member_team_role/2 with valid data updates the team_member team_role" do
+      team_member = team_member_fixture()
+      update_attrs = %{team_role: :member}
+
+      assert {:ok, %TeamMember{} = team_member} =
+               Resources.update_team_member_team_role(team_member, update_attrs)
+
+      assert team_member.team_role == :member
+    end
+
+    test "update_team_member_team_role/2 with invalid data returns error changeset" do
+      team_member = team_member_fixture()
+      team = team_member.team
+
+      update_attrs = %{team_role: :foo}
+
+      assert {:error, %Ecto.Changeset{}} =
+               Resources.update_team_member_team_role(team_member, update_attrs)
+
+      assert Resources.team_member_equal?(
+               team_member,
+               Resources.get_team_member!(team, team_member.id)
+             )
+    end
+
+    test "update_team_member_team_role/2 enforces team chair business rule for multiple-chair team" do
+      team = team_fixture(%{format: :multiple})
+      team_member = team_member_fixture(team)
+
+      assert {:ok, team_member} =
+               Resources.update_team_member_team_role(team_member, %{team_role: :chair})
+
+      assert team_member.team_role == :chair
+
+      team_member = team_member_fixture(team)
+
+      assert {:ok, team_member} =
+               Resources.update_team_member_team_role(team_member, %{team_role: :chair})
+
+      assert team_member.team_role == :chair
+    end
+
+    test "update_team_member_team_role/2 enforces team chair business rule for single-chair team" do
+      team = team_fixture(%{format: :single})
+      team_member = team_member_fixture(team)
+
+      assert {:ok, _team_member} =
+               Resources.update_team_member_team_role(team_member, %{team_role: :chair})
+
+      team_member = team_member_fixture(team)
+
+      assert {:error, changeset} =
+               Resources.update_team_member_team_role(team_member, %{team_role: :chair})
+
+      "Tried to add another chair team member to single chair team." in errors_on(changeset).team_role
+    end
+
+    test "update_team_member_team_role/2 enforces team chair business rule for none-chair team" do
+      team = team_fixture(%{format: :none})
+      team_member = team_member_fixture(team)
+
+      assert {:error, changeset} =
+               Resources.update_team_member_team_role(team_member, %{team_role: :chair})
+
+      "Tried to add chair team member to no chairs team." in errors_on(changeset).team_role
     end
 
     test "delete_team_member/1 deletes the team_member" do

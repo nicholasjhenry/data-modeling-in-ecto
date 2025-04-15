@@ -20,4 +20,31 @@ defmodule Nomify.Resources.Team do
     |> cast(attrs, [:description, :format])
     |> validate_required([:description, :format])
   end
+
+  @doc false
+  def test_chair_eligibility(team) do
+    case team.format do
+      :none ->
+        {:error, "Tried to add chair team member to no chairs team."}
+
+      :single ->
+        chair_count =
+          team
+          |> filter_chairs()
+          |> Enum.count()
+
+        if chair_count > 0 do
+          {:error, "Tried to add another chair team member to single chair team."}
+        else
+          :ok
+        end
+
+      :multiple ->
+        :ok
+    end
+  end
+
+  defp filter_chairs(team) do
+    Enum.filter(team.team_members, &(&1.team_role == :chair))
+  end
 end

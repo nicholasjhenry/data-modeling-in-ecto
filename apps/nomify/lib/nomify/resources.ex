@@ -300,6 +300,13 @@ defmodule Nomify.Resources do
     |> Repo.update()
   end
 
+  def update_team_member_team_role(team_member, attrs) do
+    team_member
+    |> Repo.preload(team: :team_members)
+    |> TeamMember.team_role_changeset(attrs)
+    |> Repo.update()
+  end
+
   @doc """
   Deletes a team_member.
 

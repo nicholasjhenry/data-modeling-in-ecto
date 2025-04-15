@@ -38,11 +38,8 @@ defmodule Nomify.ResourcesFixtures do
   @doc """
   Generate a team_member.
   """
-  def team_member_fixture() do
-    # NOTE: Pass associated structs or create them?
-    team = team_fixture()
-    person = person_fixture()
-
+  # NOTE: Pass associated structs or create them?
+  def team_member_fixture(team \\ team_fixture(), person \\ person_fixture()) do
     {:ok, team_member} = Nomify.Resources.create_team_member(team, person)
 
     team_member
