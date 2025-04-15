@@ -216,8 +216,6 @@ defmodule Nomify.Resources do
 
   alias Nomify.Resources.TeamMember
 
-  import Ecto.Changeset, only: [put_assoc: 3]
-
   @doc """
   Returns the list of team_members.
 
@@ -279,8 +277,8 @@ defmodule Nomify.Resources do
     # collaboration rules may check property values.
     #
     |> TeamMember.changeset(attrs)
-    |> put_assoc(:team, team)
-    |> put_assoc(:person, person)
+    |> TeamMember.put_team(team)
+    |> TeamMember.put_person(person)
     |> Repo.insert()
   end
 

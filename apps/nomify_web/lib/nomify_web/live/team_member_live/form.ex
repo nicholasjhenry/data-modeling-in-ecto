@@ -20,6 +20,7 @@ defmodule NomifyWeb.TeamMemberLive.Form do
       <% end %>
 
       <.form for={@form} id="team_member-form" phx-change="validate" phx-submit="save">
+        <.errors field={@form[:business_rule]} title="Business Rule Errors" />
         <.input
           field={@form[:team_role]}
           type="select"

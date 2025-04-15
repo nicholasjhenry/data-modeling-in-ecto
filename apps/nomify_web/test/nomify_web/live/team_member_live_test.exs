@@ -25,7 +25,8 @@ defmodule NomifyWeb.TeamMemberLiveTest do
 
     test "saves new team_member", %{conn: conn} do
       team = team_fixture()
-      person = person_fixture()
+      valid_person = person_fixture()
+      invalid_person = person_fixture(email: nil)
 
       {:ok, index_live, _html} = live(conn, ~p"/teams/#{team}")
 
@@ -38,11 +39,23 @@ defmodule NomifyWeb.TeamMemberLiveTest do
       assert render(form_live) =~ "New Team member"
 
       assert form_live
-             |> form("#people_search-form", %{person_name: person.name})
+             |> form("#people_search-form", %{person_name: invalid_person.name})
              |> render_submit()
 
       assert form_live
-             |> element("#people-#{person.id}")
+             |> element("#people-#{invalid_person.id}")
+             |> render_click()
+
+      assert form_live
+             |> form("#team_member-form", team_member: @create_attrs)
+             |> render_submit() =~ "Business Rule Errors"
+
+      assert form_live
+             |> form("#people_search-form", %{person_name: valid_person.name})
+             |> render_submit()
+
+      assert form_live
+             |> element("#people-#{valid_person.id}")
              |> render_click()
 
       assert form_live

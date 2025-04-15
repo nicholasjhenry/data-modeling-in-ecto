@@ -5,7 +5,7 @@ defmodule Nomify.Resources.Person do
   schema "resource_people" do
     field :title, :string
     field :name, :string
-    field :email, Nomify.Util.EmailAddress.Ecto.Type
+    field :email, :string
 
     timestamps()
   end
@@ -14,6 +14,6 @@ defmodule Nomify.Resources.Person do
   def changeset(person, attrs) do
     person
     |> cast(attrs, [:title, :name, :email])
-    |> validate_required([:title, :name, :email])
+    |> validate_required([:title, :name])
   end
 end

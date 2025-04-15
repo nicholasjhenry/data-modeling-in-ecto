@@ -256,6 +256,19 @@ defmodule NomifyWeb.CoreComponents do
     """
   end
 
+  def errors(assigns) do
+    ~H"""
+    <fieldset class="fieldset mb-2">
+      <label>
+        <span :if={Enum.any?(@field.errors)} class="fieldset-label">{@title}</span>
+        <.error :for={msg <- Enum.map(@field.errors, &translate_error(&1))}>
+          {msg}
+        </.error>
+      </label>
+    </fieldset>
+    """
+  end
+
   # Helper used by inputs to generate form errors
   defp error(assigns) do
     ~H"""
