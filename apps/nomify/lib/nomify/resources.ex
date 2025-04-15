@@ -267,7 +267,7 @@ defmodule Nomify.Resources do
   # team or person first? Both of these felt equal weight, so since it's a `team_member`
   # placed `team` as the first argument.
   #
-  def create_team_member(team, person, attrs \\ %{}) do
+  def create_team_member(team, person) do
     %TeamMember{}
     # NOTE: Streamlined Object Modeling
     #
@@ -276,7 +276,7 @@ defmodule Nomify.Resources do
     # Object construction methods initialize properties before establishing collaborations because
     # collaboration rules may check property values.
     #
-    |> TeamMember.changeset(attrs)
+    |> TeamMember.insert_changeset()
     |> TeamMember.put_team(team)
     |> TeamMember.put_person(person)
     |> Repo.insert()

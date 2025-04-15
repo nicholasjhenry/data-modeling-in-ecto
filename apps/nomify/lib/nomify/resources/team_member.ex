@@ -7,15 +7,20 @@ defmodule Nomify.Resources.TeamMember do
   alias Nomify.Util.EmailAddress
 
   schema "resource_team_members" do
-    field :team_role, Ecto.Enum, values: [:admin, :chair, :member]
-    field :privileges, :integer
-    field :security_level, Ecto.Enum, values: [:low, :medium, :high, :secret]
+    field :team_role, Ecto.Enum, values: [:admin, :chair, :member], default: :member
+    field :privileges, :integer, default: 42
+    field :security_level, Ecto.Enum, values: [:low, :medium, :high, :secret], default: :low
     # NOTE: actor - role (generic - specific)
     belongs_to :person, Person
     # NOTE: group - member (whole - part)
     belongs_to :team, Team
 
     timestamps()
+  end
+
+  @doc false
+  def insert_changeset(team_member) do
+    change(team_member)
   end
 
   @doc false

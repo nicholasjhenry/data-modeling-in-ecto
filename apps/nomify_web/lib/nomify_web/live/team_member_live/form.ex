@@ -21,21 +21,23 @@ defmodule NomifyWeb.TeamMemberLive.Form do
 
       <.form for={@form} id="team_member-form" phx-change="validate" phx-submit="save">
         <.errors field={@form[:business_rule]} title="Business Rule Errors" />
-        <.input
-          field={@form[:team_role]}
-          type="select"
-          label="Team role"
-          prompt="Choose a value"
-          options={Ecto.Enum.values(Nomify.Resources.TeamMember, :team_role)}
-        />
-        <.input field={@form[:privileges]} type="number" label="Privileges" />
-        <.input
-          field={@form[:security_level]}
-          type="select"
-          label="Security level"
-          prompt="Choose a value"
-          options={Ecto.Enum.values(Nomify.Resources.TeamMember, :security_level)}
-        />
+        <%= if @live_action == :edit do %>
+          <.input
+            field={@form[:team_role]}
+            type="select"
+            label="Team role"
+            prompt="Choose a value"
+            options={Ecto.Enum.values(Nomify.Resources.TeamMember, :team_role)}
+          />
+          <.input field={@form[:privileges]} type="number" label="Privileges" />
+          <.input
+            field={@form[:security_level]}
+            type="select"
+            label="Security level"
+            prompt="Choose a value"
+            options={Ecto.Enum.values(Nomify.Resources.TeamMember, :security_level)}
+          />
+        <% end %>
         <footer>
           <.button phx-disable-with="Saving..." variant="primary" disabled={@person == nil}>
             Save Team member
@@ -123,8 +125,8 @@ defmodule NomifyWeb.TeamMemberLive.Form do
     {:noreply, assign(socket, form: to_form(changeset, action: :validate))}
   end
 
-  def handle_event("save", %{"team_member" => team_member_params}, socket) do
-    save_team_member(socket, socket.assigns.live_action, team_member_params)
+  def handle_event("save", params, socket) do
+    save_team_member(socket, socket.assigns.live_action, params["team_member"])
   end
 
   def handle_event("search", %{"person_name" => person_name}, socket) do
@@ -160,12 +162,8 @@ defmodule NomifyWeb.TeamMemberLive.Form do
     end
   end
 
-  defp save_team_member(socket, :new, team_member_params) do
-    case Resources.create_team_member(
-           socket.assigns.team,
-           socket.assigns.person,
-           team_member_params
-         ) do
+  defp save_team_member(socket, :new, _team_member_params) do
+    case Resources.create_team_member(socket.assigns.team, socket.assigns.person) do
       {:ok, team_member} ->
         {:noreply,
          socket

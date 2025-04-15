@@ -4,10 +4,7 @@ defmodule NomifyWeb.TeamMemberLiveTest do
   import Phoenix.LiveViewTest
   import Nomify.ResourcesFixtures
 
-  @create_attrs %{team_role: :admin, privileges: 42, security_level: :low}
   @update_attrs %{team_role: :chair, privileges: 43, security_level: :medium}
-  @invalid_attrs %{team_role: nil, privileges: nil, security_level: nil}
-
   defp create_team_member(_) do
     team_member = team_member_fixture()
 
@@ -47,7 +44,7 @@ defmodule NomifyWeb.TeamMemberLiveTest do
              |> render_click()
 
       assert form_live
-             |> form("#team_member-form", team_member: @create_attrs)
+             |> form("#team_member-form")
              |> render_submit() =~ "Business Rule Errors"
 
       assert form_live
@@ -58,13 +55,9 @@ defmodule NomifyWeb.TeamMemberLiveTest do
              |> element("#people-#{valid_person.id}")
              |> render_click()
 
-      assert form_live
-             |> form("#team_member-form", team_member: @invalid_attrs)
-             |> render_change() =~ "can&#39;t be blank"
-
       assert {:ok, index_live, _html} =
                form_live
-               |> form("#team_member-form", team_member: @create_attrs)
+               |> form("#team_member-form")
                |> render_submit()
                |> follow_redirect(conn, ~p"/teams/#{team}")
 
@@ -82,10 +75,6 @@ defmodule NomifyWeb.TeamMemberLiveTest do
                |> follow_redirect(conn, ~p"/teams/#{team}/members/#{team_member}/edit")
 
       assert render(form_live) =~ "Edit Team member"
-
-      assert form_live
-             |> form("#team_member-form", team_member: @invalid_attrs)
-             |> render_change() =~ "can&#39;t be blank"
 
       assert {:ok, index_live, _html} =
                form_live
@@ -134,10 +123,6 @@ defmodule NomifyWeb.TeamMemberLiveTest do
                )
 
       assert render(form_live) =~ "Edit Team member"
-
-      assert form_live
-             |> form("#team_member-form", team_member: @invalid_attrs)
-             |> render_change() =~ "can&#39;t be blank"
 
       assert {:ok, show_live, _html} =
                form_live

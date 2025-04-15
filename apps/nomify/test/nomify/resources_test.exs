@@ -157,22 +157,12 @@ defmodule Nomify.ResourcesTest do
       team: team,
       person: person
     } do
-      valid_attrs = %{team_role: :admin, privileges: 42, security_level: :low}
-
       assert {:ok, %TeamMember{} = team_member} =
-               Resources.create_team_member(team, person, valid_attrs)
+               Resources.create_team_member(team, person)
 
-      assert team_member.team_role == :admin
+      assert team_member.team_role == :member
       assert team_member.privileges == 42
       assert team_member.security_level == :low
-    end
-
-    test "create_team_member/1 with invalid data returns error changeset", %{
-      team: team,
-      person: person
-    } do
-      assert {:error, %Ecto.Changeset{}} =
-               Resources.create_team_member(team, person, @invalid_attrs)
     end
 
     test "create_team_member/1 enforces a person must have a valid email address business rule",
@@ -180,10 +170,9 @@ defmodule Nomify.ResourcesTest do
            team: team
          } do
       invalid_person = person_fixture(email: nil)
-      valid_attrs = %{team_role: :admin, privileges: 42, security_level: :low}
 
       assert {:error, changeset} =
-               Resources.create_team_member(team, invalid_person, valid_attrs)
+               Resources.create_team_member(team, invalid_person)
 
       assert "Person cannot be team member. Invalid email." in errors_on(changeset).business_rule
     end
@@ -192,13 +181,11 @@ defmodule Nomify.ResourcesTest do
       team: team,
       person: person
     } do
-      valid_attrs = %{team_role: :admin, privileges: 42, security_level: :low}
-
       assert {:ok, %TeamMember{} = _team_member} =
-               Resources.create_team_member(team, person, valid_attrs)
+               Resources.create_team_member(team, person)
 
       assert {:error, changeset} =
-               Resources.create_team_member(team, person, valid_attrs)
+               Resources.create_team_member(team, person)
 
       assert "Tried to add person twice to team." in errors_on(changeset).business_rule
     end

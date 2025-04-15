@@ -38,19 +38,12 @@ defmodule Nomify.ResourcesFixtures do
   @doc """
   Generate a team_member.
   """
-  def team_member_fixture(attrs \\ %{}) do
-    # NOTE: Pass associated structs or create them
+  def team_member_fixture() do
+    # NOTE: Pass associated structs or create them?
     team = team_fixture()
     person = person_fixture()
 
-    attrs =
-      Enum.into(attrs, %{
-        privileges: 42,
-        security_level: :low,
-        team_role: :admin
-      })
-
-    {:ok, team_member} = Nomify.Resources.create_team_member(team, person, attrs)
+    {:ok, team_member} = Nomify.Resources.create_team_member(team, person)
 
     team_member
   end
