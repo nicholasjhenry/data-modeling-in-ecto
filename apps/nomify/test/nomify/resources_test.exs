@@ -175,17 +175,32 @@ defmodule Nomify.ResourcesTest do
                Resources.create_team_member(team, person, @invalid_attrs)
     end
 
-    test "create_team_member/1 required a person with a valid email address", %{
-      team: team
-    } do
+    test "create_team_member/1 enforces a person must have a valid email address business rule",
+         %{
+           team: team
+         } do
       invalid_person = person_fixture(email: nil)
       valid_attrs = %{team_role: :admin, privileges: 42, security_level: :low}
 
       assert {:error, changeset} =
                Resources.create_team_member(team, invalid_person, valid_attrs)
 
-      assert %{business_rule: ["Person cannot be team member. Invalid email."]} =
-               errors_on(changeset)
+      assert "Person cannot be team member. Invalid email." in errors_on(changeset).business_rule
+    end
+
+    test "create_team_member/1 enforces one person per team business rule", %{
+      team: team,
+      person: person
+    } do
+      valid_attrs = %{team_role: :admin, privileges: 42, security_level: :low}
+
+      assert {:ok, %TeamMember{} = _team_member} =
+               Resources.create_team_member(team, person, valid_attrs)
+
+      assert {:error, changeset} =
+               Resources.create_team_member(team, person, valid_attrs)
+
+      assert "Tried to add person twice to team." in errors_on(changeset).business_rule
     end
 
     test "update_team_member/2 with valid data updates the team_member" do

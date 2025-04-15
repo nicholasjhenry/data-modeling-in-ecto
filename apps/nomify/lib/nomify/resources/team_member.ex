@@ -27,14 +27,26 @@ defmodule Nomify.Resources.TeamMember do
 
   @doc false
   def put_team(changeset, team) do
-    put_assoc(changeset, :team, team)
+    changeset
+    |> unique_constraint([:person_id, :team_id],
+      message: "Tried to add person twice to team.",
+      error_key: :business_rule,
+      name: :resource_team_members_team_id_person_id_index
+    )
+    |> put_assoc(:team, team)
   end
 
   @doc false
   def put_person(changeset, person) do
+    changeset
+    |> validate_email(person)
+    |> put_assoc(:person, person)
+  end
+
+  defp validate_email(changeset, person) do
     case EmailAddress.parse(person.email) do
       {:ok, _email} ->
-        put_assoc(changeset, :person, person)
+        changeset
 
       :error ->
         add_error(changeset, :business_rule, "Person cannot be team member. Invalid email.")

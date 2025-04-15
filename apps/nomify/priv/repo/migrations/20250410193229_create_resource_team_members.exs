@@ -12,7 +12,6 @@ defmodule Nomify.Repo.Migrations.CreateResourceTeamMembers do
       timestamps()
     end
 
-    create index(:resource_team_members, [:person_id])
-    create index(:resource_team_members, [:team_id])
+    create index(:resource_team_members, [:team_id, :person_id], unique: true)
   end
 end
