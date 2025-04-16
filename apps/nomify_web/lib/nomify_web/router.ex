@@ -36,6 +36,12 @@ defmodule NomifyWeb.Router do
     live "/teams/:team_id/members/:id/edit", TeamMemberLive.Form, :edit
     live "/teams/:team_id/members/:id/team_role/edit", TeamMemberLive.TeamRoleForm
     live "/teams/:team_id/members/:id/privileges/edit", TeamMemberLive.PrivilegesForm
+
+    # documents
+    live "/documents", DocumentLive.Index, :index
+    live "/documents/new", DocumentLive.Form, :new
+    live "/documents/:id", DocumentLive.Show, :show
+    live "/documents/:id/edit", DocumentLive.Form, :edit
   end
 
   # Other scopes may use custom stacks.
