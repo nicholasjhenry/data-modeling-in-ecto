@@ -4,13 +4,12 @@ defmodule NomifyWeb.NominationLiveTest do
   import Phoenix.LiveViewTest
   import Nomify.DocumentsFixtures
 
-  @create_attrs %{status: :pending, comments: "some comments", nomination_date: "2025-04-15"}
+  @create_attrs %{status: :pending, comments: "some comments"}
   @update_attrs %{
     status: :in_review,
-    comments: "some updated comments",
-    nomination_date: "2025-04-16"
+    comments: "some updated comments"
   }
-  @invalid_attrs %{status: nil, comments: nil, nomination_date: nil}
+  @invalid_attrs %{status: nil, comments: nil}
   defp create_nomination(_) do
     nomination = nomination_fixture()
 

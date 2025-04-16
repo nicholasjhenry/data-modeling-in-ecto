@@ -71,7 +71,7 @@ defmodule Nomify.DocumentsTest do
 
     import Nomify.DocumentsFixtures
 
-    @invalid_attrs %{status: nil, comments: nil, nomination_date: nil}
+    @invalid_attrs %{status: nil, comments: nil}
 
     test "list_nominations/0 returns all nominations" do
       nomination = nomination_fixture()
@@ -86,14 +86,13 @@ defmodule Nomify.DocumentsTest do
     test "create_nomination/1 with valid data creates a nomination" do
       valid_attrs = %{
         status: :pending,
-        comments: "some comments",
-        nomination_date: ~D[2025-04-15]
+        comments: "some comments"
       }
 
       assert {:ok, %Nomination{} = nomination} = Documents.create_nomination(valid_attrs)
       assert nomination.status == :pending
       assert nomination.comments == "some comments"
-      assert nomination.nomination_date == ~D[2025-04-15]
+      assert %Date{} = nomination.nomination_date
     end
 
     test "create_nomination/1 with invalid data returns error changeset" do
@@ -105,8 +104,7 @@ defmodule Nomify.DocumentsTest do
 
       update_attrs = %{
         status: :in_review,
-        comments: "some updated comments",
-        nomination_date: ~D[2025-04-16]
+        comments: "some updated comments"
       }
 
       assert {:ok, %Nomination{} = nomination} =
@@ -114,7 +112,6 @@ defmodule Nomify.DocumentsTest do
 
       assert nomination.status == :in_review
       assert nomination.comments == "some updated comments"
-      assert nomination.nomination_date == ~D[2025-04-16]
     end
 
     test "update_nomination/2 with invalid data returns error changeset" do

@@ -22,7 +22,6 @@ defmodule NomifyWeb.NominationLive.Form do
           prompt="Choose a value"
           options={Ecto.Enum.values(Nomify.Documents.Nomination, :status)}
         />
-        <.input field={@form[:nomination_date]} type="date" label="Nomination date" />
         <footer>
           <.button phx-disable-with="Saving..." variant="primary">Save Nomination</.button>
           <.button navigate={return_path(@return_to, @nomination)}>Cancel</.button>
