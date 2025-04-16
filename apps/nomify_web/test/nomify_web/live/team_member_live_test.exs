@@ -4,7 +4,8 @@ defmodule NomifyWeb.TeamMemberLiveTest do
   import Phoenix.LiveViewTest
   import Nomify.ResourcesFixtures
 
-  @update_attrs %{privileges: 43, security_level: :medium}
+  @update_attrs %{security_level: :medium}
+
   defp create_team_member(_) do
     team_member = team_member_fixture()
 
@@ -116,6 +117,35 @@ defmodule NomifyWeb.TeamMemberLiveTest do
 
       html = render(index_live)
       assert html =~ "Team member&#39;s team role updated successfully"
+    end
+
+    @tag :wip
+    test "changes team_member privileges in listing", %{
+      conn: conn,
+      team: team,
+      team_member: team_member
+    } do
+      {:ok, index_live, _html} = live(conn, ~p"/teams/#{team}")
+
+      assert {:ok, form_live, _html} =
+               index_live
+               |> element("#team_members-#{team_member.id} a", "Edit privileges")
+               |> render_click()
+               |> follow_redirect(
+                 conn,
+                 ~p"/teams/#{team}/members/#{team_member}/privileges/edit"
+               )
+
+      assert render(form_live) =~ "Edit Team member&#39;s privileges"
+
+      assert {:ok, index_live, _html} =
+               form_live
+               |> form("#team_member-form", team_member: %{delete: true, nominate: false})
+               |> render_submit()
+               |> follow_redirect(conn, ~p"/teams/#{team}")
+
+      html = render(index_live)
+      assert html =~ "Team member&#39;s privileges updated successfully"
     end
 
     test "deletes team_member in listing", %{conn: conn, team: team, team_member: team_member} do

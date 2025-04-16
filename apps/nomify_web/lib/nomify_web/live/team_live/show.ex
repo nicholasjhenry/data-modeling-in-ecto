@@ -62,6 +62,12 @@ defmodule NomifyWeb.TeamLive.Show do
         >
           Edit team role
         </.link>
+        <.link
+          data-role="edit-privileges"
+          navigate={~p"/teams/#{@team}/members/#{team_member}/privileges/edit"}
+        >
+          Edit privileges
+        </.link>
       </:action>
       <:action :let={{id, team_member}}>
         <.link

@@ -138,7 +138,7 @@ defmodule Nomify.ResourcesTest do
       %{team: team, person: person}
     end
 
-    @invalid_attrs %{privileges: nil, security_level: nil}
+    @invalid_attrs %{security_level: nil}
 
     test "list_team_members/0 returns all team_members" do
       team_member = team_member_fixture()
@@ -161,7 +161,7 @@ defmodule Nomify.ResourcesTest do
                Resources.create_team_member(team, person)
 
       assert team_member.team_role == :member
-      assert team_member.privileges == 42
+      assert team_member.privileges.flags == []
       assert team_member.security_level == :low
     end
 
@@ -193,13 +193,12 @@ defmodule Nomify.ResourcesTest do
     test "update_team_member/2 with valid data updates the team_member" do
       # default team_role :member
       team_member = team_member_fixture()
-      update_attrs = %{privileges: 43, security_level: :medium}
+      update_attrs = %{security_level: :medium}
 
       assert {:ok, %TeamMember{} = team_member} =
                Resources.update_team_member(team_member, update_attrs)
 
       assert team_member.team_role == :member
-      assert team_member.privileges == 43
       assert team_member.security_level == :medium
     end
 
@@ -281,6 +280,16 @@ defmodule Nomify.ResourcesTest do
                Resources.update_team_member_team_role(team_member, %{team_role: :chair})
 
       "Tried to add chair team member to no chairs team." in errors_on(changeset).team_role
+    end
+
+    test "update_team_member_privileges/2 with valid data updates the team_member privileges" do
+      team_member = team_member_fixture()
+      update_attrs = %{delete: "true", nominate: "false"}
+
+      assert {:ok, %TeamMember{} = team_member} =
+               Resources.update_team_member_privileges(team_member, update_attrs)
+
+      assert team_member.privileges.flags == [:delete]
     end
 
     test "delete_team_member/1 deletes the team_member" do

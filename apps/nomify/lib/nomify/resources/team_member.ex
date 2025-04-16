@@ -8,7 +8,7 @@ defmodule Nomify.Resources.TeamMember do
 
   schema "resource_team_members" do
     field :team_role, Ecto.Enum, values: [:admin, :chair, :member], default: :member
-    field :privileges, :integer, default: 42
+    field :privileges, Nomify.Resources.Privileges, default: Nomify.Resources.Privileges.none()
     field :security_level, Ecto.Enum, values: [:low, :medium, :high, :secret], default: :low
     # NOTE: actor - role (generic - specific)
     belongs_to :person, Person
@@ -26,10 +26,20 @@ defmodule Nomify.Resources.TeamMember do
   @doc false
   def changeset(team_member, attrs) do
     team_member
-    |> cast(attrs, [:privileges, :security_level])
-    |> validate_required([:privileges, :security_level])
+    |> cast(attrs, [:security_level])
+    |> validate_required([:security_level])
   end
 
+  @doc false
+  def privileges_changeset(team_member, attrs) do
+    privileges = Nomify.Resources.Privileges.parse(attrs)
+
+    team_member
+    |> change
+    |> put_change(:privileges, privileges)
+  end
+
+  @doc false
   def team_role_changeset(team_member, attrs) do
     team_member
     |> cast(attrs, [:team_role])

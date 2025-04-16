@@ -22,7 +22,6 @@ defmodule NomifyWeb.TeamMemberLive.Form do
       <.form for={@form} id="team_member-form" phx-change="validate" phx-submit="save">
         <.errors field={@form[:business_rule]} title="Business Rule Errors" />
         <%= if @live_action == :edit do %>
-          <.input field={@form[:privileges]} type="number" label="Privileges" />
           <.input
             field={@form[:security_level]}
             type="select"

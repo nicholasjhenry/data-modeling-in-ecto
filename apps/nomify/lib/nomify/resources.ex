@@ -307,6 +307,12 @@ defmodule Nomify.Resources do
     |> Repo.update()
   end
 
+  def update_team_member_privileges(team_member, attrs) do
+    team_member
+    |> TeamMember.privileges_changeset(attrs)
+    |> Repo.update()
+  end
+
   @doc """
   Deletes a team_member.
 

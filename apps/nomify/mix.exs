@@ -44,7 +44,8 @@ defmodule Nomify.MixProject do
       {:swoosh, "~> 1.16"},
       {:req, "~> 0.5"},
       # App dependencies
-      {:unicode, "~> 1.20"}
+      {:unicode, "~> 1.20"},
+      {:bitmask, github: "JayPeet/bitmask"}
     ]
   end
 

@@ -1,0 +1,68 @@
+defmodule NomifyWeb.TeamMemberLive.PrivilegesForm do
+  use NomifyWeb, :live_view
+
+  alias Nomify.Resources
+
+  @impl true
+  def render(assigns) do
+    ~H"""
+    <Layouts.app flash={@flash}>
+      <.header>
+        {@page_title}
+        <:subtitle>Use this form to manage team_member privileges in your database.</:subtitle>
+      </.header>
+
+      <h2>{@person.name} ({@person.title})</h2>
+
+      <.form for={@form} id="team_member-form" phx-submit="save">
+        <.input field={@form[:delete]} type="checkbox" label="Delete" />
+        <.input field={@form[:nominate]} type="checkbox" label="Nominate" />
+        <footer>
+          <.button phx-disable-with="Saving..." variant="primary" disabled={@person == nil}>
+            Save Team member
+          </.button>
+          <.button navigate={return_path(@return_to, @team, @team_member)}>Cancel</.button>
+        </footer>
+      </.form>
+    </Layouts.app>
+    """
+  end
+
+  @impl true
+  def mount(params, _session, socket) do
+    team = Resources.get_team!(params["team_id"])
+    team_member = Resources.get_team_member!(team, params["id"])
+    form = to_form(Resources.change_team_member(team_member))
+
+    {:ok,
+     socket
+     |> assign(:return_to, return_to(params["return_to"]))
+     |> assign(:page_title, "Edit Team member's privileges")
+     |> assign(:team_member, team_member)
+     |> assign(:team, team_member.team)
+     |> assign(:person, team_member.person)
+     |> assign(:form, form)}
+  end
+
+  defp return_to("show"), do: "show"
+  defp return_to(_), do: "index"
+
+  @impl true
+  def handle_event("save", %{"team_member" => team_member_params}, socket) do
+    case Resources.update_team_member_privileges(socket.assigns.team_member, team_member_params) do
+      {:ok, team_member} ->
+        {:noreply,
+         socket
+         |> put_flash(:info, "Team member's privileges updated successfully")
+         |> push_navigate(
+           to: return_path(socket.assigns.return_to, socket.assigns.team, team_member)
+         )}
+
+      {:error, %Ecto.Changeset{} = changeset} ->
+        {:noreply, assign(socket, form: to_form(changeset))}
+    end
+  end
+
+  defp return_path("show", team, team_member), do: ~p"/teams/#{team}/members/#{team_member}"
+  defp return_path("index", team, _team_member), do: ~p"/teams/#{team}"
+end
