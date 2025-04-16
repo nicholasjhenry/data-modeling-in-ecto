@@ -35,7 +35,11 @@ defmodule Nomify.Documents do
       ** (Ecto.NoResultsError)
 
   """
-  def get_document!(id), do: Repo.get!(Document, id)
+  def get_document!(id) do
+    Document
+    |> Repo.get!(id)
+    |> Repo.preload(:nominations)
+  end
 
   @doc """
   Creates a document.
@@ -102,6 +106,12 @@ defmodule Nomify.Documents do
     Document.changeset(document, attrs)
   end
 
+  def document_equal?(lhs, rhs) do
+    lhs.title == rhs.title and
+      lhs.security_level == rhs.security_level and
+      Date.compare(lhs.publication_date, rhs.publication_date) == :eq
+  end
+
   alias Nomify.Documents.Nomination
 
   @doc """
@@ -131,7 +141,9 @@ defmodule Nomify.Documents do
       ** (Ecto.NoResultsError)
 
   """
-  def get_nomination!(id), do: Repo.get!(Nomination, id)
+  def get_nomination!(document, id) do
+    Repo.get_by!(Nomination, document_id: document.id, id: id)
+  end
 
   @doc """
   Creates a nomination.
@@ -145,9 +157,10 @@ defmodule Nomify.Documents do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_nomination(attrs \\ %{}) do
+  def create_nomination(document, attrs \\ %{}) do
     %Nomination{}
     |> Nomination.changeset(attrs)
+    |> Nomination.put_document(document)
     |> Repo.insert()
   end
 
@@ -196,5 +209,12 @@ defmodule Nomify.Documents do
   """
   def change_nomination(%Nomination{} = nomination, attrs \\ %{}) do
     Nomination.changeset(nomination, attrs)
+  end
+
+  def nomination_equal?(lhs, rhs) do
+    lhs.status == rhs.status and
+      lhs.comments == rhs.comments and
+      lhs.document_id == rhs.document_id and
+      lhs.team_member_id == rhs.team_member_id
   end
 end

@@ -9,7 +9,7 @@ defmodule NomifyWeb.NominationLive.Form do
     ~H"""
     <Layouts.app flash={@flash}>
       <.header>
-        {@page_title}
+        {@page_title} - {@document.title}
         <:subtitle>Use this form to manage nomination records in your database.</:subtitle>
       </.header>
 
@@ -24,7 +24,7 @@ defmodule NomifyWeb.NominationLive.Form do
         />
         <footer>
           <.button phx-disable-with="Saving..." variant="primary">Save Nomination</.button>
-          <.button navigate={return_path(@return_to, @nomination)}>Cancel</.button>
+          <.button navigate={return_path(@return_to, @document, @nomination)}>Cancel</.button>
         </footer>
       </.form>
     </Layouts.app>
@@ -33,9 +33,12 @@ defmodule NomifyWeb.NominationLive.Form do
 
   @impl true
   def mount(params, _session, socket) do
+    document = Documents.get_document!(params["document_id"])
+
     {:ok,
      socket
      |> assign(:return_to, return_to(params["return_to"]))
+     |> assign(:document, document)
      |> apply_action(socket.assigns.live_action, params)}
   end
 
@@ -43,7 +46,7 @@ defmodule NomifyWeb.NominationLive.Form do
   defp return_to(_), do: "index"
 
   defp apply_action(socket, :edit, %{"id" => id}) do
-    nomination = Documents.get_nomination!(id)
+    nomination = Documents.get_nomination!(socket.assigns.document, id)
 
     socket
     |> assign(:page_title, "Edit Nomination")
@@ -76,7 +79,9 @@ defmodule NomifyWeb.NominationLive.Form do
         {:noreply,
          socket
          |> put_flash(:info, "Nomination updated successfully")
-         |> push_navigate(to: return_path(socket.assigns.return_to, nomination))}
+         |> push_navigate(
+           to: return_path(socket.assigns.return_to, socket.assigns.document, nomination)
+         )}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, form: to_form(changeset))}
@@ -84,18 +89,22 @@ defmodule NomifyWeb.NominationLive.Form do
   end
 
   defp save_nomination(socket, :new, nomination_params) do
-    case Documents.create_nomination(nomination_params) do
+    case Documents.create_nomination(socket.assigns.document, nomination_params) do
       {:ok, nomination} ->
         {:noreply,
          socket
          |> put_flash(:info, "Nomination created successfully")
-         |> push_navigate(to: return_path(socket.assigns.return_to, nomination))}
+         |> push_navigate(
+           to: return_path(socket.assigns.return_to, socket.assigns.document, nomination)
+         )}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, form: to_form(changeset))}
     end
   end
 
-  defp return_path("index", _nomination), do: ~p"/nominations"
-  defp return_path("show", nomination), do: ~p"/nominations/#{nomination}"
+  defp return_path("index", document, _nomination), do: ~p"/documents/#{document}"
+
+  defp return_path("show", document, nomination),
+    do: ~p"/documents/#{document}/nominations/#{nomination}"
 end

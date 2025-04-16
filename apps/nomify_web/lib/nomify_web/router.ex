@@ -44,10 +44,9 @@ defmodule NomifyWeb.Router do
     live "/documents/:id/edit", DocumentLive.Form, :edit
 
     # nominations
-    live "/nominations", NominationLive.Index, :index
-    live "/nominations/new", NominationLive.Form, :new
-    live "/nominations/:id", NominationLive.Show, :show
-    live "/nominations/:id/edit", NominationLive.Form, :edit
+    live "/documents/:document_id/nominations/new", NominationLive.Form, :new
+    live "/documents/:document_id/nominations/:id", NominationLive.Show, :show
+    live "/documents/:document_id/nominations/:id/edit", NominationLive.Form, :edit
   end
 
   # Other scopes may use custom stacks.

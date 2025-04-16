@@ -6,7 +6,7 @@ defmodule Nomify.Repo.Migrations.CreateDocumentNominations do
       add :comments, :text
       add :status, :string
       add :nomination_date, :date
-      add :document_id, references(:document_documents, on_delete: :nothing)
+      add :document_id, references(:document_documents, on_delete: :nothing), null: false
       add :team_member_id, references(:resource_team_members, on_delete: :nothing)
 
       timestamps()

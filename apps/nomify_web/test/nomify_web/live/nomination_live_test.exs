@@ -13,27 +13,20 @@ defmodule NomifyWeb.NominationLiveTest do
   defp create_nomination(_) do
     nomination = nomination_fixture()
 
-    %{nomination: nomination}
+    %{document: nomination.document, nomination: nomination}
   end
 
   describe "Index" do
     setup [:create_nomination]
 
-    test "lists all nominations", %{conn: conn, nomination: nomination} do
-      {:ok, _index_live, html} = live(conn, ~p"/nominations")
-
-      assert html =~ "Listing Nominations"
-      assert html =~ nomination.comments
-    end
-
-    test "saves new nomination", %{conn: conn} do
-      {:ok, index_live, _html} = live(conn, ~p"/nominations")
+    test "saves new nomination", %{conn: conn, document: document} do
+      {:ok, index_live, _html} = live(conn, ~p"/documents/#{document}")
 
       assert {:ok, form_live, _} =
                index_live
                |> element("a", "New Nomination")
                |> render_click()
-               |> follow_redirect(conn, ~p"/nominations/new")
+               |> follow_redirect(conn, ~p"/documents/#{document}/nominations/new")
 
       assert render(form_live) =~ "New Nomination"
 
@@ -45,21 +38,25 @@ defmodule NomifyWeb.NominationLiveTest do
                form_live
                |> form("#nomination-form", nomination: @create_attrs)
                |> render_submit()
-               |> follow_redirect(conn, ~p"/nominations")
+               |> follow_redirect(conn, ~p"/documents/#{document}")
 
       html = render(index_live)
       assert html =~ "Nomination created successfully"
       assert html =~ "some comments"
     end
 
-    test "updates nomination in listing", %{conn: conn, nomination: nomination} do
-      {:ok, index_live, _html} = live(conn, ~p"/nominations")
+    test "updates nomination in listing", %{
+      conn: conn,
+      document: document,
+      nomination: nomination
+    } do
+      {:ok, index_live, _html} = live(conn, ~p"/documents/#{document}")
 
       assert {:ok, form_live, _html} =
                index_live
                |> element("#nominations-#{nomination.id} a", "Edit")
                |> render_click()
-               |> follow_redirect(conn, ~p"/nominations/#{nomination}/edit")
+               |> follow_redirect(conn, ~p"/documents/#{document}/nominations/#{nomination}/edit")
 
       assert render(form_live) =~ "Edit Nomination"
 
@@ -71,15 +68,19 @@ defmodule NomifyWeb.NominationLiveTest do
                form_live
                |> form("#nomination-form", nomination: @update_attrs)
                |> render_submit()
-               |> follow_redirect(conn, ~p"/nominations")
+               |> follow_redirect(conn, ~p"/documents/#{document}")
 
       html = render(index_live)
       assert html =~ "Nomination updated successfully"
       assert html =~ "some updated comments"
     end
 
-    test "deletes nomination in listing", %{conn: conn, nomination: nomination} do
-      {:ok, index_live, _html} = live(conn, ~p"/nominations")
+    test "deletes nomination in listing", %{
+      conn: conn,
+      document: document,
+      nomination: nomination
+    } do
+      {:ok, index_live, _html} = live(conn, ~p"/documents/#{document}")
 
       assert index_live |> element("#nominations-#{nomination.id} a", "Delete") |> render_click()
       refute has_element?(index_live, "#nominations-#{nomination.id}")
@@ -89,21 +90,28 @@ defmodule NomifyWeb.NominationLiveTest do
   describe "Show" do
     setup [:create_nomination]
 
-    test "displays nomination", %{conn: conn, nomination: nomination} do
-      {:ok, _show_live, html} = live(conn, ~p"/nominations/#{nomination}")
+    test "displays nomination", %{conn: conn, document: document, nomination: nomination} do
+      {:ok, _show_live, html} = live(conn, ~p"/documents/#{document}/nominations/#{nomination}")
 
       assert html =~ "Show Nomination"
       assert html =~ nomination.comments
     end
 
-    test "updates nomination and returns to show", %{conn: conn, nomination: nomination} do
-      {:ok, show_live, _html} = live(conn, ~p"/nominations/#{nomination}")
+    test "updates nomination and returns to show", %{
+      conn: conn,
+      document: document,
+      nomination: nomination
+    } do
+      {:ok, show_live, _html} = live(conn, ~p"/documents/#{document}/nominations/#{nomination}")
 
       assert {:ok, form_live, _} =
                show_live
                |> element("a", "Edit")
                |> render_click()
-               |> follow_redirect(conn, ~p"/nominations/#{nomination}/edit?return_to=show")
+               |> follow_redirect(
+                 conn,
+                 ~p"/documents/#{document}/nominations/#{nomination}/edit?return_to=show"
+               )
 
       assert render(form_live) =~ "Edit Nomination"
 
@@ -115,7 +123,7 @@ defmodule NomifyWeb.NominationLiveTest do
                form_live
                |> form("#nomination-form", nomination: @update_attrs)
                |> render_submit()
-               |> follow_redirect(conn, ~p"/nominations/#{nomination}")
+               |> follow_redirect(conn, ~p"/documents/#{document}/nominations/#{nomination}")
 
       html = render(show_live)
       assert html =~ "Nomination updated successfully"

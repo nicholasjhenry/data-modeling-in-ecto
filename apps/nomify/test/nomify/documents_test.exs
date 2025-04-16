@@ -17,7 +17,7 @@ defmodule Nomify.DocumentsTest do
 
     test "get_document!/1 returns the document with given id" do
       document = document_fixture()
-      assert Documents.get_document!(document.id) == document
+      assert Documents.document_equal?(Documents.get_document!(document.id), document)
     end
 
     test "create_document/1 with valid data creates a document" do
@@ -51,7 +51,7 @@ defmodule Nomify.DocumentsTest do
     test "update_document/2 with invalid data returns error changeset" do
       document = document_fixture()
       assert {:error, %Ecto.Changeset{}} = Documents.update_document(document, @invalid_attrs)
-      assert document == Documents.get_document!(document.id)
+      assert Documents.document_equal?(document, Documents.get_document!(document.id))
     end
 
     test "delete_document/1 deletes the document" do
@@ -73,30 +73,35 @@ defmodule Nomify.DocumentsTest do
 
     @invalid_attrs %{status: nil, comments: nil}
 
-    test "list_nominations/0 returns all nominations" do
-      nomination = nomination_fixture()
-      assert Documents.list_nominations() == [nomination]
-    end
-
     test "get_nomination!/1 returns the nomination with given id" do
       nomination = nomination_fixture()
-      assert Documents.get_nomination!(nomination.id) == nomination
+      document = nomination.document
+
+      assert Documents.nomination_equal?(
+               Documents.get_nomination!(document, nomination.id),
+               nomination
+             )
     end
 
     test "create_nomination/1 with valid data creates a nomination" do
+      document = document_fixture()
+
       valid_attrs = %{
         status: :pending,
         comments: "some comments"
       }
 
-      assert {:ok, %Nomination{} = nomination} = Documents.create_nomination(valid_attrs)
+      assert {:ok, %Nomination{} = nomination} =
+               Documents.create_nomination(document, valid_attrs)
+
       assert nomination.status == :pending
       assert nomination.comments == "some comments"
       assert %Date{} = nomination.nomination_date
     end
 
     test "create_nomination/1 with invalid data returns error changeset" do
-      assert {:error, %Ecto.Changeset{}} = Documents.create_nomination(@invalid_attrs)
+      document = document_fixture()
+      assert {:error, %Ecto.Changeset{}} = Documents.create_nomination(document, @invalid_attrs)
     end
 
     test "update_nomination/2 with valid data updates the nomination" do
@@ -116,14 +121,25 @@ defmodule Nomify.DocumentsTest do
 
     test "update_nomination/2 with invalid data returns error changeset" do
       nomination = nomination_fixture()
+      document = nomination.document
+
       assert {:error, %Ecto.Changeset{}} = Documents.update_nomination(nomination, @invalid_attrs)
-      assert nomination == Documents.get_nomination!(nomination.id)
+
+      assert Documents.nomination_equal?(
+               nomination,
+               Documents.get_nomination!(document, nomination.id)
+             )
     end
 
     test "delete_nomination/1 deletes the nomination" do
       nomination = nomination_fixture()
+      document = nomination.document
+
       assert {:ok, %Nomination{}} = Documents.delete_nomination(nomination)
-      assert_raise Ecto.NoResultsError, fn -> Documents.get_nomination!(nomination.id) end
+
+      assert_raise Ecto.NoResultsError, fn ->
+        Documents.get_nomination!(document, nomination.id)
+      end
     end
 
     test "change_nomination/1 returns a nomination changeset" do

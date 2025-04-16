@@ -2,10 +2,14 @@ defmodule Nomify.Documents.Document do
   use Ecto.Schema
   import Ecto.Changeset
 
+  alias Nomify.Documents.Nomination
+
   schema "document_documents" do
     field :title, :string
     field :publication_date, :date
     field :security_level, Ecto.Enum, values: [:low, :medium, :high, :secret]
+
+    has_many :nominations, Nomination
 
     timestamps()
   end

@@ -14,7 +14,10 @@ defmodule NomifyWeb.NominationLive.Show do
           <.button navigate={~p"/nominations"}>
             <.icon name="hero-arrow-left" />
           </.button>
-          <.button variant="primary" navigate={~p"/nominations/#{@nomination}/edit?return_to=show"}>
+          <.button
+            variant="primary"
+            navigate={~p"/documents/#{@document}/nominations/#{@nomination}/edit?return_to=show"}
+          >
             <.icon name="hero-pencil-square" /> Edit nomination
           </.button>
         </:actions>
@@ -30,10 +33,13 @@ defmodule NomifyWeb.NominationLive.Show do
   end
 
   @impl true
-  def mount(%{"id" => id}, _session, socket) do
+  def mount(%{"document_id" => document_id, "id" => id}, _session, socket) do
+    document = Documents.get_document!(document_id)
+
     {:ok,
      socket
      |> assign(:page_title, "Show Nomination")
-     |> assign(:nomination, Documents.get_nomination!(id))}
+     |> assign(:document, document)
+     |> assign(:nomination, Documents.get_nomination!(document, id))}
   end
 end
