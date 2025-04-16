@@ -22,7 +22,7 @@ defmodule Nomify.Resources.Team do
   end
 
   @doc false
-  def test_chair_eligibility(team) do
+  def validate_chair_eligibility(team) do
     case team.format do
       :none ->
         {:error, "Tried to add chair team member to no chairs team."}

@@ -49,11 +49,11 @@ defmodule Nomify.Resources.TeamMember do
 
   defp validate_team_role(changeset) do
     team_role = get_change(changeset, :team_role)
-    test_team_role(changeset, team_role)
+    validate_chair(changeset, team_role)
   end
 
-  defp test_team_role(changeset, :chair) do
-    case Team.test_chair_eligibility(changeset.data.team) do
+  defp validate_chair(changeset, :chair) do
+    case Team.validate_chair_eligibility(changeset.data.team) do
       :ok ->
         changeset
 
@@ -62,26 +62,38 @@ defmodule Nomify.Resources.TeamMember do
     end
   end
 
-  defp test_team_role(changeset, _value) do
+  defp validate_chair(changeset, _value) do
     changeset
   end
 
   @doc false
   def put_team(changeset, team) do
     changeset
-    |> unique_constraint([:person_id, :team_id],
-      message: "Tried to add person twice to team.",
-      error_key: :business_rule,
-      name: :resource_team_members_team_id_person_id_index
-    )
+    |> validate_assoc_team(team)
     |> put_assoc(:team, team)
   end
 
   @doc false
   def put_person(changeset, person) do
     changeset
-    |> validate_email(person)
+    |> validate_assoc_person(person)
     |> put_assoc(:person, person)
+  end
+
+  defp validate_assoc_team(changeset, _team) do
+    enforce_unique_person_per_team(changeset)
+  end
+
+  defp validate_assoc_person(changeset, person) do
+    validate_email(changeset, person)
+  end
+
+  defp enforce_unique_person_per_team(changeset) do
+    unique_constraint(changeset, [:person_id, :team_id],
+      message: "Tried to add person twice to team.",
+      error_key: :business_rule,
+      name: :resource_team_members_team_id_person_id_index
+    )
   end
 
   defp validate_email(changeset, person) do
