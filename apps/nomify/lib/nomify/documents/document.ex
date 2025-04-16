@@ -14,6 +14,15 @@ defmodule Nomify.Documents.Document do
   def changeset(document, attrs) do
     document
     |> cast(attrs, [:title, :publication_date, :security_level])
-    |> validate_required([:title, :publication_date, :security_level])
+    |> validate_required([:title, :security_level])
+    |> validate_title
+  end
+
+  defp validate_title(changeset) do
+    validate_length(changeset, :title,
+      min: 1,
+      max: 255,
+      message: "Document title cannot be longer than 255 characters"
+    )
   end
 end
