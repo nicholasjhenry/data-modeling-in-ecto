@@ -19,4 +19,20 @@ defmodule Nomify.DocumentsFixtures do
 
     document
   end
+
+  @doc """
+  Generate a nomination.
+  """
+  def nomination_fixture(attrs \\ %{}) do
+    {:ok, nomination} =
+      attrs
+      |> Enum.into(%{
+        comments: "some comments",
+        nomination_date: ~D[2025-04-15],
+        status: :pending
+      })
+      |> Nomify.Documents.create_nomination()
+
+    nomination
+  end
 end
