@@ -22,6 +22,19 @@ defmodule Nomify.DocumentsFixtures do
     document
   end
 
+  def approve_document(document) do
+    team_member = team_member_fixture()
+
+    {:ok, nomination} =
+      Nomify.Documents.create_nomination(document, team_member, %{comments: "some comment"})
+
+    {:ok, nomination} = Nomify.Documents.update_nomination(nomination, %{status: :in_review})
+    {:ok, _nomination} = Nomify.Documents.update_nomination(nomination, %{status: :approved})
+
+    # Reload with new nominations
+    Nomify.Documents.get_document!(document.id)
+  end
+
   @doc """
   Generate a nomination.
   """

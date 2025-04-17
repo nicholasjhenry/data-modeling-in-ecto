@@ -12,7 +12,8 @@ defmodule Nomify.DocumentsTest do
 
     test "list_documents/0 returns all documents" do
       document = document_fixture()
-      assert Documents.list_documents() == [document]
+      assert [list_document] = Documents.list_documents()
+      assert list_document.id == document.id
     end
 
     test "get_document!/1 returns the document with given id" do
@@ -21,11 +22,10 @@ defmodule Nomify.DocumentsTest do
     end
 
     test "create_document/1 with valid data creates a document" do
-      valid_attrs = %{title: "some title", publication_date: ~D[2025-04-15], security_level: :low}
+      valid_attrs = %{title: "some title", security_level: :low}
 
       assert {:ok, %Document{} = document} = Documents.create_document(valid_attrs)
       assert document.title == "some title"
-      assert document.publication_date == ~D[2025-04-15]
       assert document.security_level == :low
     end
 
@@ -38,13 +38,11 @@ defmodule Nomify.DocumentsTest do
 
       update_attrs = %{
         title: "some updated title",
-        publication_date: ~D[2025-04-16],
         security_level: :medium
       }
 
       assert {:ok, %Document{} = document} = Documents.update_document(document, update_attrs)
       assert document.title == "some updated title"
-      assert document.publication_date == ~D[2025-04-16]
       assert document.security_level == :medium
     end
 
@@ -52,6 +50,28 @@ defmodule Nomify.DocumentsTest do
       document = document_fixture()
       assert {:error, %Ecto.Changeset{}} = Documents.update_document(document, @invalid_attrs)
       assert Documents.document_equal?(document, Documents.get_document!(document.id))
+    end
+
+    test "publish_document/1 with approved document updates publication_date" do
+      document = document_fixture() |> approve_document
+
+      assert {:ok, %Document{} = document} = Documents.publish_document(document)
+      assert %Date{} = document.publication_date
+    end
+
+    test "publish_document/1 with unapproved document returns error changeset" do
+      document = document_fixture()
+
+      assert {:error, changeset} = Documents.publish_document(document)
+      assert "Document not approved for publication." in errors_on(changeset).business_rule
+    end
+
+    test "publish_document/1 with previously published document returns error changeset" do
+      document = document_fixture() |> approve_document()
+      {:ok, published_document} = Documents.publish_document(document)
+
+      assert {:error, changeset} = Documents.publish_document(published_document)
+      assert "Document already published." in errors_on(changeset).business_rule
     end
 
     test "delete_document/1 deletes the document" do

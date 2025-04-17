@@ -1,6 +1,7 @@
 defmodule Nomify.Documents.Document do
   use Ecto.Schema
   import Ecto.Changeset
+  import Nomify.Result
 
   alias Nomify.Documents.Nomination
   alias Nomify.SecurityLevel
@@ -15,12 +16,36 @@ defmodule Nomify.Documents.Document do
     timestamps()
   end
 
+  def approved?(document) do
+    !!Enum.find(document.nominations, &(&1.status == :approved))
+  end
+
   @doc false
   def changeset(document, attrs) do
     document
-    |> cast(attrs, [:title, :publication_date, :security_level])
+    |> cast(attrs, [:title, :security_level])
     |> validate_required([:title, :security_level])
     |> validate_title
+  end
+
+  def publish_changeset(document, attrs) do
+    document
+    |> cast(attrs, [:publication_date])
+    |> validate_publication_date
+  end
+
+  defp validate_publication_date(changeset) do
+    changeset.data
+    |> do_validate_publication_date()
+    |> put_result(changeset, :business_rule)
+  end
+
+  defp do_validate_publication_date(document) do
+    cond do
+      !approved?(document) -> {:error, "Document not approved for publication."}
+      document.publication_date != nil -> {:error, "Document already published."}
+      true -> :ok
+    end
   end
 
   defp validate_title(changeset) do

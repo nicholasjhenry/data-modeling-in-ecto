@@ -3,14 +3,14 @@ defmodule NomifyWeb.DocumentLiveTest do
 
   import Phoenix.LiveViewTest
   import Nomify.DocumentsFixtures
+  import Nomify.ResourcesFixtures
 
-  @create_attrs %{title: "some title", publication_date: "2025-04-15", security_level: :low}
+  @create_attrs %{title: "some title", security_level: :low}
   @update_attrs %{
     title: "some updated title",
-    publication_date: "2025-04-16",
     security_level: :medium
   }
-  @invalid_attrs %{title: nil, publication_date: nil, security_level: nil}
+  @invalid_attrs %{title: nil, security_level: nil}
   defp create_document(_) do
     document = document_fixture()
 
@@ -95,6 +95,53 @@ defmodule NomifyWeb.DocumentLiveTest do
 
       assert html =~ "Show Document"
       assert html =~ document.title
+    end
+
+    test "publishes document", %{conn: conn, document: document} do
+      team_member = team_member_fixture()
+
+      {:ok, show_live, html} = live(conn, ~p"/documents/#{document}")
+
+      assert html =~ "Show Document"
+
+      show_live
+      |> element("button", "Publish document")
+      |> render_click()
+
+      html = render(show_live)
+      assert html =~ "Document not approved for publication."
+
+      _document = approve_document(document)
+
+      assert {:ok, form_live, _} =
+               show_live
+               |> element("a", "New Nomination")
+               |> render_click()
+               |> follow_redirect(conn, ~p"/documents/#{document}/nominations/new")
+
+      assert form_live
+             |> form("#team_members_search-form", %{team_member_name: team_member.person.name})
+             |> render_submit()
+
+      assert form_live
+             |> element("#team_member-#{team_member.id}")
+             |> render_click()
+
+      assert {:ok, show_live, _html} =
+               form_live
+               |> form("#nomination-form", nomination: %{comments: "some comments"})
+               |> render_submit()
+               |> follow_redirect(conn, ~p"/documents/#{document}")
+
+      html = render(show_live)
+      assert html =~ "Nomination created successfully"
+
+      assert show_live
+             |> element("button", "Publish document")
+             |> render_click()
+
+      html = render(show_live)
+      assert html =~ "Document published successfully"
     end
 
     test "updates document and returns to show", %{conn: conn, document: document} do

@@ -3,6 +3,8 @@ defmodule NomifyWeb.DocumentLive.Show do
 
   alias Nomify.Documents
 
+  import Nomify.Result
+
   @impl true
   def render(assigns) do
     ~H"""
@@ -16,6 +18,9 @@ defmodule NomifyWeb.DocumentLive.Show do
           </.button>
           <.button variant="primary" navigate={~p"/documents/#{@document}/edit?return_to=show"}>
             <.icon name="hero-pencil-square" /> Edit document
+          </.button>
+          <.button variant="primary" phx-click="publish">
+            <.icon name="hero-bolt" /> Publish document
           </.button>
         </:actions>
       </.header>
@@ -91,5 +96,19 @@ defmodule NomifyWeb.DocumentLive.Show do
     {:ok, _} = Documents.delete_nomination(nomination)
 
     {:noreply, stream_delete(socket, :nominations, nomination)}
+  end
+
+  def handle_event("publish", _params, socket) do
+    case Documents.publish_document(socket.assigns.document) do
+      {:ok, document} ->
+        {:noreply,
+         socket
+         |> assign(:document, document)
+         |> put_flash(:info, "Document published successfully")}
+
+      {:error, %Ecto.Changeset{} = changeset} ->
+        [message | _rest] = errors_on(changeset).business_rule
+        {:noreply, put_flash(socket, :error, message)}
+    end
   end
 end

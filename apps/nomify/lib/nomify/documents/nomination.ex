@@ -1,6 +1,7 @@
 defmodule Nomify.Documents.Nomination do
   use Ecto.Schema
   import Ecto.Changeset
+  import Nomify.Result
 
   alias Nomify.Documents.Document
   alias Nomify.Resources.TeamMember
@@ -35,8 +36,9 @@ defmodule Nomify.Documents.Nomination do
   end
 
   defp validate_status(changeset) do
-    result = do_validate_status(changeset.data, get_change(changeset, :status))
-    to_changeset(result, changeset, :status)
+    changeset.data
+    |> do_validate_status(get_change(changeset, :status))
+    |> put_result(changeset, :status)
   end
 
   defp do_validate_status(nomination, status) when status in [:pending, :in_review] do
@@ -107,13 +109,5 @@ defmodule Nomify.Documents.Nomination do
 
   defp validate_put_nomination_conflict(changeset, _document, _team_member) do
     changeset
-  end
-
-  defp to_changeset(:ok, changeset, _key) do
-    changeset
-  end
-
-  defp to_changeset({:error, message}, changeset, key) do
-    add_error(changeset, key, message)
   end
 end

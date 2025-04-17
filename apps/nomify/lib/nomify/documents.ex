@@ -54,9 +54,21 @@ defmodule Nomify.Documents do
 
   """
   def create_document(attrs \\ %{}) do
-    %Document{}
-    |> Document.changeset(attrs)
-    |> Repo.insert()
+    result =
+      %Document{}
+      |> Document.changeset(attrs)
+      |> Repo.insert()
+
+    case result do
+      {:ok, document} -> {:ok, Repo.preload(document, nominations: [:team_member, :person])}
+      {:error, changeset} -> {:error, changeset}
+    end
+  end
+
+  def publish_document(document) do
+    document
+    |> Document.publish_changeset(%{publication_date: Date.utc_today()})
+    |> Repo.update()
   end
 
   @doc """
@@ -107,9 +119,11 @@ defmodule Nomify.Documents do
   end
 
   def document_equal?(lhs, rhs) do
-    lhs.title == rhs.title and
-      lhs.security_level == rhs.security_level and
-      Date.compare(lhs.publication_date, rhs.publication_date) == :eq
+    (lhs.title == rhs.title and
+       lhs.security_level == rhs.security_level and
+       (!!lhs.publication_date and !!rhs.publication_date and
+          Date.compare(lhs.publication_date, rhs.publication_date) == :eq)) or
+      (is_nil(lhs.publication_date) and is_nil(rhs.publication_date))
   end
 
   alias Nomify.Documents.Nomination
