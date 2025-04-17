@@ -14,6 +14,15 @@ defmodule Nomify.Resources.Team do
     timestamps()
   end
 
+  # SECTION: State Queries
+
+  @doc false
+  def get_chairs(team) do
+    Enum.filter(team.team_members, &(&1.team_role == :chair))
+  end
+
+  # SECTION: Field Changesets
+
   @doc false
   def changeset(team, attrs) do
     team
@@ -21,19 +30,18 @@ defmodule Nomify.Resources.Team do
     |> validate_required([:description, :format])
   end
 
+  # SECTION: Assoc Validations
+
   @doc false
-  def validate_chair_eligibility(team) do
+  def check_chair_eligibility(team) do
     case team.format do
       :none ->
         {:error, "Tried to add chair team member to no chairs team."}
 
       :single ->
-        chair_count =
-          team
-          |> filter_chairs()
-          |> Enum.count()
+        chairs = get_chairs(team)
 
-        if chair_count > 0 do
+        if Enum.count(chairs) > 0 do
           {:error, "Tried to add another chair team member to single chair team."}
         else
           :ok
@@ -42,9 +50,5 @@ defmodule Nomify.Resources.Team do
       :multiple ->
         :ok
     end
-  end
-
-  defp filter_chairs(team) do
-    Enum.filter(team.team_members, &(&1.team_role == :chair))
   end
 end

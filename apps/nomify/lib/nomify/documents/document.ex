@@ -16,9 +16,19 @@ defmodule Nomify.Documents.Document do
     timestamps()
   end
 
+  # SECTION: State Queries
+
+  @doc false
   def approved?(document) do
     !!Enum.find(document.nominations, &(&1.status == :approved))
   end
+
+  @doc false
+  def published?(document) do
+    document.publication_date != nil
+  end
+
+  # SECTION: Field Changesets
 
   @doc false
   def changeset(document, attrs) do
@@ -28,25 +38,14 @@ defmodule Nomify.Documents.Document do
     |> validate_title
   end
 
+  @doc false
   def publish_changeset(document, attrs) do
     document
     |> cast(attrs, [:publication_date])
     |> validate_publication_date
   end
 
-  defp validate_publication_date(changeset) do
-    changeset.data
-    |> do_validate_publication_date()
-    |> put_result(changeset, :business_rule)
-  end
-
-  defp do_validate_publication_date(document) do
-    cond do
-      !approved?(document) -> {:error, "Document not approved for publication."}
-      document.publication_date != nil -> {:error, "Document already published."}
-      true -> :ok
-    end
-  end
+  # SECTION: Field Validations
 
   defp validate_title(changeset) do
     validate_length(changeset, :title,
@@ -56,15 +55,28 @@ defmodule Nomify.Documents.Document do
     )
   end
 
-  def validate_put_nomination_conflict(document, team_member, changeset) do
+  defp validate_publication_date(changeset) do
+    changeset.data
+    |> check_publishable()
+    |> put_result(changeset, :business_rule)
+  end
+
+  defp check_publishable(document) do
+    cond do
+      !approved?(document) -> {:error, "Document not approved for publication."}
+      published?(document) -> {:error, "Document already published."}
+      true -> :ok
+    end
+  end
+
+  # SECTION: Assoc Validations
+
+  @doc false
+  def check_nomination_conflict(document, team_member) do
     if SecurityLevel.compare(document.security_level, team_member.security_level) == :gt do
-      add_error(
-        changeset,
-        :business_rule,
-        "Security violation. Team member has improper security."
-      )
+      {:error, "Security violation. Team member has improper security."}
     else
-      changeset
+      :ok
     end
   end
 end

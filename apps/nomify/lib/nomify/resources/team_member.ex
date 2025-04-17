@@ -1,10 +1,10 @@
 defmodule Nomify.Resources.TeamMember do
   use Ecto.Schema
   import Ecto.Changeset
+  import Nomify.Result
 
   alias Nomify.Resources.Person
   alias Nomify.Resources.Team
-  alias Nomify.Util.EmailAddress
 
   schema "resource_team_members" do
     field :team_role, Ecto.Enum, values: [:admin, :chair, :member], default: :member
@@ -17,6 +17,8 @@ defmodule Nomify.Resources.TeamMember do
 
     timestamps()
   end
+
+  # SECTION: Field changesets
 
   @doc false
   def insert_changeset(team_member) do
@@ -47,48 +49,44 @@ defmodule Nomify.Resources.TeamMember do
     |> validate_team_role
   end
 
+  # SECTION: Field validations
+
   defp validate_team_role(changeset) do
+    team = changeset.data.team
     team_role = get_change(changeset, :team_role)
-    validate_chair(changeset, team_role)
+
+    team
+    |> check_role_chair(team_role)
+    |> put_result(changeset, :team_role)
   end
 
-  defp validate_chair(changeset, :chair) do
-    case Team.validate_chair_eligibility(changeset.data.team) do
-      :ok ->
-        changeset
-
-      {:error, message} ->
-        add_error(changeset, :team_role, message)
+  defp check_role_chair(team, team_role) do
+    if team_role == :chair do
+      Team.check_chair_eligibility(team)
+    else
+      :ok
     end
   end
 
-  defp validate_chair(changeset, _value) do
-    changeset
-  end
+  # SECTION: Assoc Changesets
 
   @doc false
   def put_team(changeset, team) do
     changeset
-    |> validate_assoc_team(team)
     |> put_assoc(:team, team)
+    |> validate_team()
   end
 
   @doc false
   def put_person(changeset, person) do
     changeset
-    |> validate_assoc_person(person)
     |> put_assoc(:person, person)
+    |> validate_person()
   end
 
-  defp validate_assoc_team(changeset, _team) do
-    enforce_unique_person_per_team(changeset)
-  end
+  # SECTION: Assoc Validations
 
-  defp validate_assoc_person(changeset, person) do
-    validate_email(changeset, person)
-  end
-
-  defp enforce_unique_person_per_team(changeset) do
+  defp validate_team(changeset) do
     unique_constraint(changeset, [:person_id, :team_id],
       message: "Tried to add person twice to team.",
       error_key: :business_rule,
@@ -96,13 +94,13 @@ defmodule Nomify.Resources.TeamMember do
     )
   end
 
-  defp validate_email(changeset, person) do
-    case EmailAddress.parse(person.email) do
-      {:ok, _email} ->
-        changeset
+  defp validate_person(changeset) do
+    person = get_assoc(changeset, :person, :struct)
 
-      :error ->
-        add_error(changeset, :business_rule, "Person cannot be team member. Invalid email.")
+    if Person.valid_email?(person) do
+      changeset
+    else
+      add_error(changeset, :business_rule, "Person cannot be team member. Invalid email.")
     end
   end
 end

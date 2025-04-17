@@ -261,10 +261,10 @@ defmodule NomifyWeb.CoreComponents do
     <fieldset class="fieldset mb-2">
       <label>
         <span :if={Enum.any?(@field.errors)} class="fieldset-label">{@title}</span>
-        <.error :for={msg <- Enum.map(@field.errors, &translate_error(&1))}>
-          {msg}
-        </.error>
       </label>
+      <.error :for={msg <- Enum.map(@field.errors, &translate_error(&1))}>
+        {msg}
+      </.error>
     </fieldset>
     """
   end

@@ -21,6 +21,8 @@ defmodule Nomify.Documents.Nomination do
     timestamps()
   end
 
+  # SECTION: Field Changesets
+
   @doc false
   def insert_changeset(nomination, attrs) do
     nomination
@@ -35,79 +37,71 @@ defmodule Nomify.Documents.Nomination do
     |> validate_status
   end
 
+  # SECTION: Field Validations
+
   defp validate_status(changeset) do
     changeset.data
-    |> do_validate_status(get_change(changeset, :status))
+    |> check_next_status(get_change(changeset, :status))
     |> put_result(changeset, :status)
   end
 
-  defp do_validate_status(nomination, status) when status in [:pending, :in_review] do
-    if nomination.status in [:pending, :in_review] do
-      :ok
-    else
-      {:error, "Nomination already resolved. Cannot make #{status}"}
+  @doc false
+  def check_next_status(nomination, next_status) do
+    case {next_status, nomination.status} do
+      {:pending, current_status} when current_status not in [:pending, :in_review] ->
+        {:error, "Nomination already resolved. Cannot make pending"}
+
+      {:in_review, current_status} when current_status not in [:pending, :in_review] ->
+        {:error, "Nomination already resolved. Cannot make review"}
+
+      {:approved, current_status} when current_status not in [:in_review, :approved] ->
+        {:error, "Nomination cannot be approved. Not under review"}
+
+      {:rejected, current_status} when current_status not in [:in_review, :rejected] ->
+        {:error, "Nomination cannot be rejected. Not under review"}
+
+      {_next_status, _current_status} ->
+        :ok
     end
   end
 
-  defp do_validate_status(nomination, :approved) do
-    if nomination.status in [:in_review, :approved] do
-      :ok
-    else
-      {:error, "Nomination cannot be approved. Not under review"}
-    end
-  end
-
-  defp do_validate_status(nomination, :rejected) do
-    if nomination.status in [:in_review, :rejected] do
-      :ok
-    else
-      {:error, "Nomination cannot be rejected. Not under review"}
-    end
-  end
-
-  defp do_validate_status(_nomination, _no_change_in_status = nil) do
-    :ok
-  end
+  # SECTION: Assoc Changesets
 
   @doc false
   def put_document(changeset, document) do
     changeset
     |> put_assoc(:document, document)
-    |> validate_put_document(document)
+    |> validate_document()
   end
 
   @doc false
   def put_team_member(changeset, team_member) do
     changeset
     |> put_assoc(:team_member, team_member)
-    |> validate_put_team_member(team_member)
+    |> validate_team_member()
   end
 
-  defp validate_put_document(changeset, document) do
-    validate_put_nomination_conflict(
-      changeset,
-      document,
-      get_assoc(changeset, :team_member, :struct)
-    )
+  # SECTION: Assoc Validations
+
+  defp validate_document(changeset) do
+    maybe_validate_nomination_conflict(changeset)
   end
 
-  defp validate_put_team_member(changeset, team_member) do
-    validate_put_nomination_conflict(
-      changeset,
-      get_assoc(changeset, :document, :struct),
-      team_member
-    )
+  defp validate_team_member(changeset) do
+    maybe_validate_nomination_conflict(changeset)
   end
 
-  defp validate_put_nomination_conflict(
-         changeset,
-         %Document{} = document,
-         %TeamMember{} = team_member
-       ) do
-    Document.validate_put_nomination_conflict(document, team_member, changeset)
-  end
+  # NOTE: functions prefixed with `maybe_` may or may not perform the function
+  defp maybe_validate_nomination_conflict(changeset) do
+    document = get_assoc(changeset, :document, :struct)
+    team_member = get_assoc(changeset, :team_member, :struct)
 
-  defp validate_put_nomination_conflict(changeset, _document, _team_member) do
-    changeset
+    if document && team_member do
+      document
+      |> Document.check_nomination_conflict(team_member)
+      |> put_result(changeset, :business_rule)
+    else
+      changeset
+    end
   end
 end
