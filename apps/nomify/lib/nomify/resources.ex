@@ -229,6 +229,17 @@ defmodule Nomify.Resources do
     Repo.all(TeamMember)
   end
 
+  def search_team_members_by_name(name) do
+    query =
+      from team_member in TeamMember,
+        join: person in assoc(team_member, :person),
+        where: ilike(person.name, ^"%#{name}%")
+
+    query
+    |> Repo.all()
+    |> Repo.preload([:team, :person])
+  end
+
   @doc """
   Gets a single team_member.
 

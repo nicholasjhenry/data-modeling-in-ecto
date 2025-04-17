@@ -11,7 +11,7 @@ defmodule NomifyWeb.NominationLive.Show do
         Nomination {@nomination.id}
         <:subtitle>This is a nomination record from your database.</:subtitle>
         <:actions>
-          <.button navigate={~p"/nominations"}>
+          <.button navigate={~p"/documents/#{@document}"}>
             <.icon name="hero-arrow-left" />
           </.button>
           <.button

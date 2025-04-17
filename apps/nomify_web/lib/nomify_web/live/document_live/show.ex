@@ -49,6 +49,7 @@ defmodule NomifyWeb.DocumentLive.Show do
         fn {_id, nomination} -> JS.navigate(~p"/documents/#{@document}/nominations/#{nomination}") end
       }
     >
+      <:col :let={{_id, nomination}} label="Nominated by">{nomination.team_member.person.name}</:col>
       <:col :let={{_id, nomination}} label="Comments">{nomination.comments}</:col>
       <:col :let={{_id, nomination}} label="Status">{nomination.status}</:col>
       <:col :let={{_id, nomination}} label="Nomination date">{nomination.nomination_date}</:col>

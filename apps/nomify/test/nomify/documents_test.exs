@@ -70,6 +70,7 @@ defmodule Nomify.DocumentsTest do
     alias Nomify.Documents.Nomination
 
     import Nomify.DocumentsFixtures
+    import Nomify.ResourcesFixtures
 
     @invalid_attrs %{status: nil, comments: nil}
 
@@ -85,6 +86,7 @@ defmodule Nomify.DocumentsTest do
 
     test "create_nomination/1 with valid data creates a nomination" do
       document = document_fixture()
+      team_member = team_member_fixture()
 
       valid_attrs = %{
         status: :pending,
@@ -92,7 +94,7 @@ defmodule Nomify.DocumentsTest do
       }
 
       assert {:ok, %Nomination{} = nomination} =
-               Documents.create_nomination(document, valid_attrs)
+               Documents.create_nomination(document, team_member, valid_attrs)
 
       assert nomination.status == :pending
       assert nomination.comments == "some comments"
@@ -101,7 +103,10 @@ defmodule Nomify.DocumentsTest do
 
     test "create_nomination/1 with invalid data returns error changeset" do
       document = document_fixture()
-      assert {:error, %Ecto.Changeset{}} = Documents.create_nomination(document, @invalid_attrs)
+      team_member = team_member_fixture()
+
+      assert {:error, %Ecto.Changeset{}} =
+               Documents.create_nomination(document, team_member, @invalid_attrs)
     end
 
     test "update_nomination/2 with valid data updates the nomination" do

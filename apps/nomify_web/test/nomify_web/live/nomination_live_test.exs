@@ -3,6 +3,7 @@ defmodule NomifyWeb.NominationLiveTest do
 
   import Phoenix.LiveViewTest
   import Nomify.DocumentsFixtures
+  import Nomify.ResourcesFixtures
 
   @create_attrs %{status: :pending, comments: "some comments"}
   @update_attrs %{
@@ -20,6 +21,8 @@ defmodule NomifyWeb.NominationLiveTest do
     setup [:create_nomination]
 
     test "saves new nomination", %{conn: conn, document: document} do
+      team_member = team_member_fixture()
+
       {:ok, index_live, _html} = live(conn, ~p"/documents/#{document}")
 
       assert {:ok, form_live, _} =
@@ -29,6 +32,14 @@ defmodule NomifyWeb.NominationLiveTest do
                |> follow_redirect(conn, ~p"/documents/#{document}/nominations/new")
 
       assert render(form_live) =~ "New Nomination"
+
+      assert form_live
+             |> form("#team_members_search-form", %{team_member_name: team_member.person.name})
+             |> render_submit()
+
+      assert form_live
+             |> element("#team_member-#{team_member.id}")
+             |> render_click()
 
       assert form_live
              |> form("#nomination-form", nomination: @invalid_attrs)

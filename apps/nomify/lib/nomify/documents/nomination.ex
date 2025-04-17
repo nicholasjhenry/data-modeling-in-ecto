@@ -3,6 +3,7 @@ defmodule Nomify.Documents.Nomination do
   import Ecto.Changeset
 
   alias Nomify.Documents.Document
+  alias Nomify.Resources.TeamMember
 
   schema "document_nominations" do
     field :comments, :string
@@ -10,7 +11,7 @@ defmodule Nomify.Documents.Nomination do
     field :nomination_date, :date, autogenerate: {Date, :utc_today, []}
 
     belongs_to :document, Document
-    field :team_member_id, :id
+    belongs_to :team_member, TeamMember
 
     timestamps()
   end
@@ -25,5 +26,10 @@ defmodule Nomify.Documents.Nomination do
   @doc false
   def put_document(changeset, document) do
     put_assoc(changeset, :document, document)
+  end
+
+  @doc false
+  def put_team_member(changeset, team_member) do
+    put_assoc(changeset, :team_member, team_member)
   end
 end

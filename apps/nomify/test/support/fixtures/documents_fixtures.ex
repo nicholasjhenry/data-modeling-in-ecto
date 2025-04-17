@@ -4,6 +4,8 @@ defmodule Nomify.DocumentsFixtures do
   entities via the `Nomify.Documents` context.
   """
 
+  import Nomify.ResourcesFixtures
+
   @doc """
   Generate a document.
   """
@@ -23,7 +25,11 @@ defmodule Nomify.DocumentsFixtures do
   @doc """
   Generate a nomination.
   """
-  def nomination_fixture(attrs \\ %{}, document \\ document_fixture()) do
+  def nomination_fixture(
+        attrs \\ %{},
+        document \\ document_fixture(),
+        team_member \\ team_member_fixture()
+      ) do
     attrs =
       Enum.into(attrs, %{
         comments: "some comments",
@@ -31,7 +37,7 @@ defmodule Nomify.DocumentsFixtures do
         status: :pending
       })
 
-    {:ok, nomination} = Nomify.Documents.create_nomination(document, attrs)
+    {:ok, nomination} = Nomify.Documents.create_nomination(document, team_member, attrs)
 
     nomination
   end

@@ -38,7 +38,7 @@ defmodule Nomify.Documents do
   def get_document!(id) do
     Document
     |> Repo.get!(id)
-    |> Repo.preload(:nominations)
+    |> Repo.preload(nominations: [team_member: :person])
   end
 
   @doc """
@@ -142,7 +142,9 @@ defmodule Nomify.Documents do
 
   """
   def get_nomination!(document, id) do
-    Repo.get_by!(Nomination, document_id: document.id, id: id)
+    Nomination
+    |> Repo.get_by!(document_id: document.id, id: id)
+    |> Repo.preload(team_member: [:person, :team])
   end
 
   @doc """
@@ -157,10 +159,11 @@ defmodule Nomify.Documents do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_nomination(document, attrs \\ %{}) do
+  def create_nomination(document, team_member, attrs \\ %{}) do
     %Nomination{}
     |> Nomination.changeset(attrs)
     |> Nomination.put_document(document)
+    |> Nomination.put_team_member(team_member)
     |> Repo.insert()
   end
 

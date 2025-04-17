@@ -2,6 +2,7 @@ defmodule NomifyWeb.NominationLive.Form do
   use NomifyWeb, :live_view
 
   alias Nomify.Documents
+  alias Nomify.Resources
   alias Nomify.Documents.Nomination
 
   @impl true
@@ -12,6 +13,12 @@ defmodule NomifyWeb.NominationLive.Form do
         {@page_title} - {@document.title}
         <:subtitle>Use this form to manage nomination records in your database.</:subtitle>
       </.header>
+
+      <%= if @live_action == :new do %>
+        <.team_member_search_form team_member_name={@team_member_name} team_members={@team_members} />
+      <% else %>
+        <h2>{@team_member.person.name} ({@team_member.team.description})</h2>
+      <% end %>
 
       <.form for={@form} id="nomination-form" phx-change="validate" phx-submit="save">
         <.input field={@form[:comments]} type="textarea" label="Comments" />
@@ -31,6 +38,41 @@ defmodule NomifyWeb.NominationLive.Form do
     """
   end
 
+  def team_member_search_form(assigns) do
+    ~H"""
+    <h2>Find a team member</h2>
+    <div id="team_members">
+      <form id="team_members_search-form" phx-submit="search">
+        <input
+          type="text"
+          name="team_member_name"
+          value={@team_member_name}
+          placeholder="Team Member Name"
+          autofocus
+          autocomplete="off"
+          class="w-full input"
+        />
+      </form>
+
+      <div class={["team_members", @team_members == [] && "dropdown"]}>
+        <ul class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-full">
+          <li
+            :for={team_member <- @team_members}
+            id={"team_member-#{team_member.id}"}
+            phx-click="team_member_selected"
+            phx-value-id={team_member.id}
+            phx-value-team_id={team_member.team.id}
+          >
+            <div>
+              {team_member.person.name} ({team_member.team.description})
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+    """
+  end
+
   @impl true
   def mount(params, _session, socket) do
     document = Documents.get_document!(params["document_id"])
@@ -39,6 +81,9 @@ defmodule NomifyWeb.NominationLive.Form do
      socket
      |> assign(:return_to, return_to(params["return_to"]))
      |> assign(:document, document)
+     |> assign(:team_members, [])
+     |> assign(:team_member_name, "")
+     |> assign(:team_member, nil)
      |> apply_action(socket.assigns.live_action, params)}
   end
 
@@ -51,6 +96,7 @@ defmodule NomifyWeb.NominationLive.Form do
     socket
     |> assign(:page_title, "Edit Nomination")
     |> assign(:nomination, nomination)
+    |> assign(:team_member, nomination.team_member)
     |> assign(:form, to_form(Documents.change_nomination(nomination)))
   end
 
@@ -73,6 +119,26 @@ defmodule NomifyWeb.NominationLive.Form do
     save_nomination(socket, socket.assigns.live_action, nomination_params)
   end
 
+  def handle_event("search", %{"team_member_name" => team_member_name}, socket) do
+    team_members = Resources.search_team_members_by_name(team_member_name)
+
+    {:noreply, assign(socket, :team_members, team_members)}
+  end
+
+  def handle_event("team_member_selected", %{"team_id" => team_id, "id" => id}, socket) do
+    team = Resources.get_team!(team_id)
+    team_member = Resources.get_team_member!(team, id)
+    team_member_name = "#{team_member.person.name} (#{team.description})"
+
+    socket =
+      socket
+      |> assign(:team_member, team_member)
+      |> assign(:team_member_name, team_member_name)
+      |> assign(:team_members, [])
+
+    {:noreply, socket}
+  end
+
   defp save_nomination(socket, :edit, nomination_params) do
     case Documents.update_nomination(socket.assigns.nomination, nomination_params) do
       {:ok, nomination} ->
@@ -89,7 +155,11 @@ defmodule NomifyWeb.NominationLive.Form do
   end
 
   defp save_nomination(socket, :new, nomination_params) do
-    case Documents.create_nomination(socket.assigns.document, nomination_params) do
+    case Documents.create_nomination(
+           socket.assigns.document,
+           socket.assigns.team_member,
+           nomination_params
+         ) do
       {:ok, nomination} ->
         {:noreply,
          socket
