@@ -3,6 +3,8 @@ defmodule Nomify.Documents.Document do
   import Ecto.Changeset
 
   alias Nomify.Documents.Nomination
+  alias Nomify.Resources.TeamMember
+  alias Nomify.SecurityLevel
 
   schema "document_documents" do
     field :title, :string
@@ -28,5 +30,17 @@ defmodule Nomify.Documents.Document do
       max: 255,
       message: "Document title cannot be longer than 255 characters"
     )
+  end
+
+  def validate_put_nomination_conflict(document, team_member, changeset) do
+    if SecurityLevel.compare(document.security_level, team_member.security_level) == :gt do
+      add_error(
+        changeset,
+        :business_rule,
+        "Security violation. Team member has improper security."
+      )
+    else
+      changeset
+    end
   end
 end

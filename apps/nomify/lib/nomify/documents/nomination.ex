@@ -4,6 +4,7 @@ defmodule Nomify.Documents.Nomination do
 
   alias Nomify.Documents.Document
   alias Nomify.Resources.TeamMember
+  alias Nomify.SecurityLevel
 
   schema "document_nominations" do
     field :comments, :string
@@ -25,11 +26,43 @@ defmodule Nomify.Documents.Nomination do
 
   @doc false
   def put_document(changeset, document) do
-    put_assoc(changeset, :document, document)
+    changeset
+    |> put_assoc(:document, document)
+    |> validate_put_document(document)
   end
 
   @doc false
   def put_team_member(changeset, team_member) do
-    put_assoc(changeset, :team_member, team_member)
+    changeset
+    |> put_assoc(:team_member, team_member)
+    |> validate_put_team_member(team_member)
+  end
+
+  defp validate_put_document(changeset, document) do
+    validate_put_nomination_conflict(
+      changeset,
+      document,
+      get_assoc(changeset, :team_member, :struct)
+    )
+  end
+
+  defp validate_put_team_member(changeset, team_member) do
+    validate_put_nomination_conflict(
+      changeset,
+      get_assoc(changeset, :document, :struct),
+      team_member
+    )
+  end
+
+  defp validate_put_nomination_conflict(
+         changeset,
+         %Document{} = document,
+         %TeamMember{} = team_member
+       ) do
+    Document.validate_put_nomination_conflict(document, team_member, changeset)
+  end
+
+  defp validate_put_nomination_conflict(changeset, _document, _team_member) do
+    changeset
   end
 end
