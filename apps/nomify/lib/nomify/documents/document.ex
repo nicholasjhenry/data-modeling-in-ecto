@@ -3,7 +3,6 @@ defmodule Nomify.Documents.Document do
   import Ecto.Changeset
 
   alias Nomify.Documents.Nomination
-  alias Nomify.Resources.TeamMember
   alias Nomify.SecurityLevel
 
   schema "document_documents" do

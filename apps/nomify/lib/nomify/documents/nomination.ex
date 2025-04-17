@@ -4,11 +4,14 @@ defmodule Nomify.Documents.Nomination do
 
   alias Nomify.Documents.Document
   alias Nomify.Resources.TeamMember
-  alias Nomify.SecurityLevel
 
   schema "document_nominations" do
     field :comments, :string
-    field :status, Ecto.Enum, values: [:pending, :in_review, :rejected, :approved]
+
+    field :status, Ecto.Enum,
+      values: [:pending, :in_review, :rejected, :approved],
+      default: :pending
+
     field :nomination_date, :date, autogenerate: {Date, :utc_today, []}
 
     belongs_to :document, Document
@@ -18,10 +21,50 @@ defmodule Nomify.Documents.Nomination do
   end
 
   @doc false
-  def changeset(nomination, attrs) do
+  def insert_changeset(nomination, attrs) do
+    nomination
+    |> cast(attrs, [:comments])
+    |> validate_required([:comments])
+  end
+
+  def update_changeset(nomination, attrs) do
     nomination
     |> cast(attrs, [:comments, :status])
     |> validate_required([:comments, :status])
+    |> validate_status
+  end
+
+  defp validate_status(changeset) do
+    result = do_validate_status(changeset.data, get_change(changeset, :status))
+    to_changeset(result, changeset, :status)
+  end
+
+  defp do_validate_status(nomination, status) when status in [:pending, :in_review] do
+    if nomination.status in [:pending, :in_review] do
+      :ok
+    else
+      {:error, "Nomination already resolved. Cannot make #{status}"}
+    end
+  end
+
+  defp do_validate_status(nomination, :approved) do
+    if nomination.status in [:in_review, :approved] do
+      :ok
+    else
+      {:error, "Nomination cannot be approved. Not under review"}
+    end
+  end
+
+  defp do_validate_status(nomination, :rejected) do
+    if nomination.status in [:in_review, :rejected] do
+      :ok
+    else
+      {:error, "Nomination cannot be rejected. Not under review"}
+    end
+  end
+
+  defp do_validate_status(_nomination, _no_change_in_status = nil) do
+    :ok
   end
 
   @doc false
@@ -64,5 +107,13 @@ defmodule Nomify.Documents.Nomination do
 
   defp validate_put_nomination_conflict(changeset, _document, _team_member) do
     changeset
+  end
+
+  defp to_changeset(:ok, changeset, _key) do
+    changeset
+  end
+
+  defp to_changeset({:error, message}, changeset, key) do
+    add_error(changeset, key, message)
   end
 end

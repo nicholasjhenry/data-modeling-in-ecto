@@ -89,7 +89,6 @@ defmodule Nomify.DocumentsTest do
       team_member = team_member_fixture()
 
       valid_attrs = %{
-        status: :pending,
         comments: "some comments"
       }
 
@@ -117,7 +116,6 @@ defmodule Nomify.DocumentsTest do
         |> update_team_member_security_level(:low)
 
       valid_attrs = %{
-        status: :pending,
         comments: "some comments"
       }
 
@@ -152,6 +150,18 @@ defmodule Nomify.DocumentsTest do
                nomination,
                Documents.get_nomination!(document, nomination.id)
              )
+    end
+
+    test "update_nomination/2 with invalid status returns error changeset" do
+      # status: :pending
+      nomination = nomination_fixture()
+
+      invalid_status_attrs = %{comment: "some updated comments", status: :approved}
+
+      assert {:error, changeset} =
+               Documents.update_nomination(nomination, invalid_status_attrs)
+
+      assert "Nomination cannot be approved. Not under review" in errors_on(changeset).status
     end
 
     test "delete_nomination/1 deletes the nomination" do

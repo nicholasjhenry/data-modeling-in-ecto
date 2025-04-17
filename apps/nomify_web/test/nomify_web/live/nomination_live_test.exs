@@ -5,12 +5,12 @@ defmodule NomifyWeb.NominationLiveTest do
   import Nomify.DocumentsFixtures
   import Nomify.ResourcesFixtures
 
-  @create_attrs %{status: :pending, comments: "some comments"}
+  @create_attrs %{comments: "some comments"}
   @update_attrs %{
     status: :in_review,
     comments: "some updated comments"
   }
-  @invalid_attrs %{status: nil, comments: nil}
+  @invalid_attrs %{comments: nil}
   defp create_nomination(_) do
     nomination = nomination_fixture()
 

@@ -161,7 +161,7 @@ defmodule Nomify.Documents do
   """
   def create_nomination(document, team_member, attrs \\ %{}) do
     %Nomination{}
-    |> Nomination.changeset(attrs)
+    |> Nomination.insert_changeset(attrs)
     |> Nomination.put_document(document)
     |> Nomination.put_team_member(team_member)
     |> Repo.insert()
@@ -181,7 +181,7 @@ defmodule Nomify.Documents do
   """
   def update_nomination(%Nomination{} = nomination, attrs) do
     nomination
-    |> Nomination.changeset(attrs)
+    |> Nomination.update_changeset(attrs)
     |> Repo.update()
   end
 
@@ -211,7 +211,9 @@ defmodule Nomify.Documents do
 
   """
   def change_nomination(%Nomination{} = nomination, attrs \\ %{}) do
-    Nomination.changeset(nomination, attrs)
+    nomination
+    |> Nomination.insert_changeset(attrs)
+    |> Nomination.update_changeset(attrs)
   end
 
   def nomination_equal?(lhs, rhs) do

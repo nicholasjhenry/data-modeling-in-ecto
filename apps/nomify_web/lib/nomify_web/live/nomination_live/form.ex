@@ -22,13 +22,15 @@ defmodule NomifyWeb.NominationLive.Form do
 
       <.form for={@form} id="nomination-form" phx-change="validate" phx-submit="save">
         <.input field={@form[:comments]} type="textarea" label="Comments" />
-        <.input
-          field={@form[:status]}
-          type="select"
-          label="Status"
-          prompt="Choose a value"
-          options={Ecto.Enum.values(Nomify.Documents.Nomination, :status)}
-        />
+        <%= if @live_action == :edit do %>
+          <.input
+            field={@form[:status]}
+            type="select"
+            label="Status"
+            prompt="Choose a value"
+            options={Ecto.Enum.values(Nomify.Documents.Nomination, :status)}
+          />
+        <% end %>
         <footer>
           <.button phx-disable-with="Saving..." variant="primary">Save Nomination</.button>
           <.button navigate={return_path(@return_to, @document, @nomination)}>Cancel</.button>
