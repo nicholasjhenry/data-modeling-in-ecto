@@ -3,6 +3,7 @@ defmodule Nomify.Resources.TeamMember do
   import Ecto.Changeset
   import Nomify.Result
 
+  alias Nomify.Resources.Privileges
   alias Nomify.Resources.Person
   alias Nomify.Resources.Team
 
@@ -102,5 +103,12 @@ defmodule Nomify.Resources.TeamMember do
     else
       add_error(changeset, :business_rule, "Person cannot be team member. Invalid email.")
     end
+  end
+
+  @doc false
+  def check_nomination(team_member) do
+    if Privileges.has_flag(team_member.privileges, :nominate),
+      do: :ok,
+      else: {:error, "Security violation. Team member cannot nominate."}
   end
 end

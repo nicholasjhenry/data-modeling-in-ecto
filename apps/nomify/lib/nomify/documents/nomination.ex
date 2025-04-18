@@ -88,7 +88,12 @@ defmodule Nomify.Documents.Nomination do
   end
 
   defp validate_team_member(changeset) do
-    maybe_validate_nomination_conflict(changeset)
+    changeset = maybe_validate_nomination_conflict(changeset)
+
+    changeset
+    |> get_assoc(:team_member, :struct)
+    |> TeamMember.check_nomination()
+    |> put_result(changeset, :business_rule)
   end
 
   # NOTE: functions prefixed with `maybe_` may or may not perform the function

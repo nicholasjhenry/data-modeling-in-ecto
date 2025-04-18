@@ -106,7 +106,7 @@ defmodule Nomify.DocumentsTest do
 
     test "create_nomination/1 with valid data creates a nomination" do
       document = document_fixture()
-      team_member = team_member_fixture()
+      team_member = team_member_fixture() |> update_team_member_privilege(:nominate)
 
       valid_attrs = %{
         comments: "some comments"
@@ -143,6 +143,17 @@ defmodule Nomify.DocumentsTest do
                Documents.create_nomination(document, team_member, valid_attrs)
 
       assert "Security violation. Team member has improper security." in errors_on(changeset).business_rule
+    end
+
+    test "create_nomination/1 with team member without nominate privilege returns error changeset" do
+      document = document_fixture()
+      team_member = team_member_fixture()
+
+      valid_attrs = %{comments: "some comments"}
+
+      assert {:error, changeset} = Documents.create_nomination(document, team_member, valid_attrs)
+
+      assert "Security violation. Team member cannot nominate." in errors_on(changeset).business_rule
     end
 
     test "update_nomination/2 with valid data updates the nomination" do

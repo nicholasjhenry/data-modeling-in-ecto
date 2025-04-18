@@ -23,7 +23,7 @@ defmodule Nomify.DocumentsFixtures do
   end
 
   def approve_document(document) do
-    team_member = team_member_fixture()
+    team_member = team_member_fixture() |> update_team_member_privilege(:nominate)
 
     {:ok, nomination} =
       Nomify.Documents.create_nomination(document, team_member, %{comments: "some comment"})
@@ -41,7 +41,7 @@ defmodule Nomify.DocumentsFixtures do
   def nomination_fixture(
         attrs \\ %{},
         document \\ document_fixture(),
-        team_member \\ team_member_fixture()
+        team_member \\ team_member_fixture() |> update_team_member_privilege(:nominate)
       ) do
     attrs =
       Enum.into(attrs, %{

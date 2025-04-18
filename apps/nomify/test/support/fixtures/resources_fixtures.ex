@@ -45,6 +45,13 @@ defmodule Nomify.ResourcesFixtures do
     team_member
   end
 
+  def update_team_member_privilege(team_member, privilege) do
+    {:ok, team_member} =
+      Nomify.Resources.update_team_member_privileges(team_member, %{privilege => true})
+
+    team_member
+  end
+
   def update_team_member_security_level(team_member, security_level) do
     {:ok, team_member} =
       Nomify.Resources.update_team_member(team_member, %{security_level: security_level})

@@ -98,7 +98,7 @@ defmodule NomifyWeb.DocumentLiveTest do
     end
 
     test "publishes document", %{conn: conn, document: document} do
-      team_member = team_member_fixture()
+      team_member = team_member_fixture() |> update_team_member_privilege(:nominate)
 
       {:ok, show_live, html} = live(conn, ~p"/documents/#{document}")
 
