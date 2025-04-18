@@ -21,6 +21,7 @@ defmodule NomifyWeb.NominationLive.Form do
       <% end %>
 
       <.form for={@form} id="nomination-form" phx-change="validate" phx-submit="save">
+        <.errors field={@form[:business_rule]} title="Business Rule Errors" />
         <.input field={@form[:comments]} type="textarea" label="Comments" />
         <%= if @live_action == :edit do %>
           <.input
