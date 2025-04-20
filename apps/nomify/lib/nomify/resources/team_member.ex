@@ -3,6 +3,7 @@ defmodule Nomify.Resources.TeamMember do
   import Ecto.Changeset
   import Nomify.Result
 
+  alias Nomify.Documents.Nomination
   alias Nomify.Resources.Privileges
   alias Nomify.Resources.Person
   alias Nomify.Resources.Team
@@ -16,10 +17,43 @@ defmodule Nomify.Resources.TeamMember do
     # NOTE: group - member (whole - part)
     belongs_to :team, Team
 
+    has_many :nominations, Nomination
+
     timestamps()
   end
 
-  # SECTION: Field changesets
+  # Number of documents can nominate per nomination time period.
+  @max_chair_documents 5
+  @default_max_documents 10
+
+  # Number of days in nomination time period.
+  @nominations_time_period {30, :day}
+
+  # SECTION: State Queries
+
+  @doc false
+  def max_nominations_allowed(team_member, opts) do
+    max_documents = Keyword.get(opts, :max_documents, false)
+
+    cond do
+      max_documents -> max_documents
+      team_member.team_role -> @max_chair_documents
+      true -> @default_max_documents
+    end
+  end
+
+  @doc false
+  def count_nominations_per_period(team_member, opts \\ []) do
+    end_date = Keyword.get(opts, :end_date, Date.utc_today())
+    {days, :day} = @nominations_time_period
+
+    start_date = Date.add(end_date, -days)
+    date_range = Date.range(start_date, end_date)
+
+    Enum.count(team_member.nominations, &Enum.member?(date_range, &1.nomination_date))
+  end
+
+  # SECTION: Field Changesets
 
   @doc false
   def insert_changeset(team_member) do
@@ -106,9 +140,19 @@ defmodule Nomify.Resources.TeamMember do
   end
 
   @doc false
-  def check_nomination(team_member) do
-    if Privileges.has_flag(team_member.privileges, :nominate),
-      do: :ok,
-      else: {:error, "Security violation. Team member cannot nominate."}
+  def check_nomination(team_member, opts \\ []) do
+    nomination_allowance_opts = Keyword.get(opts, :nomination_allowance, [])
+
+    cond do
+      !Privileges.has_flag(team_member.privileges, :nominate) ->
+        {:error, "Security violation. Team member cannot nominate."}
+
+      count_nominations_per_period(team_member) >=
+          max_nominations_allowed(team_member, nomination_allowance_opts) ->
+        {:error, "Team member cannot nominate. Too many nominations."}
+
+      true ->
+        :ok
+    end
   end
 end

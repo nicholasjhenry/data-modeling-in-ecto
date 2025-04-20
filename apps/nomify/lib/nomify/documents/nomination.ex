@@ -75,10 +75,10 @@ defmodule Nomify.Documents.Nomination do
   end
 
   @doc false
-  def put_team_member(changeset, team_member) do
+  def put_team_member(changeset, team_member, opts \\ []) do
     changeset
     |> put_assoc(:team_member, team_member)
-    |> validate_team_member()
+    |> validate_team_member(opts)
   end
 
   # SECTION: Assoc Validations
@@ -87,12 +87,12 @@ defmodule Nomify.Documents.Nomination do
     maybe_validate_nomination_conflict(changeset)
   end
 
-  defp validate_team_member(changeset) do
+  defp validate_team_member(changeset, opts) do
     changeset = maybe_validate_nomination_conflict(changeset)
 
     changeset
     |> get_assoc(:team_member, :struct)
-    |> TeamMember.check_nomination()
+    |> TeamMember.check_nomination(opts)
     |> put_result(changeset, :business_rule)
   end
 

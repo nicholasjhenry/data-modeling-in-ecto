@@ -122,7 +122,7 @@ defmodule Nomify.DocumentsTest do
 
     test "create_nomination/1 with invalid data returns error changeset" do
       document = document_fixture()
-      team_member = team_member_fixture()
+      team_member = team_member_fixture() |> update_team_member_privilege(:nominate)
 
       assert {:error, %Ecto.Changeset{}} =
                Documents.create_nomination(document, team_member, @invalid_attrs)
@@ -154,6 +154,22 @@ defmodule Nomify.DocumentsTest do
       assert {:error, changeset} = Documents.create_nomination(document, team_member, valid_attrs)
 
       assert "Security violation. Team member cannot nominate." in errors_on(changeset).business_rule
+    end
+
+    test "create_nomination/1 with team member exceeding nominations returns error changeset" do
+      document = document_fixture()
+      team_member = team_member_fixture() |> update_team_member_privilege(:nominate)
+
+      another_document = document_fixture()
+      _nomination = nomination_fixture(%{}, another_document, team_member)
+
+      valid_attrs = %{comments: "some comments"}
+      opts = [team_member: [nomination_allowance: [max_documents: 1]]]
+
+      assert {:error, changeset} =
+               Documents.create_nomination(document, team_member, valid_attrs, opts)
+
+      assert "Team member cannot nominate. Too many nominations." in errors_on(changeset).business_rule
     end
 
     test "update_nomination/2 with valid data updates the nomination" do

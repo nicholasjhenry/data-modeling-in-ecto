@@ -173,11 +173,14 @@ defmodule Nomify.Documents do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_nomination(document, team_member, attrs \\ %{}) do
+  def create_nomination(document, team_member, attrs, opts \\ []) do
+    team_member = Repo.preload(team_member, :nominations)
+    team_member_opts = Keyword.get(opts, :team_member, [])
+
     %Nomination{}
     |> Nomination.insert_changeset(attrs)
     |> Nomination.put_document(document)
-    |> Nomination.put_team_member(team_member)
+    |> Nomination.put_team_member(team_member, team_member_opts)
     |> Repo.insert()
   end
 
