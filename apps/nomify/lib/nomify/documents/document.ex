@@ -7,10 +7,12 @@ defmodule Nomify.Documents.Document do
   alias Nomify.SecurityLevel
 
   schema "document_documents" do
+    # SECTION: Fields
     field :title, :string
     field :publication_date, :date
     field :security_level, Ecto.Enum, values: [:low, :medium, :high, :secret]
 
+    # SECTION: Associations
     has_many :nominations, Nomination
 
     timestamps()

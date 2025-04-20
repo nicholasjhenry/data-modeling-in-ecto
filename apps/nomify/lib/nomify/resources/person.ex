@@ -5,6 +5,7 @@ defmodule Nomify.Resources.Person do
   alias Nomify.Util.EmailAddress
 
   schema "resource_people" do
+    # SECTION: Fields
     field :title, :string
     field :name, :string
     field :email, :string

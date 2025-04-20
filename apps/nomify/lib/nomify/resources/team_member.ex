@@ -1,6 +1,8 @@
 defmodule Nomify.Resources.TeamMember do
   use Ecto.Schema
+
   import Ecto.Changeset
+  import Ecto.Query, warn: false
   import Nomify.Result
 
   alias Nomify.Documents.Nomination
@@ -9,9 +11,17 @@ defmodule Nomify.Resources.TeamMember do
   alias Nomify.Resources.Team
 
   schema "resource_team_members" do
+    # SECTION: Fields
     field :role, Ecto.Enum, values: [:admin, :chair, :member], default: :member
     field :privileges, Nomify.Resources.Privileges, default: Nomify.Resources.Privileges.none()
     field :security_level, Ecto.Enum, values: [:low, :medium, :high, :secret], default: :low
+
+    # SECTION: Fields (Person)
+    field :title, :string, virtual: true
+    field :name, :string, virtual: true
+    field :email, :string, virtual: true
+
+    # SECTION: Associations
     # NOTE: actor - role (generic - specific)
     belongs_to :person, Person
     # NOTE: group - member (whole - part)
@@ -28,6 +38,14 @@ defmodule Nomify.Resources.TeamMember do
 
   # Number of days in nomination time period.
   @nominations_time_period {30, :day}
+
+  # SECTION: Scopes
+
+  def base_query(query \\ __MODULE__) do
+    from team_member in query,
+      join: person in assoc(team_member, :person),
+      select: %{team_member | title: person.title, name: person.name, email: person.email}
+  end
 
   # SECTION: State Queries
 

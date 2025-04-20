@@ -5,9 +5,11 @@ defmodule Nomify.Resources.Team do
   alias Nomify.Resources.TeamMember
 
   schema "resource_teams" do
+    # SECTION: Fields
     field :description, :string
     field :format, Ecto.Enum, values: [:none, :single, :multiple]
 
+    # SECTION: Associations
     # NOTE: group - member (whole - part)
     has_many :team_members, TeamMember
 

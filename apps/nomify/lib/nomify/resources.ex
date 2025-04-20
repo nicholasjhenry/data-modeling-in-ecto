@@ -108,7 +108,10 @@ defmodule Nomify.Resources do
     Person.changeset(person, attrs)
   end
 
+  # SECTION: Team
+
   alias Nomify.Resources.Team
+  alias Nomify.Resources.TeamMember
 
   @doc """
   Returns the list of teams.
@@ -140,7 +143,7 @@ defmodule Nomify.Resources do
   def get_team!(id) do
     Team
     |> Repo.get!(id)
-    |> Repo.preload(team_members: :person)
+    |> Repo.preload(team_members: TeamMember.base_query())
   end
 
   @doc """
@@ -214,7 +217,7 @@ defmodule Nomify.Resources do
       lhs.format == rhs.format
   end
 
-  alias Nomify.Resources.TeamMember
+  # SECTION: Team Member
 
   @doc """
   Returns the list of team_members.
@@ -257,6 +260,7 @@ defmodule Nomify.Resources do
   # NOTE: group-member always scoped by group
   def get_team_member!(team, id) do
     TeamMember
+    |> TeamMember.base_query()
     |> Repo.get_by!(id: id, team_id: team.id)
     |> Repo.preload([:team, :person])
   end

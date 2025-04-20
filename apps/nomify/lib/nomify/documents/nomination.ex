@@ -7,6 +7,7 @@ defmodule Nomify.Documents.Nomination do
   alias Nomify.Resources.TeamMember
 
   schema "document_nominations" do
+    # SECTION: Fields
     field :comments, :string
 
     field :status, Ecto.Enum,
@@ -15,6 +16,7 @@ defmodule Nomify.Documents.Nomination do
 
     field :nomination_date, :date, autogenerate: {Date, :utc_today, []}
 
+    # SECTION: Associations
     belongs_to :document, Document
     belongs_to :team_member, TeamMember
 

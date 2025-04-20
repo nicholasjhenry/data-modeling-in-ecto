@@ -8,7 +8,7 @@ defmodule NomifyWeb.TeamMemberLive.Show do
     ~H"""
     <Layouts.app flash={@flash}>
       <.header>
-        Team member {@team_member.id}
+        Team member {@team_member.id}: {@team_member.name} ({@team_member.title})
         <:subtitle>This is a team_member record from your database.</:subtitle>
         <:actions>
           <.button navigate={~p"/teams/#{@team}"}>
