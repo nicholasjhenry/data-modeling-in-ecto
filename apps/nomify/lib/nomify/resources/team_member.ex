@@ -9,7 +9,7 @@ defmodule Nomify.Resources.TeamMember do
   alias Nomify.Resources.Team
 
   schema "resource_team_members" do
-    field :team_role, Ecto.Enum, values: [:admin, :chair, :member], default: :member
+    field :role, Ecto.Enum, values: [:admin, :chair, :member], default: :member
     field :privileges, Nomify.Resources.Privileges, default: Nomify.Resources.Privileges.none()
     field :security_level, Ecto.Enum, values: [:low, :medium, :high, :secret], default: :low
     # NOTE: actor - role (generic - specific)
@@ -37,7 +37,7 @@ defmodule Nomify.Resources.TeamMember do
 
     cond do
       max_documents -> max_documents
-      team_member.team_role -> @max_chair_documents
+      team_member.role -> @max_chair_documents
       true -> @default_max_documents
     end
   end
@@ -77,26 +77,26 @@ defmodule Nomify.Resources.TeamMember do
   end
 
   @doc false
-  def team_role_changeset(team_member, attrs) do
+  def role_changeset(team_member, attrs) do
     team_member
-    |> cast(attrs, [:team_role])
-    |> validate_required([:team_role])
-    |> validate_team_role
+    |> cast(attrs, [:role])
+    |> validate_required([:role])
+    |> validate_role
   end
 
   # SECTION: Field validations
 
-  defp validate_team_role(changeset) do
+  defp validate_role(changeset) do
     team = changeset.data.team
-    team_role = get_change(changeset, :team_role)
+    role = get_change(changeset, :role)
 
     team
-    |> check_role_chair(team_role)
-    |> put_result(changeset, :team_role)
+    |> check_role_chair(role)
+    |> put_result(changeset, :role)
   end
 
-  defp check_role_chair(team, team_role) do
-    if team_role == :chair do
+  defp check_role_chair(team, role) do
+    if role == :chair do
       Team.check_chair_eligibility(team)
     else
       :ok

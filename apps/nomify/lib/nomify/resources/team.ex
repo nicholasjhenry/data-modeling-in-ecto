@@ -18,7 +18,7 @@ defmodule Nomify.Resources.Team do
 
   @doc false
   def get_chairs(team) do
-    Enum.filter(team.team_members, &(&1.team_role == :chair))
+    Enum.filter(team.team_members, &(&1.role == :chair))
   end
 
   # SECTION: Field Changesets

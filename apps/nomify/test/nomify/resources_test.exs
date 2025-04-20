@@ -160,7 +160,7 @@ defmodule Nomify.ResourcesTest do
       assert {:ok, %TeamMember{} = team_member} =
                Resources.create_team_member(team, person)
 
-      assert team_member.team_role == :member
+      assert team_member.role == :member
       assert team_member.privileges.flags == []
       assert team_member.security_level == :low
     end
@@ -191,14 +191,14 @@ defmodule Nomify.ResourcesTest do
     end
 
     test "update_team_member/2 with valid data updates the team_member" do
-      # default team_role :member
+      # default role :member
       team_member = team_member_fixture()
       update_attrs = %{security_level: :medium}
 
       assert {:ok, %TeamMember{} = team_member} =
                Resources.update_team_member(team_member, update_attrs)
 
-      assert team_member.team_role == :member
+      assert team_member.role == :member
       assert team_member.security_level == :medium
     end
 
@@ -215,24 +215,24 @@ defmodule Nomify.ResourcesTest do
              )
     end
 
-    test "update_team_member_team_role/2 with valid data updates the team_member team_role" do
+    test "update_team_member_role/2 with valid data updates the team_member role" do
       team_member = team_member_fixture()
-      update_attrs = %{team_role: :member}
+      update_attrs = %{role: :member}
 
       assert {:ok, %TeamMember{} = team_member} =
-               Resources.update_team_member_team_role(team_member, update_attrs)
+               Resources.update_team_member_role(team_member, update_attrs)
 
-      assert team_member.team_role == :member
+      assert team_member.role == :member
     end
 
-    test "update_team_member_team_role/2 with invalid data returns error changeset" do
+    test "update_team_member_role/2 with invalid data returns error changeset" do
       team_member = team_member_fixture()
       team = team_member.team
 
-      update_attrs = %{team_role: :foo}
+      update_attrs = %{role: :foo}
 
       assert {:error, %Ecto.Changeset{}} =
-               Resources.update_team_member_team_role(team_member, update_attrs)
+               Resources.update_team_member_role(team_member, update_attrs)
 
       assert Resources.team_member_equal?(
                team_member,
@@ -240,46 +240,46 @@ defmodule Nomify.ResourcesTest do
              )
     end
 
-    test "update_team_member_team_role/2 enforces team chair business rule for multiple-chair team" do
+    test "update_team_member_role/2 enforces team chair business rule for multiple-chair team" do
       team = team_fixture(%{format: :multiple})
       team_member = team_member_fixture(team)
 
       assert {:ok, team_member} =
-               Resources.update_team_member_team_role(team_member, %{team_role: :chair})
+               Resources.update_team_member_role(team_member, %{role: :chair})
 
-      assert team_member.team_role == :chair
+      assert team_member.role == :chair
 
       team_member = team_member_fixture(team)
 
       assert {:ok, team_member} =
-               Resources.update_team_member_team_role(team_member, %{team_role: :chair})
+               Resources.update_team_member_role(team_member, %{role: :chair})
 
-      assert team_member.team_role == :chair
+      assert team_member.role == :chair
     end
 
-    test "update_team_member_team_role/2 enforces team chair business rule for single-chair team" do
+    test "update_team_member_role/2 enforces team chair business rule for single-chair team" do
       team = team_fixture(%{format: :single})
       team_member = team_member_fixture(team)
 
       assert {:ok, _team_member} =
-               Resources.update_team_member_team_role(team_member, %{team_role: :chair})
+               Resources.update_team_member_role(team_member, %{role: :chair})
 
       team_member = team_member_fixture(team)
 
       assert {:error, changeset} =
-               Resources.update_team_member_team_role(team_member, %{team_role: :chair})
+               Resources.update_team_member_role(team_member, %{role: :chair})
 
-      "Tried to add another chair team member to single chair team." in errors_on(changeset).team_role
+      "Tried to add another chair team member to single chair team." in errors_on(changeset).role
     end
 
-    test "update_team_member_team_role/2 enforces team chair business rule for none-chair team" do
+    test "update_team_member_role/2 enforces team chair business rule for none-chair team" do
       team = team_fixture(%{format: :none})
       team_member = team_member_fixture(team)
 
       assert {:error, changeset} =
-               Resources.update_team_member_team_role(team_member, %{team_role: :chair})
+               Resources.update_team_member_role(team_member, %{role: :chair})
 
-      "Tried to add chair team member to no chairs team." in errors_on(changeset).team_role
+      "Tried to add chair team member to no chairs team." in errors_on(changeset).role
     end
 
     test "update_team_member_privileges/2 with valid data updates the team_member privileges" do

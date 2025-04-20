@@ -87,7 +87,7 @@ defmodule NomifyWeb.TeamMemberLiveTest do
       assert html =~ "Team member updated successfully"
     end
 
-    test "changes team_member team_role in listing", %{
+    test "changes team_member role in listing", %{
       conn: conn,
       team: team,
       team_member: team_member
@@ -100,18 +100,18 @@ defmodule NomifyWeb.TeamMemberLiveTest do
                |> render_click()
                |> follow_redirect(
                  conn,
-                 ~p"/teams/#{team}/members/#{team_member}/team_role/edit"
+                 ~p"/teams/#{team}/members/#{team_member}/role/edit"
                )
 
       assert render(form_live) =~ "Edit Team member&#39;s team role"
 
       assert form_live
-             |> form("#team_member-form", team_member: %{team_role: :chair})
+             |> form("#team_member-form", team_member: %{role: :chair})
              |> render_submit() =~ "error"
 
       assert {:ok, index_live, _html} =
                form_live
-               |> form("#team_member-form", team_member: %{team_role: :admin})
+               |> form("#team_member-form", team_member: %{role: :admin})
                |> render_submit()
                |> follow_redirect(conn, ~p"/teams/#{team}")
 

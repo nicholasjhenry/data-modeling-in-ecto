@@ -24,7 +24,7 @@ defmodule NomifyWeb.TeamMemberLive.Show do
       </.header>
 
       <.list>
-        <:item title="Team role">{@team_member.team_role}</:item>
+        <:item title="Team role">{@team_member.role}</:item>
         <:item title="Privileges">{@team_member.privileges}</:item>
         <:item title="Security level">{@team_member.security_level}</:item>
       </.list>

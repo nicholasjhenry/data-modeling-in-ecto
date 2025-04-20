@@ -311,10 +311,10 @@ defmodule Nomify.Resources do
     |> Repo.update()
   end
 
-  def update_team_member_team_role(team_member, attrs) do
+  def update_team_member_role(team_member, attrs) do
     team_member
     |> Repo.preload(team: :team_members)
-    |> TeamMember.team_role_changeset(attrs)
+    |> TeamMember.role_changeset(attrs)
     |> Repo.update()
   end
 
@@ -355,7 +355,7 @@ defmodule Nomify.Resources do
 
   def team_member_equal?(lhs, rhs) do
     lhs.id == rhs.id &&
-      lhs.team_role == rhs.team_role &&
+      lhs.role == rhs.role &&
       lhs.privileges == rhs.privileges &&
       lhs.security_level == rhs.security_level &&
       lhs.person_id == rhs.person_id &&

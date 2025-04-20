@@ -3,7 +3,7 @@ defmodule Nomify.Repo.Migrations.CreateResourceTeamMembers do
 
   def change do
     create table(:resource_team_members) do
-      add :team_role, :string
+      add :role, :string
       add :privileges, :integer
       add :security_level, :string
       add :person_id, references(:resource_people, on_delete: :nothing), null: false

@@ -46,7 +46,7 @@ defmodule NomifyWeb.TeamLive.Show do
       row_click={fn {_id, team_member} -> JS.navigate(~p"/teams/#{@team}/members/#{team_member}") end}
     >
       <:col :let={{_id, team_member}} label="Name">{team_member.person.name}</:col>
-      <:col :let={{_id, team_member}} label="Team role">{team_member.team_role}</:col>
+      <:col :let={{_id, team_member}} label="Team role">{team_member.role}</:col>
       <:col :let={{_id, team_member}} label="Privileges">{team_member.privileges}</:col>
       <:col :let={{_id, team_member}} label="Security level">{team_member.security_level}</:col>
       <:action :let={{_id, team_member}}>
@@ -58,7 +58,7 @@ defmodule NomifyWeb.TeamLive.Show do
         </.link>
         <.link
           data-role="edit-team-role"
-          navigate={~p"/teams/#{@team}/members/#{team_member}/team_role/edit"}
+          navigate={~p"/teams/#{@team}/members/#{team_member}/role/edit"}
         >
           Edit team role
         </.link>

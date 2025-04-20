@@ -9,18 +9,18 @@ defmodule NomifyWeb.TeamMemberLive.TeamRoleForm do
     <Layouts.app flash={@flash}>
       <.header>
         {@page_title}
-        <:subtitle>Use this form to manage team_member team_role in your database.</:subtitle>
+        <:subtitle>Use this form to manage team_member role in your database.</:subtitle>
       </.header>
 
       <h2>{@person.name} ({@person.title})</h2>
 
       <.form for={@form} id="team_member-form" phx-change="validate" phx-submit="save">
         <.input
-          field={@form[:team_role]}
+          field={@form[:role]}
           type="select"
           label="Team role"
           prompt="Choose a value"
-          options={Ecto.Enum.values(Nomify.Resources.TeamMember, :team_role)}
+          options={Ecto.Enum.values(Nomify.Resources.TeamMember, :role)}
         />
         <footer>
           <.button phx-disable-with="Saving..." variant="primary" disabled={@person == nil}>
@@ -59,7 +59,7 @@ defmodule NomifyWeb.TeamMemberLive.TeamRoleForm do
   end
 
   def handle_event("save", %{"team_member" => team_member_params}, socket) do
-    case Resources.update_team_member_team_role(socket.assigns.team_member, team_member_params) do
+    case Resources.update_team_member_role(socket.assigns.team_member, team_member_params) do
       {:ok, team_member} ->
         {:noreply,
          socket
