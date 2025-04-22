@@ -1,7 +1,7 @@
 defmodule NomifyWeb.PersonLive.Show do
   use NomifyWeb, :live_view
 
-  alias Nomify.Resources
+  alias Nomify.Directory
 
   @impl true
   def render(assigns) do
@@ -34,6 +34,6 @@ defmodule NomifyWeb.PersonLive.Show do
     {:ok,
      socket
      |> assign(:page_title, "Show Person")
-     |> assign(:person, Resources.get_person!(id))}
+     |> assign(:person, Directory.get_person!(id))}
   end
 end

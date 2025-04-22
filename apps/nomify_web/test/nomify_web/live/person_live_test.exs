@@ -2,7 +2,7 @@ defmodule NomifyWeb.PersonLiveTest do
   use NomifyWeb.ConnCase
 
   import Phoenix.LiveViewTest
-  import Nomify.ResourcesFixtures
+  import Nomify.DirectoryFixtures
 
   @create_attrs %{name: "some name", title: "some title", email: "foo@example.com"}
   @update_attrs %{

@@ -5,15 +5,15 @@ defmodule Nomify.Resources.TeamMember do
   import Ecto.Query, warn: false
   import Nomify.Result
 
+  alias Nomify.Directory.Person
   alias Nomify.Documents.Nomination
   alias Nomify.Resources.Privileges
-  alias Nomify.Resources.Person
   alias Nomify.Resources.Team
 
   schema "resource_team_members" do
     # SECTION: Fields
     field :role, Ecto.Enum, values: [:admin, :chair, :member], default: :member
-    field :privileges, Nomify.Resources.Privileges, default: Nomify.Resources.Privileges.none()
+    field :privileges, Privileges, default: Privileges.none()
     field :security_level, Ecto.Enum, values: [:low, :medium, :high, :secret], default: :low
 
     # SECTION: Fields - Calculated
@@ -106,7 +106,7 @@ defmodule Nomify.Resources.TeamMember do
 
   @doc false
   def privileges_changeset(team_member, attrs) do
-    privileges = Nomify.Resources.Privileges.parse(attrs)
+    privileges = Privileges.parse(attrs)
 
     team_member
     |> change

@@ -1,7 +1,7 @@
 defmodule NomifyWeb.PersonLive.Index do
   use NomifyWeb, :live_view
 
-  alias Nomify.Resources
+  alias Nomify.Directory
 
   @impl true
   def render(assigns) do
@@ -48,13 +48,13 @@ defmodule NomifyWeb.PersonLive.Index do
     {:ok,
      socket
      |> assign(:page_title, "Listing People")
-     |> stream(:people, Resources.list_people())}
+     |> stream(:people, Directory.list_people())}
   end
 
   @impl true
   def handle_event("delete", %{"id" => id}, socket) do
-    person = Resources.get_person!(id)
-    {:ok, _} = Resources.delete_person(person)
+    person = Directory.get_person!(id)
+    {:ok, _} = Directory.delete_person(person)
 
     {:noreply, stream_delete(socket, :people, person)}
   end

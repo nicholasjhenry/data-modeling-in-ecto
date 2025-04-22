@@ -1,10 +1,10 @@
-defmodule Nomify.Resources.Person do
+defmodule Nomify.Directory.Person do
   use Ecto.Schema
   import Ecto.Changeset
 
   alias Nomify.Util.EmailAddress
 
-  schema "resource_people" do
+  schema "directory_people" do
     # SECTION: Fields
     field :title, :string
     field :name, :string

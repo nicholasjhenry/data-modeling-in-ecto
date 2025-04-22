@@ -1,6 +1,7 @@
 defmodule NomifyWeb.TeamMemberLive.Form do
   use NomifyWeb, :live_view
 
+  alias Nomify.Directory
   alias Nomify.Resources
   alias Nomify.Resources.TeamMember
 
@@ -122,13 +123,13 @@ defmodule NomifyWeb.TeamMemberLive.Form do
   end
 
   def handle_event("search", %{"person_name" => person_name}, socket) do
-    people = Resources.search_people_by_name(person_name)
+    people = Directory.search_people_by_name(person_name)
 
     {:noreply, assign(socket, :people, people)}
   end
 
   def handle_event("person_selected", %{"id" => id}, socket) do
-    person = Resources.get_person!(id)
+    person = Directory.get_person!(id)
 
     socket =
       socket

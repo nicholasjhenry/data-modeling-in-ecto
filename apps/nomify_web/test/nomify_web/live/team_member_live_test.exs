@@ -2,6 +2,7 @@ defmodule NomifyWeb.TeamMemberLiveTest do
   use NomifyWeb.ConnCase
 
   import Phoenix.LiveViewTest
+  import Nomify.DirectoryFixtures
   import Nomify.ResourcesFixtures
 
   @update_attrs %{security_level: :medium}

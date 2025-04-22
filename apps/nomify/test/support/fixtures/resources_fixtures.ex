@@ -4,21 +4,7 @@ defmodule Nomify.ResourcesFixtures do
   entities via the `Nomify.Resources` context.
   """
 
-  @doc """
-  Generate a person.
-  """
-  def person_fixture(attrs \\ %{}) do
-    {:ok, person} =
-      attrs
-      |> Enum.into(%{
-        email: "foo@example.com",
-        name: "some name",
-        title: "some title"
-      })
-      |> Nomify.Resources.create_person()
-
-    person
-  end
+  import Nomify.DirectoryFixtures
 
   @doc """
   Generate a team.

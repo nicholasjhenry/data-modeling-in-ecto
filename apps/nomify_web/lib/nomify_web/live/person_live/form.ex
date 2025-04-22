@@ -1,8 +1,8 @@
 defmodule NomifyWeb.PersonLive.Form do
   use NomifyWeb, :live_view
 
-  alias Nomify.Resources
-  alias Nomify.Resources.Person
+  alias Nomify.Directory
+  alias Nomify.Directory.Person
 
   @impl true
   def render(assigns) do
@@ -38,12 +38,12 @@ defmodule NomifyWeb.PersonLive.Form do
   defp return_to(_), do: "index"
 
   defp apply_action(socket, :edit, %{"id" => id}) do
-    person = Resources.get_person!(id)
+    person = Directory.get_person!(id)
 
     socket
     |> assign(:page_title, "Edit Person")
     |> assign(:person, person)
-    |> assign(:form, to_form(Resources.change_person(person)))
+    |> assign(:form, to_form(Directory.change_person(person)))
   end
 
   defp apply_action(socket, :new, _params) do
@@ -52,12 +52,12 @@ defmodule NomifyWeb.PersonLive.Form do
     socket
     |> assign(:page_title, "New Person")
     |> assign(:person, person)
-    |> assign(:form, to_form(Resources.change_person(person)))
+    |> assign(:form, to_form(Directory.change_person(person)))
   end
 
   @impl true
   def handle_event("validate", %{"person" => person_params}, socket) do
-    changeset = Resources.change_person(socket.assigns.person, person_params)
+    changeset = Directory.change_person(socket.assigns.person, person_params)
     {:noreply, assign(socket, form: to_form(changeset, action: :validate))}
   end
 
@@ -66,7 +66,7 @@ defmodule NomifyWeb.PersonLive.Form do
   end
 
   defp save_person(socket, :edit, person_params) do
-    case Resources.update_person(socket.assigns.person, person_params) do
+    case Directory.update_person(socket.assigns.person, person_params) do
       {:ok, person} ->
         {:noreply,
          socket
@@ -79,7 +79,7 @@ defmodule NomifyWeb.PersonLive.Form do
   end
 
   defp save_person(socket, :new, person_params) do
-    case Resources.create_person(person_params) do
+    case Directory.create_person(person_params) do
       {:ok, person} ->
         {:noreply,
          socket
