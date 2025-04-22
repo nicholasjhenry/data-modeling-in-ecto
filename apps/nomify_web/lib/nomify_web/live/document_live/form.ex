@@ -15,7 +15,6 @@ defmodule NomifyWeb.DocumentLive.Form do
 
       <.form for={@form} id="document-form" phx-change="validate" phx-submit="save">
         <.input field={@form[:title]} type="text" label="Title" />
-        <.input field={@form[:publication_date]} type="date" label="Publication date" />
         <.input
           field={@form[:security_level]}
           type="select"
