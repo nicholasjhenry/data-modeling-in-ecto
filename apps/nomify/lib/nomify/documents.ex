@@ -7,6 +7,7 @@ defmodule Nomify.Documents do
   alias Nomify.Repo
 
   alias Nomify.Documents.Document
+  alias Nomify.Resources.TeamMember
 
   @doc """
   Returns the list of documents.
@@ -38,7 +39,7 @@ defmodule Nomify.Documents do
   def get_document!(id) do
     Document
     |> Repo.get!(id)
-    |> Repo.preload(nominations: [team_member: :person])
+    |> Repo.preload(nominations: [team_member: TeamMember.base_query()])
   end
 
   @doc """
@@ -60,8 +61,11 @@ defmodule Nomify.Documents do
       |> Repo.insert()
 
     case result do
-      {:ok, document} -> {:ok, Repo.preload(document, nominations: [:team_member, :person])}
-      {:error, changeset} -> {:error, changeset}
+      {:ok, document} ->
+        {:ok, Repo.preload(document, nominations: [team_member: TeamMember.base_query()])}
+
+      {:error, changeset} ->
+        {:error, changeset}
     end
   end
 
@@ -158,7 +162,7 @@ defmodule Nomify.Documents do
   def get_nomination!(document, id) do
     Nomination
     |> Repo.get_by!(document_id: document.id, id: id)
-    |> Repo.preload(team_member: [:person, :team])
+    |> Repo.preload(team_member: TeamMember.base_query())
   end
 
   @doc """

@@ -17,7 +17,7 @@ defmodule NomifyWeb.NominationLive.Form do
       <%= if @live_action == :new do %>
         <.team_member_search_form team_member_name={@team_member_name} team_members={@team_members} />
       <% else %>
-        <h2>{@team_member.person.name} ({@team_member.team.description})</h2>
+        <h2>{@team_member.name} ({@team_member.team.description})</h2>
       <% end %>
 
       <.form for={@form} id="nomination-form" phx-change="validate" phx-submit="save">

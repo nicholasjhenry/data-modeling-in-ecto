@@ -16,7 +16,11 @@ defmodule Nomify.Resources.TeamMember do
     field :privileges, Nomify.Resources.Privileges, default: Nomify.Resources.Privileges.none()
     field :security_level, Ecto.Enum, values: [:low, :medium, :high, :secret], default: :low
 
-    # SECTION: Fields (Person)
+    # SECTION: Fields - Calculated
+    field :nominations_per_period_count, :integer, virtual: true
+    field :max_nominations_allowed, :integer, virtual: true
+
+    # SECTION: Fields - Person
     field :title, :string, virtual: true
     field :name, :string, virtual: true
     field :email, :string, virtual: true
@@ -44,7 +48,9 @@ defmodule Nomify.Resources.TeamMember do
   def base_query(query \\ __MODULE__) do
     from team_member in query,
       join: person in assoc(team_member, :person),
-      select: %{team_member | title: person.title, name: person.name, email: person.email}
+      join: team in assoc(team_member, :team),
+      select: %{team_member | title: person.title, name: person.name, email: person.email},
+      preload: [team: team]
   end
 
   # SECTION: State Queries
@@ -171,6 +177,12 @@ defmodule Nomify.Resources.TeamMember do
 
       true ->
         :ok
+    end
+  end
+
+  defimpl String.Chars do
+    def to_string(team_member) do
+      "#{team_member.name} (#{team_member.title}) of #{team_member.team.description}"
     end
   end
 end

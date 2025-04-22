@@ -24,6 +24,7 @@ defmodule NomifyWeb.NominationLive.Show do
       </.header>
 
       <.list>
+        <:item title="Nominated by">{to_string(@nomination.team_member)}</:item>
         <:item title="Comments">{@nomination.comments}</:item>
         <:item title="Status">{@nomination.status}</:item>
         <:item title="Nomination date">{@nomination.nomination_date}</:item>
