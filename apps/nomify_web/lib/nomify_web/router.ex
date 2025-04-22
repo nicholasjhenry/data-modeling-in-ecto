@@ -1,6 +1,8 @@
 defmodule NomifyWeb.Router do
   use NomifyWeb, :router
 
+  import NomifyWeb.UserAuth
+
   pipeline :browser do
     plug :accepts, ["html"]
     plug :fetch_session
@@ -8,6 +10,7 @@ defmodule NomifyWeb.Router do
     plug :put_root_layout, html: {NomifyWeb.Layouts, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
+    plug :fetch_current_scope_for_user
   end
 
   pipeline :api do
@@ -69,5 +72,33 @@ defmodule NomifyWeb.Router do
       live_dashboard "/dashboard", metrics: NomifyWeb.Telemetry
       forward "/mailbox", Plug.Swoosh.MailboxPreview
     end
+  end
+
+  ## Authentication routes
+
+  scope "/", NomifyWeb do
+    pipe_through [:browser, :require_authenticated_user]
+
+    live_session :require_authenticated_user,
+      on_mount: [{NomifyWeb.UserAuth, :require_authenticated}] do
+      live "/user/settings", UserLive.Settings, :edit
+      live "/user/settings/confirm-email/:token", UserLive.Settings, :confirm_email
+    end
+
+    post "/user/update-password", UserSessionController, :update_password
+  end
+
+  scope "/", NomifyWeb do
+    pipe_through [:browser]
+
+    live_session :current_user,
+      on_mount: [{NomifyWeb.UserAuth, :mount_current_scope}] do
+      live "/user/register", UserLive.Registration, :new
+      live "/user/log-in", UserLive.Login, :new
+      live "/user/log-in/:token", UserLive.Confirmation, :new
+    end
+
+    post "/user/log-in", UserSessionController, :create
+    delete "/user/log-out", UserSessionController, :delete
   end
 end

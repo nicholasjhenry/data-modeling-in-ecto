@@ -35,4 +35,45 @@ defmodule NomifyWeb.ConnCase do
     Nomify.DataCase.setup_sandbox(tags)
     {:ok, conn: Phoenix.ConnTest.build_conn()}
   end
+
+  @doc """
+  Setup helper that registers and logs in user.
+
+      setup :register_and_log_in_user
+
+  It stores an updated connection and a registered user in the
+  test context.
+  """
+  def register_and_log_in_user(%{conn: conn} = context) do
+    user = Nomify.AccountsFixtures.user_fixture()
+    scope = Nomify.Accounts.Scope.for_user(user)
+
+    opts =
+      context
+      |> Map.take([:token_inserted_at])
+      |> Enum.into([])
+
+    %{conn: log_in_user(conn, user, opts), user: user, scope: scope}
+  end
+
+  @doc """
+  Logs the given `user` into the `conn`.
+
+  It returns an updated `conn`.
+  """
+  def log_in_user(conn, user, opts \\ []) do
+    token = Nomify.Accounts.generate_user_session_token(user)
+
+    maybe_set_token_inserted_at(token, opts[:token_inserted_at])
+
+    conn
+    |> Phoenix.ConnTest.init_test_session(%{})
+    |> Plug.Conn.put_session(:user_token, token)
+  end
+
+  defp maybe_set_token_inserted_at(_token, nil), do: nil
+
+  defp maybe_set_token_inserted_at(token, inserted_at) do
+    Nomify.AccountsFixtures.override_token_inserted_at(token, inserted_at)
+  end
 end

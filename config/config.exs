@@ -9,6 +9,19 @@
 # move said applications out of the umbrella.
 import Config
 
+config :nomify, :scopes,
+  user: [
+    default: true,
+    module: Nomify.Accounts.Scope,
+    assign_key: :current_scope,
+    access_path: [:user, :id],
+    schema_key: :user_id,
+    schema_type: :id,
+    schema_table: :account_users,
+    test_data_fixture: Nomify.AccountsFixtures,
+    test_login_helper: :register_and_log_in_user
+  ]
+
 # Configure Mix tasks and generators
 config :nomify,
   ecto_repos: [Nomify.Repo]
