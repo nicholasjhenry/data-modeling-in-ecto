@@ -97,21 +97,12 @@ defmodule NomifyWeb.DocumentLiveTest do
       assert html =~ document.title
     end
 
-    test "publishes document", %{conn: conn, document: document} do
+    test "nominates document", %{conn: conn, document: document} do
       team_member = team_member_fixture() |> update_team_member_privilege(:nominate)
 
       {:ok, show_live, html} = live(conn, ~p"/documents/#{document}")
 
       assert html =~ "Show Document"
-
-      show_live
-      |> element("button", "Publish document")
-      |> render_click()
-
-      html = render(show_live)
-      assert html =~ "Document not approved for publication."
-
-      _document = approve_document(document)
 
       assert {:ok, form_live, _} =
                show_live
@@ -135,6 +126,23 @@ defmodule NomifyWeb.DocumentLiveTest do
 
       html = render(show_live)
       assert html =~ "Nomination created successfully"
+    end
+
+    test "publishes document", %{conn: conn, document: document} do
+      {:ok, show_live, html} = live(conn, ~p"/documents/#{document}")
+
+      assert html =~ "Show Document"
+
+      show_live
+      |> element("button", "Publish document")
+      |> render_click()
+
+      html = render(show_live)
+      assert html =~ "Document not approved for publication."
+
+      _document = approve_document(document)
+
+      {:ok, show_live, _html} = live(conn, ~p"/documents/#{document}")
 
       assert show_live
              |> element("button", "Publish document")

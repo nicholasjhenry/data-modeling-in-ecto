@@ -20,7 +20,8 @@ defmodule NomifyWeb.NominationLiveTest do
   describe "Index" do
     setup [:create_nomination]
 
-    test "saves new nomination", %{conn: conn, document: document} do
+    test "saves new nomination", %{conn: conn} do
+      document = document_fixture()
       team_member = team_member_fixture() |> update_team_member_privilege(:nominate)
 
       {:ok, index_live, _html} = live(conn, ~p"/documents/#{document}")
