@@ -2,7 +2,7 @@ defmodule NomifyWeb.TeamLiveTest do
   use NomifyWeb.ConnCase
 
   import Phoenix.LiveViewTest
-  import Nomify.ResourcesFixtures
+  import Nomify.TeamsFixtures
 
   @create_attrs %{format: :none, description: "some description"}
   @update_attrs %{format: :single, description: "some updated description"}

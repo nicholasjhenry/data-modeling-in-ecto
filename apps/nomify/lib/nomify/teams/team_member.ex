@@ -1,4 +1,4 @@
-defmodule Nomify.Resources.TeamMember do
+defmodule Nomify.Teams.TeamMember do
   use Ecto.Schema
 
   import Ecto.Changeset
@@ -7,10 +7,10 @@ defmodule Nomify.Resources.TeamMember do
 
   alias Nomify.Directory.Person
   alias Nomify.Documents.Nomination
-  alias Nomify.Resources.Privileges
-  alias Nomify.Resources.Team
+  alias Nomify.Teams.Privileges
+  alias Nomify.Teams.Team
 
-  schema "resource_team_members" do
+  schema "team_members" do
     # SECTION: Fields
     field :role, Ecto.Enum, values: [:admin, :chair, :member], default: :member
     field :privileges, Privileges, default: Privileges.none()
@@ -172,7 +172,7 @@ defmodule Nomify.Resources.TeamMember do
     unique_constraint(changeset, [:person_id, :team_id],
       message: "Tried to add person twice to team.",
       error_key: :business_rule,
-      name: :resource_team_members_team_id_person_id_index
+      name: :team_members_team_id_person_id_index
     )
   end
 

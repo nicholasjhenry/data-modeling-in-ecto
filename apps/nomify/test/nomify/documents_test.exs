@@ -90,7 +90,7 @@ defmodule Nomify.DocumentsTest do
     alias Nomify.Documents.Nomination
 
     import Nomify.DocumentsFixtures
-    import Nomify.ResourcesFixtures
+    import Nomify.TeamsFixtures
 
     @invalid_attrs %{status: nil, comments: nil}
 

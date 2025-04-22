@@ -3,7 +3,7 @@ defmodule NomifyWeb.DocumentLiveTest do
 
   import Phoenix.LiveViewTest
   import Nomify.DocumentsFixtures
-  import Nomify.ResourcesFixtures
+  import Nomify.TeamsFixtures
 
   @create_attrs %{title: "some title", security_level: :low}
   @update_attrs %{

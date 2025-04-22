@@ -2,8 +2,8 @@ defmodule NomifyWeb.NominationLive.Form do
   use NomifyWeb, :live_view
 
   alias Nomify.Documents
-  alias Nomify.Resources
   alias Nomify.Documents.Nomination
+  alias Nomify.Teams
 
   @impl true
   def render(assigns) do
@@ -123,14 +123,14 @@ defmodule NomifyWeb.NominationLive.Form do
   end
 
   def handle_event("search", %{"team_member_name" => team_member_name}, socket) do
-    team_members = Resources.search_team_members_by_name(team_member_name)
+    team_members = Teams.search_team_members_by_name(team_member_name)
 
     {:noreply, assign(socket, :team_members, team_members)}
   end
 
   def handle_event("team_member_selected", %{"team_id" => team_id, "id" => id}, socket) do
-    team = Resources.get_team!(team_id)
-    team_member = Resources.get_team_member!(team, id)
+    team = Teams.get_team!(team_id)
+    team_member = Teams.get_team_member!(team, id)
     team_member_name = "#{team_member.person.name} (#{team.description})"
 
     socket =

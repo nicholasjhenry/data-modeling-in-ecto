@@ -1,8 +1,8 @@
-defmodule Nomify.Repo.Migrations.CreateResourceTeams do
+defmodule Nomify.Repo.Migrations.CreateTeamTeams do
   use Ecto.Migration
 
   def change do
-    create table(:resource_teams) do
+    create table(:team_teams) do
       add :description, :string
       add :format, :string
 

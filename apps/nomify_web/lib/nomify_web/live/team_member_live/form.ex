@@ -2,8 +2,8 @@ defmodule NomifyWeb.TeamMemberLive.Form do
   use NomifyWeb, :live_view
 
   alias Nomify.Directory
-  alias Nomify.Resources
-  alias Nomify.Resources.TeamMember
+  alias Nomify.Teams
+  alias Nomify.Teams.TeamMember
 
   @impl true
   def render(assigns) do
@@ -28,7 +28,7 @@ defmodule NomifyWeb.TeamMemberLive.Form do
             type="select"
             label="Security level"
             prompt="Choose a value"
-            options={Ecto.Enum.values(Nomify.Resources.TeamMember, :security_level)}
+            options={Ecto.Enum.values(TeamMember, :security_level)}
           />
         <% end %>
         <footer>
@@ -78,7 +78,7 @@ defmodule NomifyWeb.TeamMemberLive.Form do
 
   @impl true
   def mount(params, _session, socket) do
-    team = Resources.get_team!(params["team_id"])
+    team = Teams.get_team!(params["team_id"])
 
     {:ok,
      socket
@@ -94,13 +94,13 @@ defmodule NomifyWeb.TeamMemberLive.Form do
   defp return_to(_), do: "index"
 
   defp apply_action(socket, :edit, %{"id" => id}) do
-    team_member = Resources.get_team_member!(socket.assigns.team, id)
+    team_member = Teams.get_team_member!(socket.assigns.team, id)
 
     socket
     |> assign(:page_title, "Edit Team member")
     |> assign(:team_member, team_member)
     |> assign(:person, team_member.person)
-    |> assign(:form, to_form(Resources.change_team_member(team_member)))
+    |> assign(:form, to_form(Teams.change_team_member(team_member)))
   end
 
   defp apply_action(socket, :new, _params) do
@@ -109,12 +109,12 @@ defmodule NomifyWeb.TeamMemberLive.Form do
     socket
     |> assign(:page_title, "New Team member")
     |> assign(:team_member, team_member)
-    |> assign(:form, to_form(Resources.change_team_member(team_member)))
+    |> assign(:form, to_form(Teams.change_team_member(team_member)))
   end
 
   @impl true
   def handle_event("validate", %{"team_member" => team_member_params}, socket) do
-    changeset = Resources.change_team_member(socket.assigns.team_member, team_member_params)
+    changeset = Teams.change_team_member(socket.assigns.team_member, team_member_params)
     {:noreply, assign(socket, form: to_form(changeset, action: :validate))}
   end
 
@@ -141,7 +141,7 @@ defmodule NomifyWeb.TeamMemberLive.Form do
   end
 
   defp save_team_member(socket, :edit, team_member_params) do
-    case Resources.update_team_member(socket.assigns.team_member, team_member_params) do
+    case Teams.update_team_member(socket.assigns.team_member, team_member_params) do
       {:ok, team_member} ->
         {:noreply,
          socket
@@ -156,7 +156,7 @@ defmodule NomifyWeb.TeamMemberLive.Form do
   end
 
   defp save_team_member(socket, :new, _team_member_params) do
-    case Resources.create_team_member(socket.assigns.team, socket.assigns.person) do
+    case Teams.create_team_member(socket.assigns.team, socket.assigns.person) do
       {:ok, team_member} ->
         {:noreply,
          socket

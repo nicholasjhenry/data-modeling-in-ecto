@@ -1,8 +1,8 @@
 defmodule NomifyWeb.TeamLive.Form do
   use NomifyWeb, :live_view
 
-  alias Nomify.Resources
-  alias Nomify.Resources.Team
+  alias Nomify.Teams
+  alias Nomify.Teams.Team
 
   @impl true
   def render(assigns) do
@@ -20,7 +20,7 @@ defmodule NomifyWeb.TeamLive.Form do
           type="select"
           label="Format"
           prompt="Choose a value"
-          options={Ecto.Enum.values(Nomify.Resources.Team, :format)}
+          options={Ecto.Enum.values(Team, :format)}
         />
         <footer>
           <.button phx-disable-with="Saving..." variant="primary">Save Team</.button>
@@ -43,12 +43,12 @@ defmodule NomifyWeb.TeamLive.Form do
   defp return_to(_), do: "index"
 
   defp apply_action(socket, :edit, %{"id" => id}) do
-    team = Resources.get_team!(id)
+    team = Teams.get_team!(id)
 
     socket
     |> assign(:page_title, "Edit Team")
     |> assign(:team, team)
-    |> assign(:form, to_form(Resources.change_team(team)))
+    |> assign(:form, to_form(Teams.change_team(team)))
   end
 
   defp apply_action(socket, :new, _params) do
@@ -57,12 +57,12 @@ defmodule NomifyWeb.TeamLive.Form do
     socket
     |> assign(:page_title, "New Team")
     |> assign(:team, team)
-    |> assign(:form, to_form(Resources.change_team(team)))
+    |> assign(:form, to_form(Teams.change_team(team)))
   end
 
   @impl true
   def handle_event("validate", %{"team" => team_params}, socket) do
-    changeset = Resources.change_team(socket.assigns.team, team_params)
+    changeset = Teams.change_team(socket.assigns.team, team_params)
     {:noreply, assign(socket, form: to_form(changeset, action: :validate))}
   end
 
@@ -71,7 +71,7 @@ defmodule NomifyWeb.TeamLive.Form do
   end
 
   defp save_team(socket, :edit, team_params) do
-    case Resources.update_team(socket.assigns.team, team_params) do
+    case Teams.update_team(socket.assigns.team, team_params) do
       {:ok, team} ->
         {:noreply,
          socket
@@ -84,7 +84,7 @@ defmodule NomifyWeb.TeamLive.Form do
   end
 
   defp save_team(socket, :new, team_params) do
-    case Resources.create_team(team_params) do
+    case Teams.create_team(team_params) do
       {:ok, team} ->
         {:noreply,
          socket

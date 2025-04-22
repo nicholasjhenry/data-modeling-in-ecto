@@ -3,7 +3,7 @@ defmodule NomifyWeb.NominationLiveTest do
 
   import Phoenix.LiveViewTest
   import Nomify.DocumentsFixtures
-  import Nomify.ResourcesFixtures
+  import Nomify.TeamsFixtures
 
   @create_attrs %{comments: "some comments"}
   @update_attrs %{

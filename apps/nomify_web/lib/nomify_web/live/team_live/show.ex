@@ -1,7 +1,7 @@
 defmodule NomifyWeb.TeamLive.Show do
   use NomifyWeb, :live_view
 
-  alias Nomify.Resources
+  alias Nomify.Teams
 
   @impl true
   def render(assigns) do
@@ -83,7 +83,7 @@ defmodule NomifyWeb.TeamLive.Show do
 
   @impl true
   def mount(%{"id" => id}, _session, socket) do
-    team = Resources.get_team!(id)
+    team = Teams.get_team!(id)
 
     {:ok,
      socket
@@ -94,8 +94,8 @@ defmodule NomifyWeb.TeamLive.Show do
 
   @impl true
   def handle_event("delete_team_member", %{"id" => id}, socket) do
-    team_member = Resources.get_team_member!(socket.assigns.team, id)
-    {:ok, _} = Resources.delete_team_member(team_member)
+    team_member = Teams.get_team_member!(socket.assigns.team, id)
+    {:ok, _} = Teams.delete_team_member(team_member)
 
     {:noreply, stream_delete(socket, :team_members, team_member)}
   end

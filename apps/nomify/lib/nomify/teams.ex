@@ -1,4 +1,4 @@
-defmodule Nomify.Resources do
+defmodule Nomify.Teams do
   @moduledoc """
   The Resources context.
   """
@@ -8,8 +8,8 @@ defmodule Nomify.Resources do
 
   # SECTION: Team
 
-  alias Nomify.Resources.Team
-  alias Nomify.Resources.TeamMember
+  alias Nomify.Teams.Team
+  alias Nomify.Teams.TeamMember
 
   def list_teams do
     Repo.all(Team)

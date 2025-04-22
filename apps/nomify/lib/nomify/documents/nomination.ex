@@ -5,7 +5,7 @@ defmodule Nomify.Documents.Nomination do
   import Nomify.Result
 
   alias Nomify.Documents.Document
-  alias Nomify.Resources.TeamMember
+  alias Nomify.Teams.TeamMember
 
   schema "document_nominations" do
     # SECTION: Fields

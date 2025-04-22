@@ -7,7 +7,7 @@ defmodule Nomify.Documents do
   alias Nomify.Repo
 
   alias Nomify.Documents.Document
-  alias Nomify.Resources.TeamMember
+  alias Nomify.Teams.TeamMember
 
   def list_documents do
     Repo.all(Document)

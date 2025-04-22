@@ -1,7 +1,7 @@
-defmodule Nomify.Util.PrivilegesTest do
+defmodule Nomify.Teams.PrivilegesTest do
   use ExUnit.Case
 
-  alias Nomify.Resources.Privileges
+  alias Nomify.Teams.Privileges
 
   test "parses params" do
     assert Privileges.parse(%{"delete" => "false", "nominate" => "false"}) == %Bitmask{

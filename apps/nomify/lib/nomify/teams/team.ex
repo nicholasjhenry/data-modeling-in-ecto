@@ -1,10 +1,10 @@
-defmodule Nomify.Resources.Team do
+defmodule Nomify.Teams.Team do
   use Ecto.Schema
   import Ecto.Changeset
 
-  alias Nomify.Resources.TeamMember
+  alias Nomify.Teams.TeamMember
 
-  schema "resource_teams" do
+  schema "team_teams" do
     # SECTION: Fields
     field :description, :string
     field :format, Ecto.Enum, values: [:none, :single, :multiple]

@@ -1,7 +1,7 @@
 defmodule NomifyWeb.TeamLive.Index do
   use NomifyWeb, :live_view
 
-  alias Nomify.Resources
+  alias Nomify.Teams
 
   @impl true
   def render(assigns) do
@@ -47,13 +47,13 @@ defmodule NomifyWeb.TeamLive.Index do
     {:ok,
      socket
      |> assign(:page_title, "Listing Teams")
-     |> stream(:teams, Resources.list_teams())}
+     |> stream(:teams, Teams.list_teams())}
   end
 
   @impl true
   def handle_event("delete", %{"id" => id}, socket) do
-    team = Resources.get_team!(id)
-    {:ok, _} = Resources.delete_team(team)
+    team = Teams.get_team!(id)
+    {:ok, _} = Teams.delete_team(team)
 
     {:noreply, stream_delete(socket, :teams, team)}
   end

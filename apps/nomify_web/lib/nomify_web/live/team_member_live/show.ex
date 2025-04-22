@@ -1,7 +1,7 @@
 defmodule NomifyWeb.TeamMemberLive.Show do
   use NomifyWeb, :live_view
 
-  alias Nomify.Resources
+  alias Nomify.Teams
 
   @impl true
   def render(assigns) do
@@ -34,8 +34,8 @@ defmodule NomifyWeb.TeamMemberLive.Show do
 
   @impl true
   def mount(%{"team_id" => team_id, "id" => id}, _session, socket) do
-    team = Resources.get_team!(team_id)
-    team_member = Resources.get_team_member!(team, id)
+    team = Teams.get_team!(team_id)
+    team_member = Teams.get_team_member!(team, id)
 
     {:ok,
      socket

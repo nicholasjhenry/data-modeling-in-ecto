@@ -3,7 +3,7 @@ defmodule NomifyWeb.TeamMemberLiveTest do
 
   import Phoenix.LiveViewTest
   import Nomify.DirectoryFixtures
-  import Nomify.ResourcesFixtures
+  import Nomify.TeamsFixtures
 
   @update_attrs %{security_level: :medium}
 

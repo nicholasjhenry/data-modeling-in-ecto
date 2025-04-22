@@ -1,7 +1,7 @@
 defmodule NomifyWeb.TeamMemberLive.PrivilegesForm do
   use NomifyWeb, :live_view
 
-  alias Nomify.Resources
+  alias Nomify.Teams
 
   @impl true
   def render(assigns) do
@@ -30,9 +30,9 @@ defmodule NomifyWeb.TeamMemberLive.PrivilegesForm do
 
   @impl true
   def mount(params, _session, socket) do
-    team = Resources.get_team!(params["team_id"])
-    team_member = Resources.get_team_member!(team, params["id"])
-    form = to_form(Resources.change_team_member(team_member))
+    team = Teams.get_team!(params["team_id"])
+    team_member = Teams.get_team_member!(team, params["id"])
+    form = to_form(Teams.change_team_member(team_member))
 
     {:ok,
      socket
@@ -49,7 +49,7 @@ defmodule NomifyWeb.TeamMemberLive.PrivilegesForm do
 
   @impl true
   def handle_event("save", %{"team_member" => team_member_params}, socket) do
-    case Resources.update_team_member_privileges(socket.assigns.team_member, team_member_params) do
+    case Teams.update_team_member_privileges(socket.assigns.team_member, team_member_params) do
       {:ok, team_member} ->
         {:noreply,
          socket

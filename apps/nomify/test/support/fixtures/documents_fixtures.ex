@@ -4,7 +4,7 @@ defmodule Nomify.DocumentsFixtures do
   entities via the `Nomify.Documents` context.
   """
 
-  import Nomify.ResourcesFixtures
+  import Nomify.TeamsFixtures
 
   @doc """
   Generate a document.

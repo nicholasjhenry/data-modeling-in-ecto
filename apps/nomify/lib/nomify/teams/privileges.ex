@@ -1,4 +1,4 @@
-defmodule Nomify.Resources.Privileges do
+defmodule Nomify.Teams.Privileges do
   use Bitmask, [
     :delete,
     :nominate
