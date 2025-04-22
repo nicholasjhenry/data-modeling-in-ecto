@@ -104,7 +104,7 @@ defmodule Nomify.DocumentsTest do
              )
     end
 
-    test "create_nomination/1 with valid data creates a nomination" do
+    test "nominate_document/1 with valid data creates a nomination" do
       document = document_fixture()
       team_member = team_member_fixture() |> update_team_member_privilege(:nominate)
 
@@ -113,22 +113,22 @@ defmodule Nomify.DocumentsTest do
       }
 
       assert {:ok, %Nomination{} = nomination} =
-               Documents.create_nomination(document, team_member, valid_attrs)
+               Documents.nominate_document(document, team_member, valid_attrs)
 
       assert nomination.status == :pending
       assert nomination.comments == "some comments"
       assert %Date{} = nomination.nomination_date
     end
 
-    test "create_nomination/1 with invalid data returns error changeset" do
+    test "nominate_document/1 with invalid data returns error changeset" do
       document = document_fixture()
       team_member = team_member_fixture() |> update_team_member_privilege(:nominate)
 
       assert {:error, %Ecto.Changeset{}} =
-               Documents.create_nomination(document, team_member, @invalid_attrs)
+               Documents.nominate_document(document, team_member, @invalid_attrs)
     end
 
-    test "create_nomination/1 with nomination conflict returns error changeset" do
+    test "nominate_document/1 with nomination conflict returns error changeset" do
       document = document_fixture(security_level: :secret)
 
       team_member =
@@ -140,23 +140,23 @@ defmodule Nomify.DocumentsTest do
       }
 
       assert {:error, changeset} =
-               Documents.create_nomination(document, team_member, valid_attrs)
+               Documents.nominate_document(document, team_member, valid_attrs)
 
       assert "Security violation. Team member has improper security." in errors_on(changeset).business_rule
     end
 
-    test "create_nomination/1 with team member without nominate privilege returns error changeset" do
+    test "nominate_document/1 with team member without nominate privilege returns error changeset" do
       document = document_fixture()
       team_member = team_member_fixture()
 
       valid_attrs = %{comments: "some comments"}
 
-      assert {:error, changeset} = Documents.create_nomination(document, team_member, valid_attrs)
+      assert {:error, changeset} = Documents.nominate_document(document, team_member, valid_attrs)
 
       assert "Security violation. Team member cannot nominate." in errors_on(changeset).business_rule
     end
 
-    test "create_nomination/1 with team member exceeding nominations returns error changeset" do
+    test "nominate_document/1 with team member exceeding nominations returns error changeset" do
       document = document_fixture()
       team_member = team_member_fixture() |> update_team_member_privilege(:nominate)
 
@@ -167,12 +167,12 @@ defmodule Nomify.DocumentsTest do
       opts = [team_member: [nomination_allowance: [max_documents: 1]]]
 
       assert {:error, changeset} =
-               Documents.create_nomination(document, team_member, valid_attrs, opts)
+               Documents.nominate_document(document, team_member, valid_attrs, opts)
 
       assert "Team member cannot nominate. Too many nominations." in errors_on(changeset).business_rule
     end
 
-    test "create_nomination/1 with a document with an unresolved nomination returns error changeset" do
+    test "nominate_document/1 with a document with an unresolved nomination returns error changeset" do
       document = document_fixture() |> nominate_document()
       team_member = team_member_fixture() |> update_team_member_privilege(:nominate)
 
@@ -180,7 +180,7 @@ defmodule Nomify.DocumentsTest do
         comments: "some comments"
       }
 
-      assert {:error, changeset} = Documents.create_nomination(document, team_member, valid_attrs)
+      assert {:error, changeset} = Documents.nominate_document(document, team_member, valid_attrs)
 
       assert "Nomination denied. Document has unresolved nomination." in errors_on(changeset).business_rule
     end

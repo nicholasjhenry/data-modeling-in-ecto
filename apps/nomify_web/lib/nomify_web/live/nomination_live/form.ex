@@ -158,7 +158,7 @@ defmodule NomifyWeb.NominationLive.Form do
   end
 
   defp save_nomination(socket, :new, nomination_params) do
-    case Documents.create_nomination(
+    case Documents.nominate_document(
            socket.assigns.document,
            socket.assigns.team_member,
            nomination_params

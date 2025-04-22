@@ -170,14 +170,14 @@ defmodule Nomify.Documents do
 
   ## Examples
 
-      iex> create_nomination(%{field: value})
+      iex> nominate_document(%{field: value})
       {:ok, %Nomination{}}
 
-      iex> create_nomination(%{field: bad_value})
+      iex> nominate_document(%{field: bad_value})
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_nomination(document, team_member, attrs, opts \\ []) do
+  def nominate_document(document, team_member, attrs, opts \\ []) do
     document = Repo.preload(document, latest_nomination: Nomination.latest())
     team_member = Repo.preload(team_member, :nominations)
 

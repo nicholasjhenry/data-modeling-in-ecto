@@ -26,7 +26,7 @@ defmodule Nomify.DocumentsFixtures do
     team_member = team_member_fixture() |> update_team_member_privilege(:nominate)
 
     {:ok, _nomination} =
-      Nomify.Documents.create_nomination(document, team_member, %{comments: "some comment"})
+      Nomify.Documents.nominate_document(document, team_member, %{comments: "some comment"})
 
     Nomify.Documents.get_document!(document.id)
   end
@@ -35,7 +35,7 @@ defmodule Nomify.DocumentsFixtures do
     team_member = team_member_fixture() |> update_team_member_privilege(:nominate)
 
     {:ok, nomination} =
-      Nomify.Documents.create_nomination(document, team_member, %{comments: "some comment"})
+      Nomify.Documents.nominate_document(document, team_member, %{comments: "some comment"})
 
     {:ok, nomination} = Nomify.Documents.update_nomination(nomination, %{status: :in_review})
     {:ok, _nomination} = Nomify.Documents.update_nomination(nomination, %{status: :approved})
@@ -59,7 +59,7 @@ defmodule Nomify.DocumentsFixtures do
         status: :pending
       })
 
-    {:ok, nomination} = Nomify.Documents.create_nomination(document, team_member, attrs)
+    {:ok, nomination} = Nomify.Documents.nominate_document(document, team_member, attrs)
 
     nomination
   end
