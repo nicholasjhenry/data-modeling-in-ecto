@@ -14,6 +14,7 @@ defmodule Nomify.Documents.Document do
 
     # SECTION: Associations
     has_many :nominations, Nomination
+    has_one :latest_nomination, Nomination
 
     timestamps()
   end
@@ -72,6 +73,14 @@ defmodule Nomify.Documents.Document do
   end
 
   # SECTION: Assoc Validations
+
+  def check_nomination(document) do
+    if document.latest_nomination && document.latest_nomination.status in [:pending, :approved] do
+      {:error, "Nomination denied. Document has unresolved nomination."}
+    else
+      :ok
+    end
+  end
 
   @doc false
   def check_nomination_conflict(document, team_member) do

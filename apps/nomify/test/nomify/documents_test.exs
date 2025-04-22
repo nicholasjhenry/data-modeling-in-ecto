@@ -172,6 +172,19 @@ defmodule Nomify.DocumentsTest do
       assert "Team member cannot nominate. Too many nominations." in errors_on(changeset).business_rule
     end
 
+    test "create_nomination/1 with a document with an unresolved nomination returns error changeset" do
+      document = document_fixture() |> nominate_document()
+      team_member = team_member_fixture() |> update_team_member_privilege(:nominate)
+
+      valid_attrs = %{
+        comments: "some comments"
+      }
+
+      assert {:error, changeset} = Documents.create_nomination(document, team_member, valid_attrs)
+
+      assert "Nomination denied. Document has unresolved nomination." in errors_on(changeset).business_rule
+    end
+
     test "update_nomination/2 with valid data updates the nomination" do
       nomination = nomination_fixture()
 

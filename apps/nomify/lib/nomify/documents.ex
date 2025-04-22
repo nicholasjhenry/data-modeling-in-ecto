@@ -178,7 +178,9 @@ defmodule Nomify.Documents do
 
   """
   def create_nomination(document, team_member, attrs, opts \\ []) do
+    document = Repo.preload(document, latest_nomination: Nomination.latest())
     team_member = Repo.preload(team_member, :nominations)
+
     team_member_opts = Keyword.get(opts, :team_member, [])
 
     %Nomination{}

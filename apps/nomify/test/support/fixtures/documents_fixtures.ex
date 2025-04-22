@@ -22,6 +22,15 @@ defmodule Nomify.DocumentsFixtures do
     document
   end
 
+  def nominate_document(document) do
+    team_member = team_member_fixture() |> update_team_member_privilege(:nominate)
+
+    {:ok, _nomination} =
+      Nomify.Documents.create_nomination(document, team_member, %{comments: "some comment"})
+
+    Nomify.Documents.get_document!(document.id)
+  end
+
   def approve_document(document) do
     team_member = team_member_fixture() |> update_team_member_privilege(:nominate)
 

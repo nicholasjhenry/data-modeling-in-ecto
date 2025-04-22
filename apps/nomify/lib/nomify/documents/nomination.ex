@@ -1,6 +1,7 @@
 defmodule Nomify.Documents.Nomination do
   use Ecto.Schema
   import Ecto.Changeset
+  import Ecto.Query, warn: false
   import Nomify.Result
 
   alias Nomify.Documents.Document
@@ -32,6 +33,12 @@ defmodule Nomify.Documents.Nomination do
     belongs_to :team_member, TeamMember
 
     timestamps()
+  end
+
+  # SECTION: Database Queries
+
+  def latest(query \\ __MODULE__) do
+    from query, order_by: [desc: :inserted_at], limit: 1
   end
 
   # SECTION: Field Changesets
@@ -97,7 +104,12 @@ defmodule Nomify.Documents.Nomination do
   # SECTION: Assoc Validations
 
   defp validate_document(changeset) do
-    maybe_validate_nomination_conflict(changeset)
+    changeset = maybe_validate_nomination_conflict(changeset)
+
+    changeset
+    |> get_assoc(:document, :struct)
+    |> Document.check_nomination()
+    |> put_result(changeset, :business_rule)
   end
 
   defp validate_team_member(changeset, opts) do
