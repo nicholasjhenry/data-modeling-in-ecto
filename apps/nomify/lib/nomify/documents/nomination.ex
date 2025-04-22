@@ -10,6 +10,17 @@ defmodule Nomify.Documents.Nomination do
     # SECTION: Fields
     field :comments, :string
 
+    # NOTE: Principle 40: Knowing Where in the Lifecycle
+    #
+    # In a person, place, or thing object, make the lifecycle state a property derived
+    # from event collaborators. In an event, make the lifecycle state a property,
+    # unless it is derived from follow-up events.
+    #
+    # NOTE: Principle 43: Only Change State When Conducting Business
+    #
+    # Allow only conduct business services to change an object’s lifecycle or
+    # operational state properties.
+    #
     field :status, Ecto.Enum,
       values: [:pending, :in_review, :rejected, :approved],
       default: :pending
