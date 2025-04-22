@@ -20,6 +20,14 @@ defmodule Nomify.Resources.TeamMember do
     field :nominations_per_period_count, :integer, virtual: true
     field :max_nominations_allowed, :integer, virtual: true
 
+    # NOTE:
+    #
+    # > Any coding template for the generic – specific pattern must accommodate the object inheritance
+    # > mechanism, which specifies the properties and services in the generic that are accessible from
+    # > the specific object. What object inheritance really means is that certain determine mine and
+    # > analyze transactions services available in the generic are also available in the specific.
+    #
+
     # SECTION: Fields - Person
     field :title, :string, virtual: true
     field :name, :string, virtual: true
@@ -43,7 +51,7 @@ defmodule Nomify.Resources.TeamMember do
   # Number of days in nomination time period.
   @nominations_time_period {30, :day}
 
-  # SECTION: Scopes
+  # SECTION: Database Queries
 
   def base_query(query \\ __MODULE__) do
     from team_member in query,
@@ -153,6 +161,12 @@ defmodule Nomify.Resources.TeamMember do
   defp validate_team(changeset) do
     validate_person_team_conflict(changeset)
   end
+
+  # NOTE: Conflict Rules
+  #
+  # > Conflict rules come into play when business rules define restrictions between objects that
+  # > collaborate through an intermediary object. In essence, conflict rules are collaboration
+  # > rules between indirect collaborators, that is, in-laws.
 
   defp validate_person_team_conflict(changeset) do
     unique_constraint(changeset, [:person_id, :team_id],

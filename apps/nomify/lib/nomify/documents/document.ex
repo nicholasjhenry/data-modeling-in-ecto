@@ -37,7 +37,9 @@ defmodule Nomify.Documents.Document do
   def changeset(document, attrs) do
     document
     |> cast(attrs, [:title, :security_level])
+    # Logical validation rules
     |> validate_required([:title, :security_level])
+    # Business validation rule
     |> validate_title
   end
 
@@ -81,6 +83,8 @@ defmodule Nomify.Documents.Document do
       :ok
     end
   end
+
+  # NOTE: Example of a conflict rule
 
   @doc false
   def check_nomination_conflict(document, team_member) do
