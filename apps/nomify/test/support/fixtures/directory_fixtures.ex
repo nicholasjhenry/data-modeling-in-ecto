@@ -19,4 +19,11 @@ defmodule Nomify.DirectoryFixtures do
 
     person
   end
+
+  def valid_person_attributes(attrs \\ %{}) do
+    Enum.into(attrs, %{
+      name: "some name",
+      title: "some title"
+    })
+  end
 end
