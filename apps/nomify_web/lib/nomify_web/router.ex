@@ -21,35 +21,42 @@ defmodule NomifyWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
+  end
 
-    # people
-    live "/people", PersonLive.Index, :index
-    live "/people/new", PersonLive.Form, :new
-    live "/people/:id", PersonLive.Show, :show
-    live "/people/:id/edit", PersonLive.Form, :edit
+  scope "/", NomifyWeb do
+    pipe_through [:browser, :require_authenticated_user]
 
-    # teams
-    live "/teams", TeamLive.Index, :index
-    live "/teams/new", TeamLive.Form, :new
-    live "/teams/:id", TeamLive.Show, :show
-    live "/teams/:id/edit", TeamLive.Form, :edit
+    live_session :admin,
+      on_mount: [{NomifyWeb.UserAuth, :mount_current_scope}] do
+      # people
+      live "/people", PersonLive.Index, :index
+      live "/people/new", PersonLive.Form, :new
+      live "/people/:id", PersonLive.Show, :show
+      live "/people/:id/edit", PersonLive.Form, :edit
 
-    live "/teams/:team_id/members/new", TeamMemberLive.Form, :new
-    live "/teams/:team_id/members/:id", TeamMemberLive.Show, :show
-    live "/teams/:team_id/members/:id/edit", TeamMemberLive.Form, :edit
-    live "/teams/:team_id/members/:id/role/edit", TeamMemberLive.RoleForm
-    live "/teams/:team_id/members/:id/privileges/edit", TeamMemberLive.PrivilegesForm
+      # teams
+      live "/teams", TeamLive.Index, :index
+      live "/teams/new", TeamLive.Form, :new
+      live "/teams/:id", TeamLive.Show, :show
+      live "/teams/:id/edit", TeamLive.Form, :edit
 
-    # documents
-    live "/documents", DocumentLive.Index, :index
-    live "/documents/new", DocumentLive.Form, :new
-    live "/documents/:id", DocumentLive.Show, :show
-    live "/documents/:id/edit", DocumentLive.Form, :edit
+      live "/teams/:team_id/members/new", TeamMemberLive.Form, :new
+      live "/teams/:team_id/members/:id", TeamMemberLive.Show, :show
+      live "/teams/:team_id/members/:id/edit", TeamMemberLive.Form, :edit
+      live "/teams/:team_id/members/:id/role/edit", TeamMemberLive.RoleForm
+      live "/teams/:team_id/members/:id/privileges/edit", TeamMemberLive.PrivilegesForm
 
-    # nominations
-    live "/documents/:document_id/nominations/new", NominationLive.Form, :new
-    live "/documents/:document_id/nominations/:id", NominationLive.Show, :show
-    live "/documents/:document_id/nominations/:id/edit", NominationLive.Form, :edit
+      # documents
+      live "/documents", DocumentLive.Index, :index
+      live "/documents/new", DocumentLive.Form, :new
+      live "/documents/:id", DocumentLive.Show, :show
+      live "/documents/:id/edit", DocumentLive.Form, :edit
+
+      # nominations
+      live "/documents/:document_id/nominations/new", NominationLive.Form, :new
+      live "/documents/:document_id/nominations/:id", NominationLive.Show, :show
+      live "/documents/:document_id/nominations/:id/edit", NominationLive.Form, :edit
+    end
   end
 
   # Other scopes may use custom stacks.

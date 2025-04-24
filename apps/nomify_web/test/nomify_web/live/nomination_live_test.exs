@@ -17,6 +17,8 @@ defmodule NomifyWeb.NominationLiveTest do
     %{document: nomination.document, nomination: nomination}
   end
 
+  setup :register_and_log_in_user
+
   describe "Index" do
     setup [:create_nomination]
 

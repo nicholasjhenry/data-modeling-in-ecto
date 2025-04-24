@@ -13,6 +13,8 @@ defmodule NomifyWeb.TeamLiveTest do
     %{team: team}
   end
 
+  setup :register_and_log_in_user
+
   describe "Index" do
     setup [:create_team]
 

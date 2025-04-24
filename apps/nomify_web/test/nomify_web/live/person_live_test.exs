@@ -17,6 +17,8 @@ defmodule NomifyWeb.PersonLiveTest do
     %{person: person}
   end
 
+  setup :register_and_log_in_user
+
   describe "Index" do
     setup [:create_person]
 
