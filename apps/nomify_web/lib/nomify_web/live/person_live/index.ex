@@ -45,6 +45,10 @@ defmodule NomifyWeb.PersonLive.Index do
 
   @impl true
   def mount(_params, _session, socket) do
+    if connected?(socket) do
+      Directory.subscribe_people(socket.assigns.current_scope)
+    end
+
     {:ok,
      socket
      |> assign(:page_title, "Listing People")
@@ -54,8 +58,14 @@ defmodule NomifyWeb.PersonLive.Index do
   @impl true
   def handle_event("delete", %{"id" => id}, socket) do
     person = Directory.get_person!(id)
-    {:ok, _} = Directory.delete_person(person)
+    {:ok, _} = Directory.delete_person(socket.assigns.current_scope, person)
 
     {:noreply, stream_delete(socket, :people, person)}
+  end
+
+  @impl true
+  def handle_info({type, %Directory.Person{}}, socket)
+      when type in [:created, :updated, :deleted] do
+    {:noreply, stream(socket, :people, Directory.list_people(), reset: true)}
   end
 end

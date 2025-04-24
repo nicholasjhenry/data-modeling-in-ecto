@@ -25,7 +25,11 @@ defmodule Nomify.TeamsFixtures do
   Generate a team_member.
   """
   # NOTE: Pass associated structs or create them?
-  def team_member_fixture(team \\ team_fixture(), person \\ person_fixture()) do
+  def team_member_fixture(scope, assocs \\ %{}) do
+    assocs = Map.new(assocs)
+    team = Map.get_lazy(assocs, :team, fn -> team_fixture() end)
+    person = Map.get_lazy(assocs, :person, fn -> person_fixture(scope) end)
+
     {:ok, team_member} = Nomify.Teams.create_team_member(team, person)
 
     team_member

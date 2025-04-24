@@ -3,10 +3,11 @@ defmodule Nomify.TeamsTest do
 
   alias Nomify.Teams
 
+  import Nomify.AccountsFixtures, only: [user_scope_fixture: 0]
+
   describe "teams" do
     alias Nomify.Teams.Team
 
-    import Nomify.DirectoryFixtures
     import Nomify.TeamsFixtures
 
     @invalid_attrs %{format: nil, description: nil}
@@ -71,8 +72,9 @@ defmodule Nomify.TeamsTest do
     import Nomify.TeamsFixtures
 
     setup do
+      scope = user_scope_fixture()
       team = team_fixture()
-      person = person_fixture()
+      person = person_fixture(scope)
 
       %{team: team, person: person}
     end
@@ -80,13 +82,15 @@ defmodule Nomify.TeamsTest do
     @invalid_attrs %{security_level: nil}
 
     test "list_team_members/0 returns all team_members" do
-      team_member = team_member_fixture()
+      scope = user_scope_fixture()
+      team_member = team_member_fixture(scope)
       assert [listed_team_member] = Teams.list_team_members()
       assert listed_team_member.id == team_member.id
     end
 
     test "get_team_member!/1 returns the team_member with given id" do
-      team_member = team_member_fixture()
+      scope = user_scope_fixture()
+      team_member = team_member_fixture(scope)
       team = team_member.team
       assert fetched_team_member = Teams.get_team_member!(team, team_member.id)
       assert fetched_team_member.id == team_member.id
@@ -108,7 +112,8 @@ defmodule Nomify.TeamsTest do
          %{
            team: team
          } do
-      invalid_person = person_fixture(email: nil)
+      scope = user_scope_fixture()
+      invalid_person = person_fixture(scope, email: nil)
 
       assert {:error, changeset} =
                Teams.create_team_member(team, invalid_person)
@@ -131,7 +136,8 @@ defmodule Nomify.TeamsTest do
 
     test "update_team_member/2 with valid data updates the team_member" do
       # default role :member
-      team_member = team_member_fixture()
+      scope = user_scope_fixture()
+      team_member = team_member_fixture(scope)
       update_attrs = %{security_level: :medium}
 
       assert {:ok, %TeamMember{} = team_member} =
@@ -142,7 +148,8 @@ defmodule Nomify.TeamsTest do
     end
 
     test "update_team_member/2 with invalid data returns error changeset" do
-      team_member = team_member_fixture()
+      scope = user_scope_fixture()
+      team_member = team_member_fixture(scope)
       team = team_member.team
 
       assert {:error, %Ecto.Changeset{}} =
@@ -155,7 +162,8 @@ defmodule Nomify.TeamsTest do
     end
 
     test "update_team_member_role/2 with valid data updates the team_member role" do
-      team_member = team_member_fixture()
+      scope = user_scope_fixture()
+      team_member = team_member_fixture(scope)
       update_attrs = %{role: :member}
 
       assert {:ok, %TeamMember{} = team_member} =
@@ -165,7 +173,8 @@ defmodule Nomify.TeamsTest do
     end
 
     test "update_team_member_role/2 with invalid data returns error changeset" do
-      team_member = team_member_fixture()
+      scope = user_scope_fixture()
+      team_member = team_member_fixture(scope)
       team = team_member.team
 
       update_attrs = %{role: :foo}
@@ -180,15 +189,16 @@ defmodule Nomify.TeamsTest do
     end
 
     test "update_team_member_role/2 enforces team chair business rule for multiple-chair team" do
+      scope = user_scope_fixture()
       team = team_fixture(%{format: :multiple})
-      team_member = team_member_fixture(team)
+      team_member = team_member_fixture(scope, team: team)
 
       assert {:ok, team_member} =
                Teams.update_team_member_role(team_member, %{role: :chair})
 
       assert team_member.role == :chair
 
-      team_member = team_member_fixture(team)
+      team_member = team_member_fixture(scope, team: team)
 
       assert {:ok, team_member} =
                Teams.update_team_member_role(team_member, %{role: :chair})
@@ -197,13 +207,14 @@ defmodule Nomify.TeamsTest do
     end
 
     test "update_team_member_role/2 enforces team chair business rule for single-chair team" do
+      scope = user_scope_fixture()
       team = team_fixture(%{format: :single})
-      team_member = team_member_fixture(team)
+      team_member = team_member_fixture(scope, team: team)
 
       assert {:ok, _team_member} =
                Teams.update_team_member_role(team_member, %{role: :chair})
 
-      team_member = team_member_fixture(team)
+      team_member = team_member_fixture(scope, team: team)
 
       assert {:error, changeset} =
                Teams.update_team_member_role(team_member, %{role: :chair})
@@ -212,8 +223,9 @@ defmodule Nomify.TeamsTest do
     end
 
     test "update_team_member_role/2 enforces team chair business rule for none-chair team" do
+      scope = user_scope_fixture()
       team = team_fixture(%{format: :none})
-      team_member = team_member_fixture(team)
+      team_member = team_member_fixture(scope, team: team)
 
       assert {:error, changeset} =
                Teams.update_team_member_role(team_member, %{role: :chair})
@@ -222,7 +234,8 @@ defmodule Nomify.TeamsTest do
     end
 
     test "update_team_member_privileges/2 with valid data updates the team_member privileges" do
-      team_member = team_member_fixture()
+      scope = user_scope_fixture()
+      team_member = team_member_fixture(scope)
       update_attrs = %{delete: "true", nominate: "false"}
 
       assert {:ok, %TeamMember{} = team_member} =
@@ -232,7 +245,8 @@ defmodule Nomify.TeamsTest do
     end
 
     test "delete_team_member/1 deletes the team_member" do
-      team_member = team_member_fixture()
+      scope = user_scope_fixture()
+      team_member = team_member_fixture(scope)
       team = team_member.team
 
       assert {:ok, %TeamMember{}} = Teams.delete_team_member(team_member)
@@ -240,7 +254,8 @@ defmodule Nomify.TeamsTest do
     end
 
     test "change_team_member/1 returns a team_member changeset" do
-      team_member = team_member_fixture()
+      scope = user_scope_fixture()
+      team_member = team_member_fixture(scope)
       assert %Ecto.Changeset{} = Teams.change_team_member(team_member)
     end
   end

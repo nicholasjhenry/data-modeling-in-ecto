@@ -3,6 +3,8 @@ defmodule Nomify.DocumentsTest do
 
   alias Nomify.Documents
 
+  import Nomify.AccountsFixtures, only: [user_scope_fixture: 0]
+
   describe "documents" do
     alias Nomify.Documents.Document
 
@@ -95,7 +97,8 @@ defmodule Nomify.DocumentsTest do
     @invalid_attrs %{status: nil, comments: nil}
 
     test "get_nomination!/1 returns the nomination with given id" do
-      nomination = nomination_fixture()
+      scope = user_scope_fixture()
+      nomination = nomination_fixture(scope)
       document = nomination.document
 
       assert Documents.nomination_equal?(
@@ -105,8 +108,13 @@ defmodule Nomify.DocumentsTest do
     end
 
     test "nominate_document/1 with valid data creates a nomination" do
+      scope = user_scope_fixture()
       document = document_fixture()
-      team_member = team_member_fixture() |> update_team_member_privilege(:nominate)
+
+      team_member =
+        scope
+        |> team_member_fixture()
+        |> update_team_member_privilege(:nominate)
 
       valid_attrs = %{
         comments: "some comments"
@@ -121,18 +129,25 @@ defmodule Nomify.DocumentsTest do
     end
 
     test "nominate_document/1 with invalid data returns error changeset" do
+      scope = user_scope_fixture()
       document = document_fixture()
-      team_member = team_member_fixture() |> update_team_member_privilege(:nominate)
+
+      team_member =
+        scope
+        |> team_member_fixture()
+        |> update_team_member_privilege(:nominate)
 
       assert {:error, %Ecto.Changeset{}} =
                Documents.nominate_document(document, team_member, @invalid_attrs)
     end
 
     test "nominate_document/1 with nomination conflict returns error changeset" do
+      scope = user_scope_fixture()
       document = document_fixture(security_level: :secret)
 
       team_member =
-        team_member_fixture()
+        scope
+        |> team_member_fixture()
         |> update_team_member_security_level(:low)
 
       valid_attrs = %{
@@ -146,8 +161,9 @@ defmodule Nomify.DocumentsTest do
     end
 
     test "nominate_document/1 with team member without nominate privilege returns error changeset" do
+      scope = user_scope_fixture()
       document = document_fixture()
-      team_member = team_member_fixture()
+      team_member = team_member_fixture(scope)
 
       valid_attrs = %{comments: "some comments"}
 
@@ -157,11 +173,18 @@ defmodule Nomify.DocumentsTest do
     end
 
     test "nominate_document/1 with team member exceeding nominations returns error changeset" do
+      scope = user_scope_fixture()
       document = document_fixture()
-      team_member = team_member_fixture() |> update_team_member_privilege(:nominate)
+
+      team_member =
+        scope
+        |> team_member_fixture()
+        |> update_team_member_privilege(:nominate)
 
       another_document = document_fixture()
-      _nomination = nomination_fixture(%{}, another_document, team_member)
+
+      _nomination =
+        nomination_fixture(scope, %{}, document: another_document, team_member: team_member)
 
       valid_attrs = %{comments: "some comments"}
       opts = [team_member: [nomination_allowance: [max_documents: 1]]]
@@ -173,8 +196,13 @@ defmodule Nomify.DocumentsTest do
     end
 
     test "nominate_document/1 with a document with an unresolved nomination returns error changeset" do
+      scope = user_scope_fixture()
       document = document_fixture() |> nominate_document()
-      team_member = team_member_fixture() |> update_team_member_privilege(:nominate)
+
+      team_member =
+        scope
+        |> team_member_fixture()
+        |> update_team_member_privilege(:nominate)
 
       valid_attrs = %{
         comments: "some comments"
@@ -186,7 +214,8 @@ defmodule Nomify.DocumentsTest do
     end
 
     test "update_nomination/2 with valid data updates the nomination" do
-      nomination = nomination_fixture()
+      scope = user_scope_fixture()
+      nomination = nomination_fixture(scope)
 
       update_attrs = %{
         status: :in_review,
@@ -201,7 +230,8 @@ defmodule Nomify.DocumentsTest do
     end
 
     test "update_nomination/2 with invalid data returns error changeset" do
-      nomination = nomination_fixture()
+      scope = user_scope_fixture()
+      nomination = nomination_fixture(scope)
       document = nomination.document
 
       assert {:error, %Ecto.Changeset{}} = Documents.update_nomination(nomination, @invalid_attrs)
@@ -214,7 +244,8 @@ defmodule Nomify.DocumentsTest do
 
     test "update_nomination/2 with invalid status returns error changeset" do
       # status: :pending
-      nomination = nomination_fixture()
+      scope = user_scope_fixture()
+      nomination = nomination_fixture(scope)
 
       invalid_status_attrs = %{comment: "some updated comments", status: :approved}
 
@@ -225,7 +256,8 @@ defmodule Nomify.DocumentsTest do
     end
 
     test "delete_nomination/1 deletes the nomination" do
-      nomination = nomination_fixture()
+      scope = user_scope_fixture()
+      nomination = nomination_fixture(scope)
       document = nomination.document
 
       assert {:ok, %Nomination{}} = Documents.delete_nomination(nomination)
@@ -236,7 +268,8 @@ defmodule Nomify.DocumentsTest do
     end
 
     test "change_nomination/1 returns a nomination changeset" do
-      nomination = nomination_fixture()
+      scope = user_scope_fixture()
+      nomination = nomination_fixture(scope)
       assert %Ecto.Changeset{} = Documents.change_nomination(nomination)
     end
   end

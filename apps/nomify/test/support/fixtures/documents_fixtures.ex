@@ -4,6 +4,7 @@ defmodule Nomify.DocumentsFixtures do
   entities via the `Nomify.Documents` context.
   """
 
+  import Nomify.AccountsFixtures, only: [user_scope_fixture: 0]
   import Nomify.TeamsFixtures
 
   @doc """
@@ -23,7 +24,12 @@ defmodule Nomify.DocumentsFixtures do
   end
 
   def nominate_document(document) do
-    team_member = team_member_fixture() |> update_team_member_privilege(:nominate)
+    scope = user_scope_fixture()
+
+    team_member =
+      scope
+      |> team_member_fixture()
+      |> update_team_member_privilege(:nominate)
 
     {:ok, _nomination} =
       Nomify.Documents.nominate_document(document, team_member, %{comments: "some comment"})
@@ -32,7 +38,12 @@ defmodule Nomify.DocumentsFixtures do
   end
 
   def approve_document(document) do
-    team_member = team_member_fixture() |> update_team_member_privilege(:nominate)
+    scope = user_scope_fixture()
+
+    team_member =
+      scope
+      |> team_member_fixture()
+      |> update_team_member_privilege(:nominate)
 
     {:ok, nomination} =
       Nomify.Documents.nominate_document(document, team_member, %{comments: "some comment"})
@@ -47,11 +58,15 @@ defmodule Nomify.DocumentsFixtures do
   @doc """
   Generate a nomination.
   """
-  def nomination_fixture(
-        attrs \\ %{},
-        document \\ document_fixture(),
-        team_member \\ team_member_fixture() |> update_team_member_privilege(:nominate)
-      ) do
+  def nomination_fixture(scope, attrs \\ %{}, assocs \\ %{}) do
+    assocs = Map.new(assocs)
+    document = Map.get_lazy(assocs, :document, fn -> document_fixture() end)
+
+    team_member =
+      Map.get_lazy(assocs, :team_member, fn ->
+        scope |> team_member_fixture() |> update_team_member_privilege(:nominate)
+      end)
+
     attrs =
       Enum.into(attrs, %{
         comments: "some comments",

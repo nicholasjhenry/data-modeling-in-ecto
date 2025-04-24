@@ -7,15 +7,15 @@ defmodule Nomify.DirectoryFixtures do
   @doc """
   Generate a person.
   """
-  def person_fixture(attrs \\ %{}) do
-    {:ok, person} =
-      attrs
-      |> Enum.into(%{
+  def person_fixture(scope, attrs \\ %{}) do
+    attrs =
+      Enum.into(attrs, %{
         email: "foo@example.com",
         name: "some name",
         title: "some title"
       })
-      |> Nomify.Directory.create_person()
+
+    {:ok, person} = Nomify.Directory.create_person(scope, attrs)
 
     person
   end

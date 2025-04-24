@@ -2,6 +2,7 @@ defmodule NomifyWeb.NominationLiveTest do
   use NomifyWeb.ConnCase
 
   import Phoenix.LiveViewTest
+
   import Nomify.DocumentsFixtures
   import Nomify.TeamsFixtures
 
@@ -11,8 +12,8 @@ defmodule NomifyWeb.NominationLiveTest do
     comments: "some updated comments"
   }
   @invalid_attrs %{comments: nil}
-  defp create_nomination(_) do
-    nomination = nomination_fixture()
+  defp create_nomination(%{scope: scope}) do
+    nomination = nomination_fixture(scope)
 
     %{document: nomination.document, nomination: nomination}
   end
@@ -22,9 +23,13 @@ defmodule NomifyWeb.NominationLiveTest do
   describe "Index" do
     setup [:create_nomination]
 
-    test "saves new nomination", %{conn: conn} do
+    test "saves new nomination", %{conn: conn, scope: scope} do
       document = document_fixture()
-      team_member = team_member_fixture() |> update_team_member_privilege(:nominate)
+
+      team_member =
+        scope
+        |> team_member_fixture()
+        |> update_team_member_privilege(:nominate)
 
       {:ok, index_live, _html} = live(conn, ~p"/documents/#{document}")
 

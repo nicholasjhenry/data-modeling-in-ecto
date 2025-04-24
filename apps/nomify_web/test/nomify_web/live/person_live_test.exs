@@ -11,8 +11,8 @@ defmodule NomifyWeb.PersonLiveTest do
     email: "foo.bar@example.com"
   }
   @invalid_attrs %{name: nil, title: nil, email: nil}
-  defp create_person(_) do
-    person = person_fixture()
+  defp create_person(%{scope: scope}) do
+    person = person_fixture(scope)
 
     %{person: person}
   end

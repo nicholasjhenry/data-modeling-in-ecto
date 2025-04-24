@@ -57,7 +57,9 @@ defmodule NomifyWeb.PersonLive.Form do
 
   @impl true
   def handle_event("validate", %{"person" => person_params}, socket) do
-    changeset = Directory.change_person(socket.assigns.person, person_params)
+    changeset =
+      Directory.change_person(socket.assigns.person, person_params)
+
     {:noreply, assign(socket, form: to_form(changeset, action: :validate))}
   end
 
@@ -66,7 +68,11 @@ defmodule NomifyWeb.PersonLive.Form do
   end
 
   defp save_person(socket, :edit, person_params) do
-    case Directory.update_person(socket.assigns.person, person_params) do
+    case Directory.update_person(
+           socket.assigns.current_scope,
+           socket.assigns.person,
+           person_params
+         ) do
       {:ok, person} ->
         {:noreply,
          socket
@@ -79,7 +85,7 @@ defmodule NomifyWeb.PersonLive.Form do
   end
 
   defp save_person(socket, :new, person_params) do
-    case Directory.create_person(person_params) do
+    case Directory.create_person(socket.assigns.current_scope, person_params) do
       {:ok, person} ->
         {:noreply,
          socket

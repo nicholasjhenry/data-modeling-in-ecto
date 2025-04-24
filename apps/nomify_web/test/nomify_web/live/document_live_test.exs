@@ -99,8 +99,11 @@ defmodule NomifyWeb.DocumentLiveTest do
       assert html =~ document.title
     end
 
-    test "nominates document", %{conn: conn, document: document} do
-      team_member = team_member_fixture() |> update_team_member_privilege(:nominate)
+    test "nominates document", %{conn: conn, scope: scope, document: document} do
+      team_member =
+        scope
+        |> team_member_fixture()
+        |> update_team_member_privilege(:nominate)
 
       {:ok, show_live, html} = live(conn, ~p"/documents/#{document}")
 

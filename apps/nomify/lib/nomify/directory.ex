@@ -6,7 +6,20 @@ defmodule Nomify.Directory do
   import Ecto.Query, warn: false
   alias Nomify.Repo
 
+  alias Nomify.Accounts.Scope
   alias Nomify.Directory.Person
+
+  def subscribe_people(%Scope{} = scope) do
+    key = scope.user.id
+
+    Phoenix.PubSub.subscribe(Nomify.PubSub, "user:#{key}:people")
+  end
+
+  defp broadcast(%Scope{} = scope, message) do
+    key = scope.user.id
+
+    Phoenix.PubSub.broadcast(Nomify.PubSub, "user:#{key}:people", message)
+  end
 
   def list_people do
     Repo.all(Person)
@@ -20,20 +33,32 @@ defmodule Nomify.Directory do
 
   def get_person!(id), do: Repo.get!(Person, id)
 
-  def create_person(attrs \\ %{}) do
-    %Person{}
-    |> Person.changeset(attrs)
-    |> Repo.insert()
+  def create_person(%Scope{} = scope, attrs \\ %{}) do
+    with {:ok, person = %Person{}} <-
+           %Person{}
+           |> Person.changeset(attrs)
+           |> Repo.insert() do
+      broadcast(scope, {:created, person})
+      {:ok, person}
+    end
   end
 
-  def update_person(%Person{} = person, attrs) do
-    person
-    |> Person.changeset(attrs)
-    |> Repo.update()
+  def update_person(%Scope{} = scope, %Person{} = person, attrs) do
+    with {:ok, person = %Person{}} <-
+           person
+           |> Person.changeset(attrs)
+           |> Repo.update() do
+      broadcast(scope, {:updated, person})
+      {:ok, person}
+    end
   end
 
-  def delete_person(%Person{} = person) do
-    Repo.delete(person)
+  def delete_person(%Scope{} = scope, %Person{} = person) do
+    with {:ok, person = %Person{}} <-
+           Repo.delete(person) do
+      broadcast(scope, {:deleted, person})
+      {:ok, person}
+    end
   end
 
   def change_person(%Person{} = person, attrs \\ %{}) do

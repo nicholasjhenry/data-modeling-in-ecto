@@ -7,8 +7,8 @@ defmodule NomifyWeb.TeamMemberLiveTest do
 
   @update_attrs %{security_level: :medium}
 
-  defp create_team_member(_) do
-    team_member = team_member_fixture()
+  defp create_team_member(%{scope: scope}) do
+    team_member = team_member_fixture(scope)
 
     %{team: team_member.team, team_member: team_member}
   end
@@ -24,10 +24,10 @@ defmodule NomifyWeb.TeamMemberLiveTest do
       assert html =~ "Listing Team members"
     end
 
-    test "saves new team_member", %{conn: conn} do
+    test "saves new team_member", %{conn: conn, scope: scope} do
       team = team_fixture()
-      valid_person = person_fixture()
-      invalid_person = person_fixture(email: nil)
+      valid_person = person_fixture(scope)
+      invalid_person = person_fixture(scope, email: nil)
 
       {:ok, index_live, _html} = live(conn, ~p"/teams/#{team}")
 

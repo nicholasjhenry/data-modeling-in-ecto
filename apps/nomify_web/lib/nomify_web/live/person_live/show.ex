@@ -31,9 +31,36 @@ defmodule NomifyWeb.PersonLive.Show do
 
   @impl true
   def mount(%{"id" => id}, _session, socket) do
+    if connected?(socket) do
+      Directory.subscribe_people(socket.assigns.current_scope)
+    end
+
     {:ok,
      socket
      |> assign(:page_title, "Show Person")
      |> assign(:person, Directory.get_person!(id))}
+  end
+
+  @impl true
+  def handle_info(
+        {:updated, %Directory.Person{id: id} = person},
+        %{assigns: %{person: %{id: id}}} = socket
+      ) do
+    {:noreply, assign(socket, :person, person)}
+  end
+
+  def handle_info(
+        {:deleted, %Directory.Person{id: id}},
+        %{assigns: %{person: %{id: id}}} = socket
+      ) do
+    {:noreply,
+     socket
+     |> put_flash(:error, "The current person was deleted.")
+     |> push_navigate(to: ~p"/people")}
+  end
+
+  def handle_info({type, %Directory.Person{}}, socket)
+      when type in [:created, :updated, :deleted] do
+    {:noreply, socket}
   end
 end
