@@ -73,6 +73,20 @@ defmodule Nomify.Teams do
       lhs.format == rhs.format
   end
 
+  # SECTION: Team Members
+  #
+  def subscribe_team_members(%Scope{} = scope) do
+    key = scope.user.id
+
+    Phoenix.PubSub.subscribe(Nomify.PubSub, "user:#{key}:team_members")
+  end
+
+  defp broadcast_team_members(%Scope{} = scope, message) do
+    key = scope.user.id
+
+    Phoenix.PubSub.broadcast(Nomify.PubSub, "user:#{key}:team_members", message)
+  end
+
   def list_team_members do
     Repo.all(TeamMember)
   end
@@ -101,42 +115,62 @@ defmodule Nomify.Teams do
   # team or person first? Both of these felt equal weight, so since it's a `team_member`
   # placed `team` as the first argument.
   #
-  def create_team_member(team, person) do
-    %TeamMember{}
-    # NOTE: Streamlined Object Modeling
-    #
-    # Principle 75: Properties Before Collaborators
-    #
-    # Object construction methods initialize properties before establishing collaborations because
-    # collaboration rules may check property values.
-    #
-    |> TeamMember.insert_changeset()
-    |> TeamMember.put_team(team)
-    |> TeamMember.put_person(person)
-    |> Repo.insert()
+  def create_team_member(%Scope{} = scope, team, person) do
+    with {:ok, team = %TeamMember{}} <-
+           %TeamMember{}
+           # NOTE: Streamlined Object Modeling
+           #
+           # Principle 75: Properties Before Collaborators
+           #
+           # Object construction methods initialize properties before establishing collaborations because
+           # collaboration rules may check property values.
+           #
+           |> TeamMember.insert_changeset()
+           |> TeamMember.put_team(team)
+           |> TeamMember.put_person(person)
+           |> Repo.insert() do
+      broadcast_team_members(scope, {:created, team})
+      {:ok, team}
+    end
   end
 
-  def update_team_member(%TeamMember{} = team_member, attrs) do
-    team_member
-    |> TeamMember.changeset(attrs)
-    |> Repo.update()
+  def update_team_member(%Scope{} = scope, %TeamMember{} = team_member, attrs) do
+    with {:ok, team_member = %TeamMember{}} <-
+           team_member
+           |> TeamMember.changeset(attrs)
+           |> Repo.update() do
+      broadcast_team_members(scope, {:updated, team_member})
+      {:ok, team_member}
+    end
   end
 
-  def update_team_member_role(team_member, attrs) do
-    team_member
-    |> Repo.preload(team: :team_members)
-    |> TeamMember.role_changeset(attrs)
-    |> Repo.update()
+  def update_team_member_role(%Scope{} = scope, team_member, attrs) do
+    with {:ok, team_member = %TeamMember{}} <-
+           team_member
+           |> Repo.preload(team: :team_members)
+           |> TeamMember.role_changeset(attrs)
+           |> Repo.update() do
+      broadcast_team_members(scope, {:updated, team_member})
+      {:ok, team_member}
+    end
   end
 
-  def update_team_member_privileges(team_member, attrs) do
-    team_member
-    |> TeamMember.privileges_changeset(attrs)
-    |> Repo.update()
+  def update_team_member_privileges(%Scope{} = scope, team_member, attrs) do
+    with {:ok, team_member = %TeamMember{}} <-
+           team_member
+           |> TeamMember.privileges_changeset(attrs)
+           |> Repo.update() do
+      broadcast_team_members(scope, {:updated, team_member})
+      {:ok, team_member}
+    end
   end
 
-  def delete_team_member(%TeamMember{} = team_member) do
-    Repo.delete(team_member)
+  def delete_team_member(%Scope{} = scope, %TeamMember{} = team_member) do
+    with {:ok, team_member = %TeamMember{}} <-
+           Repo.delete(team_member) do
+      broadcast_team_members(scope, {:deleted, team_member})
+      {:ok, team_member}
+    end
   end
 
   def change_team_member(%TeamMember{} = team_member, attrs \\ %{}) do

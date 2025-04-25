@@ -60,7 +60,11 @@ defmodule NomifyWeb.TeamMemberLive.RoleForm do
   end
 
   def handle_event("save", %{"team_member" => team_member_params}, socket) do
-    case Teams.update_team_member_role(socket.assigns.team_member, team_member_params) do
+    case Teams.update_team_member_role(
+           socket.assigns.current_scope,
+           socket.assigns.team_member,
+           team_member_params
+         ) do
       {:ok, team_member} ->
         {:noreply,
          socket

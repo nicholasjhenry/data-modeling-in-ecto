@@ -141,7 +141,11 @@ defmodule NomifyWeb.TeamMemberLive.Form do
   end
 
   defp save_team_member(socket, :edit, team_member_params) do
-    case Teams.update_team_member(socket.assigns.team_member, team_member_params) do
+    case Teams.update_team_member(
+           socket.assigns.current_scope,
+           socket.assigns.team_member,
+           team_member_params
+         ) do
       {:ok, team_member} ->
         {:noreply,
          socket
@@ -156,7 +160,11 @@ defmodule NomifyWeb.TeamMemberLive.Form do
   end
 
   defp save_team_member(socket, :new, _team_member_params) do
-    case Teams.create_team_member(socket.assigns.team, socket.assigns.person) do
+    case Teams.create_team_member(
+           socket.assigns.current_scope,
+           socket.assigns.team,
+           socket.assigns.person
+         ) do
       {:ok, team_member} ->
         {:noreply,
          socket

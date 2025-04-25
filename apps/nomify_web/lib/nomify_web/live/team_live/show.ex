@@ -99,7 +99,7 @@ defmodule NomifyWeb.TeamLive.Show do
   @impl true
   def handle_event("delete_team_member", %{"id" => id}, socket) do
     team_member = Teams.get_team_member!(socket.assigns.team, id)
-    {:ok, _} = Teams.delete_team_member(team_member)
+    {:ok, _} = Teams.delete_team_member(socket.assigns.current_scope, team_member)
 
     {:noreply, stream_delete(socket, :team_members, team_member)}
   end
@@ -125,5 +125,10 @@ defmodule NomifyWeb.TeamLive.Show do
   def handle_info({type, %Teams.Team{}}, socket)
       when type in [:created, :updated, :deleted] do
     {:noreply, socket}
+  end
+
+  def handle_info({type, %Teams.TeamMember{team_id: team_id}}, socket)
+      when type in [:created, :updated, :deleted] do
+    {:noreply, stream(socket, :team_members, Teams.get_team!(team_id).team_members, reset: true)}
   end
 end

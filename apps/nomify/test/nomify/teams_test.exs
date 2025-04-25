@@ -108,8 +108,10 @@ defmodule Nomify.TeamsTest do
       team: team,
       person: person
     } do
+      scope = user_scope_fixture()
+
       assert {:ok, %TeamMember{} = team_member} =
-               Teams.create_team_member(team, person)
+               Teams.create_team_member(scope, team, person)
 
       assert team_member.role == :member
       assert team_member.privileges.flags == []
@@ -124,7 +126,7 @@ defmodule Nomify.TeamsTest do
       invalid_person = person_fixture(scope, email: nil)
 
       assert {:error, changeset} =
-               Teams.create_team_member(team, invalid_person)
+               Teams.create_team_member(scope, team, invalid_person)
 
       assert "Person cannot be team member. Invalid email." in errors_on(changeset).business_rule
     end
@@ -133,11 +135,13 @@ defmodule Nomify.TeamsTest do
       team: team,
       person: person
     } do
+      scope = user_scope_fixture()
+
       assert {:ok, %TeamMember{} = _team_member} =
-               Teams.create_team_member(team, person)
+               Teams.create_team_member(scope, team, person)
 
       assert {:error, changeset} =
-               Teams.create_team_member(team, person)
+               Teams.create_team_member(scope, team, person)
 
       assert "Tried to add person twice to team." in errors_on(changeset).business_rule
     end
@@ -149,7 +153,7 @@ defmodule Nomify.TeamsTest do
       update_attrs = %{security_level: :medium}
 
       assert {:ok, %TeamMember{} = team_member} =
-               Teams.update_team_member(team_member, update_attrs)
+               Teams.update_team_member(scope, team_member, update_attrs)
 
       assert team_member.role == :member
       assert team_member.security_level == :medium
@@ -161,7 +165,7 @@ defmodule Nomify.TeamsTest do
       team = team_member.team
 
       assert {:error, %Ecto.Changeset{}} =
-               Teams.update_team_member(team_member, @invalid_attrs)
+               Teams.update_team_member(scope, team_member, @invalid_attrs)
 
       assert Teams.team_member_equal?(
                team_member,
@@ -175,7 +179,7 @@ defmodule Nomify.TeamsTest do
       update_attrs = %{role: :member}
 
       assert {:ok, %TeamMember{} = team_member} =
-               Teams.update_team_member_role(team_member, update_attrs)
+               Teams.update_team_member_role(scope, team_member, update_attrs)
 
       assert team_member.role == :member
     end
@@ -188,7 +192,7 @@ defmodule Nomify.TeamsTest do
       update_attrs = %{role: :foo}
 
       assert {:error, %Ecto.Changeset{}} =
-               Teams.update_team_member_role(team_member, update_attrs)
+               Teams.update_team_member_role(scope, team_member, update_attrs)
 
       assert Teams.team_member_equal?(
                team_member,
@@ -202,14 +206,14 @@ defmodule Nomify.TeamsTest do
       team_member = team_member_fixture(scope, team: team)
 
       assert {:ok, team_member} =
-               Teams.update_team_member_role(team_member, %{role: :chair})
+               Teams.update_team_member_role(scope, team_member, %{role: :chair})
 
       assert team_member.role == :chair
 
       team_member = team_member_fixture(scope, team: team)
 
       assert {:ok, team_member} =
-               Teams.update_team_member_role(team_member, %{role: :chair})
+               Teams.update_team_member_role(scope, team_member, %{role: :chair})
 
       assert team_member.role == :chair
     end
@@ -220,12 +224,12 @@ defmodule Nomify.TeamsTest do
       team_member = team_member_fixture(scope, team: team)
 
       assert {:ok, _team_member} =
-               Teams.update_team_member_role(team_member, %{role: :chair})
+               Teams.update_team_member_role(scope, team_member, %{role: :chair})
 
       team_member = team_member_fixture(scope, team: team)
 
       assert {:error, changeset} =
-               Teams.update_team_member_role(team_member, %{role: :chair})
+               Teams.update_team_member_role(scope, team_member, %{role: :chair})
 
       "Tried to add another chair team member to single chair team." in errors_on(changeset).role
     end
@@ -236,7 +240,7 @@ defmodule Nomify.TeamsTest do
       team_member = team_member_fixture(scope, team: team)
 
       assert {:error, changeset} =
-               Teams.update_team_member_role(team_member, %{role: :chair})
+               Teams.update_team_member_role(scope, team_member, %{role: :chair})
 
       "Tried to add chair team member to no chairs team." in errors_on(changeset).role
     end
@@ -247,7 +251,7 @@ defmodule Nomify.TeamsTest do
       update_attrs = %{delete: "true", nominate: "false"}
 
       assert {:ok, %TeamMember{} = team_member} =
-               Teams.update_team_member_privileges(team_member, update_attrs)
+               Teams.update_team_member_privileges(scope, team_member, update_attrs)
 
       assert team_member.privileges.flags == [:delete]
     end
@@ -257,7 +261,7 @@ defmodule Nomify.TeamsTest do
       team_member = team_member_fixture(scope)
       team = team_member.team
 
-      assert {:ok, %TeamMember{}} = Teams.delete_team_member(team_member)
+      assert {:ok, %TeamMember{}} = Teams.delete_team_member(scope, team_member)
       assert_raise Ecto.NoResultsError, fn -> Teams.get_team_member!(team, team_member.id) end
     end
 

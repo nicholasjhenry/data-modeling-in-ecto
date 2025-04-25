@@ -139,7 +139,7 @@ defmodule Nomify.DocumentsTest do
       team_member =
         scope
         |> team_member_fixture()
-        |> update_team_member_privilege(:nominate)
+        |> then(&update_team_member_privilege(scope, &1, :nominate))
 
       valid_attrs = %{
         comments: "some comments"
@@ -160,7 +160,7 @@ defmodule Nomify.DocumentsTest do
       team_member =
         scope
         |> team_member_fixture()
-        |> update_team_member_privilege(:nominate)
+        |> then(&update_team_member_privilege(scope, &1, :nominate))
 
       assert {:error, %Ecto.Changeset{}} =
                Documents.nominate_document(scope, document, team_member, @invalid_attrs)
@@ -173,7 +173,7 @@ defmodule Nomify.DocumentsTest do
       team_member =
         scope
         |> team_member_fixture()
-        |> update_team_member_security_level(:low)
+        |> then(&update_team_member_security_level(scope, &1, :low))
 
       valid_attrs = %{
         comments: "some comments"
@@ -205,7 +205,7 @@ defmodule Nomify.DocumentsTest do
       team_member =
         scope
         |> team_member_fixture()
-        |> update_team_member_privilege(:nominate)
+        |> then(&update_team_member_privilege(scope, &1, :nominate))
 
       another_document = document_fixture(scope)
 
@@ -228,7 +228,8 @@ defmodule Nomify.DocumentsTest do
       team_member =
         scope
         |> team_member_fixture()
-        |> update_team_member_privilege(:nominate)
+        # |> update_team_member_privilege(:nominate)
+        |> then(&update_team_member_privilege(scope, &1, :nominate))
 
       valid_attrs = %{
         comments: "some comments"

@@ -30,21 +30,21 @@ defmodule Nomify.TeamsFixtures do
     team = Map.get_lazy(assocs, :team, fn -> team_fixture(scope) end)
     person = Map.get_lazy(assocs, :person, fn -> person_fixture(scope) end)
 
-    {:ok, team_member} = Nomify.Teams.create_team_member(team, person)
+    {:ok, team_member} = Nomify.Teams.create_team_member(scope, team, person)
 
     team_member
   end
 
-  def update_team_member_privilege(team_member, privilege) do
+  def update_team_member_privilege(scope, team_member, privilege) do
     {:ok, team_member} =
-      Nomify.Teams.update_team_member_privileges(team_member, %{privilege => true})
+      Nomify.Teams.update_team_member_privileges(scope, team_member, %{privilege => true})
 
     team_member
   end
 
-  def update_team_member_security_level(team_member, security_level) do
+  def update_team_member_security_level(scope, team_member, security_level) do
     {:ok, team_member} =
-      Nomify.Teams.update_team_member(team_member, %{security_level: security_level})
+      Nomify.Teams.update_team_member(scope, team_member, %{security_level: security_level})
 
     team_member
   end

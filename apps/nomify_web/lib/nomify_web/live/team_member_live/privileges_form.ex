@@ -49,7 +49,11 @@ defmodule NomifyWeb.TeamMemberLive.PrivilegesForm do
 
   @impl true
   def handle_event("save", %{"team_member" => team_member_params}, socket) do
-    case Teams.update_team_member_privileges(socket.assigns.team_member, team_member_params) do
+    case Teams.update_team_member_privileges(
+           socket.assigns.current_scope,
+           socket.assigns.team_member,
+           team_member_params
+         ) do
       {:ok, team_member} ->
         {:noreply,
          socket

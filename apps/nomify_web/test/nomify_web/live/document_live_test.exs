@@ -103,7 +103,7 @@ defmodule NomifyWeb.DocumentLiveTest do
       team_member =
         scope
         |> team_member_fixture()
-        |> update_team_member_privilege(:nominate)
+        |> then(&update_team_member_privilege(scope, &1, :nominate))
 
       {:ok, show_live, html} = live(conn, ~p"/documents/#{document}")
 
