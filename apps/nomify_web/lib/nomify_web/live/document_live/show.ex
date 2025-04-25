@@ -138,4 +138,10 @@ defmodule NomifyWeb.DocumentLive.Show do
       when type in [:created, :updated, :deleted] do
     {:noreply, socket}
   end
+
+  def handle_info({type, %Documents.Nomination{document_id: document_id}}, socket)
+      when type in [:created, :updated, :deleted] do
+    {:noreply,
+     stream(socket, :nominations, Documents.get_document!(document_id).nominations, reset: true)}
+  end
 end
