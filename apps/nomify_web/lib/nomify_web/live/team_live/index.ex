@@ -44,6 +44,10 @@ defmodule NomifyWeb.TeamLive.Index do
 
   @impl true
   def mount(_params, _session, socket) do
+    if connected?(socket) do
+      Teams.subscribe_teams(socket.assigns.current_scope)
+    end
+
     {:ok,
      socket
      |> assign(:page_title, "Listing Teams")
@@ -53,8 +57,14 @@ defmodule NomifyWeb.TeamLive.Index do
   @impl true
   def handle_event("delete", %{"id" => id}, socket) do
     team = Teams.get_team!(id)
-    {:ok, _} = Teams.delete_team(team)
+    {:ok, _} = Teams.delete_team(socket.assigns.current_scope, team)
 
     {:noreply, stream_delete(socket, :teams, team)}
+  end
+
+  @impl true
+  def handle_info({type, %Teams.Team{}}, socket)
+      when type in [:created, :updated, :deleted] do
+    {:noreply, stream(socket, :teams, Teams.list_teams(), reset: true)}
   end
 end

@@ -13,39 +13,45 @@ defmodule Nomify.TeamsTest do
     @invalid_attrs %{format: nil, description: nil}
 
     test "list_teams/0 returns all teams" do
-      team = team_fixture()
+      scope = user_scope_fixture()
+      team = team_fixture(scope)
       assert Teams.list_teams() == [team]
     end
 
     test "get_team!/1 returns the team with given id" do
-      team = team_fixture()
+      scope = user_scope_fixture()
+      team = team_fixture(scope)
       assert Teams.get_team!(team.id).id == team.id
     end
 
     test "create_team/1 with valid data creates a team" do
+      scope = user_scope_fixture()
       valid_attrs = %{format: :none, description: "some description"}
 
-      assert {:ok, %Team{} = team} = Teams.create_team(valid_attrs)
+      assert {:ok, %Team{} = team} = Teams.create_team(scope, valid_attrs)
       assert team.format == :none
       assert team.description == "some description"
     end
 
     test "create_team/1 with invalid data returns error changeset" do
-      assert {:error, %Ecto.Changeset{}} = Teams.create_team(@invalid_attrs)
+      scope = user_scope_fixture()
+      assert {:error, %Ecto.Changeset{}} = Teams.create_team(scope, @invalid_attrs)
     end
 
     test "update_team/2 with valid data updates the team" do
-      team = team_fixture()
+      scope = user_scope_fixture()
+      team = team_fixture(scope)
       update_attrs = %{format: :single, description: "some updated description"}
 
-      assert {:ok, %Team{} = team} = Teams.update_team(team, update_attrs)
+      assert {:ok, %Team{} = team} = Teams.update_team(scope, team, update_attrs)
       assert team.format == :single
       assert team.description == "some updated description"
     end
 
     test "update_team/2 with invalid data returns error changeset" do
-      team = team_fixture()
-      assert {:error, %Ecto.Changeset{}} = Teams.update_team(team, @invalid_attrs)
+      scope = user_scope_fixture()
+      team = team_fixture(scope)
+      assert {:error, %Ecto.Changeset{}} = Teams.update_team(scope, team, @invalid_attrs)
 
       assert Teams.team_equal?(
                team,
@@ -54,13 +60,15 @@ defmodule Nomify.TeamsTest do
     end
 
     test "delete_team/1 deletes the team" do
-      team = team_fixture()
-      assert {:ok, %Team{}} = Teams.delete_team(team)
+      scope = user_scope_fixture()
+      team = team_fixture(scope)
+      assert {:ok, %Team{}} = Teams.delete_team(scope, team)
       assert_raise Ecto.NoResultsError, fn -> Teams.get_team!(team.id) end
     end
 
     test "change_team/1 returns a team changeset" do
-      team = team_fixture()
+      scope = user_scope_fixture()
+      team = team_fixture(scope)
       assert %Ecto.Changeset{} = Teams.change_team(team)
     end
   end
@@ -73,7 +81,7 @@ defmodule Nomify.TeamsTest do
 
     setup do
       scope = user_scope_fixture()
-      team = team_fixture()
+      team = team_fixture(scope)
       person = person_fixture(scope)
 
       %{team: team, person: person}
@@ -190,7 +198,7 @@ defmodule Nomify.TeamsTest do
 
     test "update_team_member_role/2 enforces team chair business rule for multiple-chair team" do
       scope = user_scope_fixture()
-      team = team_fixture(%{format: :multiple})
+      team = team_fixture(scope, %{format: :multiple})
       team_member = team_member_fixture(scope, team: team)
 
       assert {:ok, team_member} =
@@ -208,7 +216,7 @@ defmodule Nomify.TeamsTest do
 
     test "update_team_member_role/2 enforces team chair business rule for single-chair team" do
       scope = user_scope_fixture()
-      team = team_fixture(%{format: :single})
+      team = team_fixture(scope, %{format: :single})
       team_member = team_member_fixture(scope, team: team)
 
       assert {:ok, _team_member} =
@@ -224,7 +232,7 @@ defmodule Nomify.TeamsTest do
 
     test "update_team_member_role/2 enforces team chair business rule for none-chair team" do
       scope = user_scope_fixture()
-      team = team_fixture(%{format: :none})
+      team = team_fixture(scope, %{format: :none})
       team_member = team_member_fixture(scope, team: team)
 
       assert {:error, changeset} =

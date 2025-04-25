@@ -7,8 +7,8 @@ defmodule NomifyWeb.TeamLiveTest do
   @create_attrs %{format: :none, description: "some description"}
   @update_attrs %{format: :single, description: "some updated description"}
   @invalid_attrs %{format: nil, description: nil}
-  defp create_team(_) do
-    team = team_fixture()
+  defp create_team(%{scope: scope}) do
+    team = team_fixture(scope)
 
     %{team: team}
   end

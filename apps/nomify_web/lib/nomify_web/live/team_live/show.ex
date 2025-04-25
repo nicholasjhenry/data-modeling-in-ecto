@@ -83,6 +83,10 @@ defmodule NomifyWeb.TeamLive.Show do
 
   @impl true
   def mount(%{"id" => id}, _session, socket) do
+    if connected?(socket) do
+      Teams.subscribe_teams(socket.assigns.current_scope)
+    end
+
     team = Teams.get_team!(id)
 
     {:ok,
@@ -98,5 +102,28 @@ defmodule NomifyWeb.TeamLive.Show do
     {:ok, _} = Teams.delete_team_member(team_member)
 
     {:noreply, stream_delete(socket, :team_members, team_member)}
+  end
+
+  @impl true
+  def handle_info(
+        {:updated, %Teams.Team{id: id} = team},
+        %{assigns: %{person: %{id: id}}} = socket
+      ) do
+    {:noreply, assign(socket, :team, team)}
+  end
+
+  def handle_info(
+        {:deleted, %Teams.Team{id: id}},
+        %{assigns: %{team: %{id: id}}} = socket
+      ) do
+    {:noreply,
+     socket
+     |> put_flash(:error, "The current team was deleted.")
+     |> push_navigate(to: ~p"/teams")}
+  end
+
+  def handle_info({type, %Teams.Team{}}, socket)
+      when type in [:created, :updated, :deleted] do
+    {:noreply, socket}
   end
 end

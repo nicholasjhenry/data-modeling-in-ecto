@@ -9,14 +9,14 @@ defmodule Nomify.TeamsFixtures do
   @doc """
   Generate a team.
   """
-  def team_fixture(attrs \\ %{}) do
-    {:ok, team} =
-      attrs
-      |> Enum.into(%{
+  def team_fixture(scope, attrs \\ %{}) do
+    attrs =
+      Enum.into(attrs, %{
         description: "some description",
         format: :none
       })
-      |> Nomify.Teams.create_team()
+
+    {:ok, team} = Nomify.Teams.create_team(scope, attrs)
 
     team
   end
@@ -27,7 +27,7 @@ defmodule Nomify.TeamsFixtures do
   # NOTE: Pass associated structs or create them?
   def team_member_fixture(scope, assocs \\ %{}) do
     assocs = Map.new(assocs)
-    team = Map.get_lazy(assocs, :team, fn -> team_fixture() end)
+    team = Map.get_lazy(assocs, :team, fn -> team_fixture(scope) end)
     person = Map.get_lazy(assocs, :person, fn -> person_fixture(scope) end)
 
     {:ok, team_member} = Nomify.Teams.create_team_member(team, person)

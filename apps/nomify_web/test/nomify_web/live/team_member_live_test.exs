@@ -25,7 +25,7 @@ defmodule NomifyWeb.TeamMemberLiveTest do
     end
 
     test "saves new team_member", %{conn: conn, scope: scope} do
-      team = team_fixture()
+      team = team_fixture(scope)
       valid_person = person_fixture(scope)
       invalid_person = person_fixture(scope, email: nil)
 

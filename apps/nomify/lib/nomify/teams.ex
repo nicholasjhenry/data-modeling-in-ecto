@@ -6,10 +6,24 @@ defmodule Nomify.Teams do
   import Ecto.Query, warn: false
   alias Nomify.Repo
 
+  alias Nomify.Accounts.Scope
+
   # SECTION: Team
 
   alias Nomify.Teams.Team
   alias Nomify.Teams.TeamMember
+
+  def subscribe_teams(%Scope{} = scope) do
+    key = scope.user.id
+
+    Phoenix.PubSub.subscribe(Nomify.PubSub, "user:#{key}:teams")
+  end
+
+  defp broadcast_teams(%Scope{} = scope, message) do
+    key = scope.user.id
+
+    Phoenix.PubSub.broadcast(Nomify.PubSub, "user:#{key}:teams", message)
+  end
 
   def list_teams do
     Repo.all(Team)
@@ -21,20 +35,32 @@ defmodule Nomify.Teams do
     |> Repo.preload(team_members: TeamMember.base_query())
   end
 
-  def create_team(attrs \\ %{}) do
-    %Team{}
-    |> Team.changeset(attrs)
-    |> Repo.insert()
+  def create_team(scope, attrs \\ %{}) do
+    with {:ok, team = %Team{}} <-
+           %Team{}
+           |> Team.changeset(attrs)
+           |> Repo.insert() do
+      broadcast_teams(scope, {:created, team})
+      {:ok, team}
+    end
   end
 
-  def update_team(%Team{} = team, attrs) do
-    team
-    |> Team.changeset(attrs)
-    |> Repo.update()
+  def update_team(%Scope{} = scope, %Team{} = team, attrs) do
+    with {:ok, team = %Team{}} <-
+           team
+           |> Team.changeset(attrs)
+           |> Repo.update() do
+      broadcast_teams(scope, {:updated, team})
+      {:ok, team}
+    end
   end
 
-  def delete_team(%Team{} = team) do
-    Repo.delete(team)
+  def delete_team(%Scope{} = scope, %Team{} = team) do
+    with {:ok, team = %Team{}} <-
+           Repo.delete(team) do
+      broadcast_teams(scope, {:deleted, team})
+      {:ok, team}
+    end
   end
 
   def change_team(%Team{} = team, attrs \\ %{}) do

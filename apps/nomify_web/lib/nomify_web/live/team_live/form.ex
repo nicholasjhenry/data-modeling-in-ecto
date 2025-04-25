@@ -71,7 +71,7 @@ defmodule NomifyWeb.TeamLive.Form do
   end
 
   defp save_team(socket, :edit, team_params) do
-    case Teams.update_team(socket.assigns.team, team_params) do
+    case Teams.update_team(socket.assigns.current_scope, socket.assigns.team, team_params) do
       {:ok, team} ->
         {:noreply,
          socket
@@ -84,7 +84,7 @@ defmodule NomifyWeb.TeamLive.Form do
   end
 
   defp save_team(socket, :new, team_params) do
-    case Teams.create_team(team_params) do
+    case Teams.create_team(socket.assigns.current_scope, team_params) do
       {:ok, team} ->
         {:noreply,
          socket
