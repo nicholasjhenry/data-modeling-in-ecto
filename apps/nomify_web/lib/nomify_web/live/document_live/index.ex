@@ -45,6 +45,10 @@ defmodule NomifyWeb.DocumentLive.Index do
 
   @impl true
   def mount(_params, _session, socket) do
+    if connected?(socket) do
+      Documents.subscribe_documents(socket.assigns.current_scope)
+    end
+
     {:ok,
      socket
      |> assign(:page_title, "Listing Documents")
@@ -54,8 +58,14 @@ defmodule NomifyWeb.DocumentLive.Index do
   @impl true
   def handle_event("delete", %{"id" => id}, socket) do
     document = Documents.get_document!(id)
-    {:ok, _} = Documents.delete_document(document)
+    {:ok, _} = Documents.delete_document(socket.assigns.current_scope, document)
 
     {:noreply, stream_delete(socket, :documents, document)}
+  end
+
+  @impl true
+  def handle_info({type, %Documents.Document{}}, socket)
+      when type in [:created, :updated, :deleted] do
+    {:noreply, stream(socket, :people, Documents.list_documents(), reset: true)}
   end
 end

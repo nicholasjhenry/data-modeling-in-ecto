@@ -15,7 +15,7 @@ defmodule Nomify.Directory do
     Phoenix.PubSub.subscribe(Nomify.PubSub, "user:#{key}:people")
   end
 
-  defp broadcast(%Scope{} = scope, message) do
+  defp broadcast_people(%Scope{} = scope, message) do
     key = scope.user.id
 
     Phoenix.PubSub.broadcast(Nomify.PubSub, "user:#{key}:people", message)
@@ -38,7 +38,7 @@ defmodule Nomify.Directory do
            %Person{}
            |> Person.changeset(attrs)
            |> Repo.insert() do
-      broadcast(scope, {:created, person})
+      broadcast_people(scope, {:created, person})
       {:ok, person}
     end
   end
@@ -48,7 +48,7 @@ defmodule Nomify.Directory do
            person
            |> Person.changeset(attrs)
            |> Repo.update() do
-      broadcast(scope, {:updated, person})
+      broadcast_people(scope, {:updated, person})
       {:ok, person}
     end
   end
@@ -56,7 +56,7 @@ defmodule Nomify.Directory do
   def delete_person(%Scope{} = scope, %Person{} = person) do
     with {:ok, person = %Person{}} <-
            Repo.delete(person) do
-      broadcast(scope, {:deleted, person})
+      broadcast_people(scope, {:deleted, person})
       {:ok, person}
     end
   end

@@ -10,15 +10,15 @@ defmodule Nomify.DocumentsFixtures do
   @doc """
   Generate a document.
   """
-  def document_fixture(attrs \\ %{}) do
-    {:ok, document} =
-      attrs
-      |> Enum.into(%{
+  def document_fixture(scope, attrs \\ %{}) do
+    attrs =
+      Enum.into(attrs, %{
         publication_date: ~D[2025-04-15],
         security_level: :low,
         title: "some title"
       })
-      |> Nomify.Documents.create_document()
+
+    {:ok, document} = Nomify.Documents.create_document(scope, attrs)
 
     document
   end
@@ -60,7 +60,7 @@ defmodule Nomify.DocumentsFixtures do
   """
   def nomination_fixture(scope, attrs \\ %{}, assocs \\ %{}) do
     assocs = Map.new(assocs)
-    document = Map.get_lazy(assocs, :document, fn -> document_fixture() end)
+    document = Map.get_lazy(assocs, :document, fn -> document_fixture(scope) end)
 
     team_member =
       Map.get_lazy(assocs, :team_member, fn ->

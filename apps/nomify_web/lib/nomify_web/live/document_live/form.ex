@@ -71,7 +71,11 @@ defmodule NomifyWeb.DocumentLive.Form do
   end
 
   defp save_document(socket, :edit, document_params) do
-    case Documents.update_document(socket.assigns.document, document_params) do
+    case Documents.update_document(
+           socket.assigns.current_scope,
+           socket.assigns.document,
+           document_params
+         ) do
       {:ok, document} ->
         {:noreply,
          socket
@@ -84,7 +88,7 @@ defmodule NomifyWeb.DocumentLive.Form do
   end
 
   defp save_document(socket, :new, document_params) do
-    case Documents.create_document(document_params) do
+    case Documents.create_document(socket.assigns.current_scope, document_params) do
       {:ok, document} ->
         {:noreply,
          socket

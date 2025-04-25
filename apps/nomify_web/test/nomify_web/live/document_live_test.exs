@@ -11,8 +11,8 @@ defmodule NomifyWeb.DocumentLiveTest do
     security_level: :medium
   }
   @invalid_attrs %{title: nil, security_level: nil}
-  defp create_document(_) do
-    document = document_fixture()
+  defp create_document(%{scope: scope}) do
+    document = document_fixture(scope)
 
     %{document: document}
   end

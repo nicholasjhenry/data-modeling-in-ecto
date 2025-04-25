@@ -24,7 +24,7 @@ defmodule NomifyWeb.NominationLiveTest do
     setup [:create_nomination]
 
     test "saves new nomination", %{conn: conn, scope: scope} do
-      document = document_fixture()
+      document = document_fixture(scope)
 
       team_member =
         scope

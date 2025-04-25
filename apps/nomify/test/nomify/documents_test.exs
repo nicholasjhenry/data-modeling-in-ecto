@@ -13,77 +13,93 @@ defmodule Nomify.DocumentsTest do
     @invalid_attrs %{title: nil, publication_date: nil, security_level: nil}
 
     test "list_documents/0 returns all documents" do
-      document = document_fixture()
+      scope = user_scope_fixture()
+      document = document_fixture(scope)
       assert [list_document] = Documents.list_documents()
       assert list_document.id == document.id
     end
 
     test "get_document!/1 returns the document with given id" do
-      document = document_fixture()
+      scope = user_scope_fixture()
+      document = document_fixture(scope)
       assert Documents.document_equal?(Documents.get_document!(document.id), document)
     end
 
     test "create_document/1 with valid data creates a document" do
+      scope = user_scope_fixture()
       valid_attrs = %{title: "some title", security_level: :low}
 
-      assert {:ok, %Document{} = document} = Documents.create_document(valid_attrs)
+      assert {:ok, %Document{} = document} = Documents.create_document(scope, valid_attrs)
       assert document.title == "some title"
       assert document.security_level == :low
     end
 
     test "create_document/1 with invalid data returns error changeset" do
-      assert {:error, %Ecto.Changeset{}} = Documents.create_document(@invalid_attrs)
+      scope = user_scope_fixture()
+      assert {:error, %Ecto.Changeset{}} = Documents.create_document(scope, @invalid_attrs)
     end
 
     test "update_document/2 with valid data updates the document" do
-      document = document_fixture()
+      scope = user_scope_fixture()
+      document = document_fixture(scope)
 
       update_attrs = %{
         title: "some updated title",
         security_level: :medium
       }
 
-      assert {:ok, %Document{} = document} = Documents.update_document(document, update_attrs)
+      assert {:ok, %Document{} = document} =
+               Documents.update_document(scope, document, update_attrs)
+
       assert document.title == "some updated title"
       assert document.security_level == :medium
     end
 
     test "update_document/2 with invalid data returns error changeset" do
-      document = document_fixture()
-      assert {:error, %Ecto.Changeset{}} = Documents.update_document(document, @invalid_attrs)
+      scope = user_scope_fixture()
+      document = document_fixture(scope)
+
+      assert {:error, %Ecto.Changeset{}} =
+               Documents.update_document(scope, document, @invalid_attrs)
+
       assert Documents.document_equal?(document, Documents.get_document!(document.id))
     end
 
     test "publish_document/1 with approved document updates publication_date" do
-      document = document_fixture() |> approve_document
+      scope = user_scope_fixture()
+      document = scope |> document_fixture() |> approve_document
 
-      assert {:ok, %Document{} = document} = Documents.publish_document(document)
+      assert {:ok, %Document{} = document} = Documents.publish_document(scope, document)
       assert %Date{} = document.publication_date
     end
 
     test "publish_document/1 with unapproved document returns error changeset" do
-      document = document_fixture()
+      scope = user_scope_fixture()
+      document = document_fixture(scope)
 
-      assert {:error, changeset} = Documents.publish_document(document)
+      assert {:error, changeset} = Documents.publish_document(scope, document)
       assert "Document not approved for publication." in errors_on(changeset).business_rule
     end
 
     test "publish_document/1 with previously published document returns error changeset" do
-      document = document_fixture() |> approve_document()
-      {:ok, published_document} = Documents.publish_document(document)
+      scope = user_scope_fixture()
+      document = scope |> document_fixture() |> approve_document()
+      {:ok, published_document} = Documents.publish_document(scope, document)
 
-      assert {:error, changeset} = Documents.publish_document(published_document)
+      assert {:error, changeset} = Documents.publish_document(scope, published_document)
       assert "Document already published." in errors_on(changeset).business_rule
     end
 
     test "delete_document/1 deletes the document" do
-      document = document_fixture()
-      assert {:ok, %Document{}} = Documents.delete_document(document)
+      scope = user_scope_fixture()
+      document = document_fixture(scope)
+      assert {:ok, %Document{}} = Documents.delete_document(scope, document)
       assert_raise Ecto.NoResultsError, fn -> Documents.get_document!(document.id) end
     end
 
     test "change_document/1 returns a document changeset" do
-      document = document_fixture()
+      scope = user_scope_fixture()
+      document = document_fixture(scope)
       assert %Ecto.Changeset{} = Documents.change_document(document)
     end
   end
@@ -109,7 +125,7 @@ defmodule Nomify.DocumentsTest do
 
     test "nominate_document/1 with valid data creates a nomination" do
       scope = user_scope_fixture()
-      document = document_fixture()
+      document = document_fixture(scope)
 
       team_member =
         scope
@@ -130,7 +146,7 @@ defmodule Nomify.DocumentsTest do
 
     test "nominate_document/1 with invalid data returns error changeset" do
       scope = user_scope_fixture()
-      document = document_fixture()
+      document = document_fixture(scope)
 
       team_member =
         scope
@@ -143,7 +159,7 @@ defmodule Nomify.DocumentsTest do
 
     test "nominate_document/1 with nomination conflict returns error changeset" do
       scope = user_scope_fixture()
-      document = document_fixture(security_level: :secret)
+      document = document_fixture(scope, security_level: :secret)
 
       team_member =
         scope
@@ -162,7 +178,7 @@ defmodule Nomify.DocumentsTest do
 
     test "nominate_document/1 with team member without nominate privilege returns error changeset" do
       scope = user_scope_fixture()
-      document = document_fixture()
+      document = document_fixture(scope)
       team_member = team_member_fixture(scope)
 
       valid_attrs = %{comments: "some comments"}
@@ -174,14 +190,14 @@ defmodule Nomify.DocumentsTest do
 
     test "nominate_document/1 with team member exceeding nominations returns error changeset" do
       scope = user_scope_fixture()
-      document = document_fixture()
+      document = document_fixture(scope)
 
       team_member =
         scope
         |> team_member_fixture()
         |> update_team_member_privilege(:nominate)
 
-      another_document = document_fixture()
+      another_document = document_fixture(scope)
 
       _nomination =
         nomination_fixture(scope, %{}, document: another_document, team_member: team_member)
@@ -197,7 +213,7 @@ defmodule Nomify.DocumentsTest do
 
     test "nominate_document/1 with a document with an unresolved nomination returns error changeset" do
       scope = user_scope_fixture()
-      document = document_fixture() |> nominate_document()
+      document = scope |> document_fixture() |> nominate_document()
 
       team_member =
         scope

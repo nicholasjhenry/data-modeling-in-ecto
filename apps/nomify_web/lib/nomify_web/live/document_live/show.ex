@@ -81,6 +81,10 @@ defmodule NomifyWeb.DocumentLive.Show do
 
   @impl true
   def mount(%{"id" => id}, _session, socket) do
+    if connected?(socket) do
+      Documents.subscribe_documents(socket.assigns.current_scope)
+    end
+
     document = Documents.get_document!(id)
 
     {:ok,
@@ -93,13 +97,13 @@ defmodule NomifyWeb.DocumentLive.Show do
   @impl true
   def handle_event("delete_nomination", %{"id" => id}, socket) do
     nomination = Documents.get_nomination!(socket.assigns.document, id)
-    {:ok, _} = Documents.delete_nomination(nomination)
+    {:ok, _} = Documents.delete_nomination(socket.assigns.current_scope, nomination)
 
     {:noreply, stream_delete(socket, :nominations, nomination)}
   end
 
   def handle_event("publish", _params, socket) do
-    case Documents.publish_document(socket.assigns.document) do
+    case Documents.publish_document(socket.assigns.current_scope, socket.assigns.document) do
       {:ok, document} ->
         {:noreply,
          socket
@@ -110,5 +114,28 @@ defmodule NomifyWeb.DocumentLive.Show do
         [message | _rest] = errors_on(changeset).business_rule
         {:noreply, put_flash(socket, :error, message)}
     end
+  end
+
+  @impl true
+  def handle_info(
+        {:updated, %Documents.Document{id: id} = document},
+        %{assigns: %{document: %{id: id}}} = socket
+      ) do
+    {:noreply, assign(socket, :document, document)}
+  end
+
+  def handle_info(
+        {:deleted, %Documents.Document{id: id}},
+        %{assigns: %{document: %{id: id}}} = socket
+      ) do
+    {:noreply,
+     socket
+     |> put_flash(:error, "The current document was deleted.")
+     |> push_navigate(to: ~p"/documents")}
+  end
+
+  def handle_info({type, %Documents.Document{}}, socket)
+      when type in [:created, :updated, :deleted] do
+    {:noreply, socket}
   end
 end

@@ -6,8 +6,21 @@ defmodule Nomify.Documents do
   import Ecto.Query, warn: false
   alias Nomify.Repo
 
+  alias Nomify.Accounts.Scope
   alias Nomify.Documents.Document
   alias Nomify.Teams.TeamMember
+
+  def subscribe_documents(%Scope{} = scope) do
+    key = scope.user.id
+
+    Phoenix.PubSub.subscribe(Nomify.PubSub, "user:#{key}:documents")
+  end
+
+  defp broadcast_documents(%Scope{} = scope, message) do
+    key = scope.user.id
+
+    Phoenix.PubSub.broadcast(Nomify.PubSub, "user:#{key}:documents", message)
+  end
 
   def list_documents do
     Repo.all(Document)
@@ -23,32 +36,42 @@ defmodule Nomify.Documents do
     Repo.preload(document, nominations: [team_member: TeamMember.base_query()])
   end
 
-  def create_document(attrs \\ %{}) do
-    result =
-      %Document{}
-      |> Document.changeset(attrs)
-      |> Repo.insert()
-
-    case result do
-      {:ok, document} -> {:ok, preload_document(document)}
-      {:error, changeset} -> {:error, changeset}
+  def create_document(%Scope{} = scope, attrs \\ %{}) do
+    with {:ok, document = %Document{}} <-
+           %Document{}
+           |> Document.changeset(attrs)
+           |> Repo.insert() do
+      broadcast_documents(scope, {:created, document})
+      {:ok, preload_document(document)}
     end
   end
 
-  def publish_document(document) do
-    document
-    |> Document.publish_changeset(%{publication_date: Date.utc_today()})
-    |> Repo.update()
+  def publish_document(scope, document) do
+    with {:ok, document = %Document{}} <-
+           document
+           |> Document.publish_changeset(%{publication_date: Date.utc_today()})
+           |> Repo.update() do
+      broadcast_documents(scope, {:updated, document})
+      {:ok, document}
+    end
   end
 
-  def update_document(%Document{} = document, attrs) do
-    document
-    |> Document.changeset(attrs)
-    |> Repo.update()
+  def update_document(%Scope{} = scope, %Document{} = document, attrs) do
+    with {:ok, document = %Document{}} <-
+           document
+           |> Document.changeset(attrs)
+           |> Repo.update() do
+      broadcast_documents(scope, {:updated, document})
+      {:ok, document}
+    end
   end
 
-  def delete_document(%Document{} = document) do
-    Repo.delete(document)
+  def delete_document(%Scope{} = scope, %Document{} = document) do
+    with {:ok, document = %Document{}} <-
+           Repo.delete(document) do
+      broadcast_documents(scope, {:deleted, document})
+      {:ok, document}
+    end
   end
 
   def change_document(%Document{} = document, attrs \\ %{}) do
