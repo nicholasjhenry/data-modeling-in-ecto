@@ -88,6 +88,18 @@ defmodule Nomify.Documents do
 
   alias Nomify.Documents.Nomination
 
+  def subscribe_nominations(%Scope{} = scope) do
+    key = scope.user.id
+
+    Phoenix.PubSub.subscribe(Nomify.PubSub, "user:#{key}:nominations")
+  end
+
+  defp broadcast_nominations(%Scope{} = scope, message) do
+    key = scope.user.id
+
+    Phoenix.PubSub.broadcast(Nomify.PubSub, "user:#{key}:nominations", message)
+  end
+
   def list_nominations do
     Repo.all(Nomination)
   end
@@ -98,27 +110,39 @@ defmodule Nomify.Documents do
     |> Repo.preload(team_member: TeamMember.base_query())
   end
 
-  def nominate_document(document, team_member, attrs, opts \\ []) do
+  def nominate_document(%Scope{} = scope, document, team_member, attrs, opts \\ []) do
     document = Repo.preload(document, latest_nomination: Nomination.latest())
     team_member = Repo.preload(team_member, :nominations)
 
     team_member_opts = Keyword.get(opts, :team_member, [])
 
-    %Nomination{}
-    |> Nomination.insert_changeset(attrs)
-    |> Nomination.put_document(document)
-    |> Nomination.put_team_member(team_member, team_member_opts)
-    |> Repo.insert()
+    with {:ok, nomination = %Nomination{}} <-
+           %Nomination{}
+           |> Nomination.insert_changeset(attrs)
+           |> Nomination.put_document(document)
+           |> Nomination.put_team_member(team_member, team_member_opts)
+           |> Repo.insert() do
+      broadcast_nominations(scope, {:created, nomination})
+      {:ok, nomination}
+    end
   end
 
-  def update_nomination(%Nomination{} = nomination, attrs) do
-    nomination
-    |> Nomination.update_changeset(attrs)
-    |> Repo.update()
+  def update_nomination(%Scope{} = scope, %Nomination{} = nomination, attrs) do
+    with {:ok, nomination = %Nomination{}} <-
+           nomination
+           |> Nomination.update_changeset(attrs)
+           |> Repo.update() do
+      broadcast_nominations(scope, {:updated, nomination})
+      {:ok, nomination}
+    end
   end
 
-  def delete_nomination(%Nomination{} = nomination) do
-    Repo.delete(nomination)
+  def delete_nomination(%Scope{} = scope, %Nomination{} = nomination) do
+    with {:ok, nomination = %Nomination{}} <-
+           Repo.delete(nomination) do
+      broadcast_nominations(scope, {:deleted, nomination})
+      {:ok, nomination}
+    end
   end
 
   def change_nomination(%Nomination{} = nomination, attrs \\ %{}) do

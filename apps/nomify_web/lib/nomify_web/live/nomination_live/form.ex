@@ -143,7 +143,11 @@ defmodule NomifyWeb.NominationLive.Form do
   end
 
   defp save_nomination(socket, :edit, nomination_params) do
-    case Documents.update_nomination(socket.assigns.nomination, nomination_params) do
+    case Documents.update_nomination(
+           socket.assigns.current_scope,
+           socket.assigns.nomination,
+           nomination_params
+         ) do
       {:ok, nomination} ->
         {:noreply,
          socket
@@ -159,6 +163,7 @@ defmodule NomifyWeb.NominationLive.Form do
 
   defp save_nomination(socket, :new, nomination_params) do
     case Documents.nominate_document(
+           socket.assigns.current_scope,
            socket.assigns.document,
            socket.assigns.team_member,
            nomination_params

@@ -35,6 +35,10 @@ defmodule NomifyWeb.NominationLive.Show do
 
   @impl true
   def mount(%{"document_id" => document_id, "id" => id}, _session, socket) do
+    if connected?(socket) do
+      Documents.subscribe_nominations(socket.assigns.current_scope)
+    end
+
     document = Documents.get_document!(document_id)
 
     {:ok,
@@ -42,5 +46,36 @@ defmodule NomifyWeb.NominationLive.Show do
      |> assign(:page_title, "Show Nomination")
      |> assign(:document, document)
      |> assign(:nomination, Documents.get_nomination!(document, id))}
+  end
+
+  @impl true
+  def handle_event("delete", %{"id" => id}, socket) do
+    nomination = Documents.get_nomination!(socket.assigns.document, id)
+    {:ok, _} = Documents.delete_nomination(socket.assigns.current_scope, nomination)
+
+    {:noreply, stream_delete(socket, :nominations, nomination)}
+  end
+
+  @impl true
+  def handle_info(
+        {:updated, %Documents.Nomination{id: id} = nomination},
+        %{assigns: %{nomination: %{id: id}}} = socket
+      ) do
+    {:noreply, assign(socket, :nomination, nomination)}
+  end
+
+  def handle_info(
+        {:deleted, %Documents.Nomination{id: id, document_id: document_id}},
+        %{assigns: %{nomination: %{id: id}}} = socket
+      ) do
+    {:noreply,
+     socket
+     |> put_flash(:error, "The current nomination was deleted.")
+     |> push_navigate(to: ~p"/documents/#{document_id}/")}
+  end
+
+  def handle_info({type, %Documents.Nomination{}}, socket)
+      when type in [:created, :updated, :deleted] do
+    {:noreply, socket}
   end
 end

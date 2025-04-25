@@ -67,7 +67,11 @@ defmodule Nomify.DocumentsTest do
 
     test "publish_document/1 with approved document updates publication_date" do
       scope = user_scope_fixture()
-      document = scope |> document_fixture() |> approve_document
+
+      document =
+        scope
+        |> document_fixture()
+        |> then(&approve_document(scope, &1))
 
       assert {:ok, %Document{} = document} = Documents.publish_document(scope, document)
       assert %Date{} = document.publication_date
@@ -83,7 +87,12 @@ defmodule Nomify.DocumentsTest do
 
     test "publish_document/1 with previously published document returns error changeset" do
       scope = user_scope_fixture()
-      document = scope |> document_fixture() |> approve_document()
+
+      document =
+        scope
+        |> document_fixture()
+        |> then(&approve_document(scope, &1))
+
       {:ok, published_document} = Documents.publish_document(scope, document)
 
       assert {:error, changeset} = Documents.publish_document(scope, published_document)
@@ -137,7 +146,7 @@ defmodule Nomify.DocumentsTest do
       }
 
       assert {:ok, %Nomination{} = nomination} =
-               Documents.nominate_document(document, team_member, valid_attrs)
+               Documents.nominate_document(scope, document, team_member, valid_attrs)
 
       assert nomination.status == :pending
       assert nomination.comments == "some comments"
@@ -154,7 +163,7 @@ defmodule Nomify.DocumentsTest do
         |> update_team_member_privilege(:nominate)
 
       assert {:error, %Ecto.Changeset{}} =
-               Documents.nominate_document(document, team_member, @invalid_attrs)
+               Documents.nominate_document(scope, document, team_member, @invalid_attrs)
     end
 
     test "nominate_document/1 with nomination conflict returns error changeset" do
@@ -171,7 +180,7 @@ defmodule Nomify.DocumentsTest do
       }
 
       assert {:error, changeset} =
-               Documents.nominate_document(document, team_member, valid_attrs)
+               Documents.nominate_document(scope, document, team_member, valid_attrs)
 
       assert "Security violation. Team member has improper security." in errors_on(changeset).business_rule
     end
@@ -183,7 +192,8 @@ defmodule Nomify.DocumentsTest do
 
       valid_attrs = %{comments: "some comments"}
 
-      assert {:error, changeset} = Documents.nominate_document(document, team_member, valid_attrs)
+      assert {:error, changeset} =
+               Documents.nominate_document(scope, document, team_member, valid_attrs)
 
       assert "Security violation. Team member cannot nominate." in errors_on(changeset).business_rule
     end
@@ -206,14 +216,14 @@ defmodule Nomify.DocumentsTest do
       opts = [team_member: [nomination_allowance: [max_documents: 1]]]
 
       assert {:error, changeset} =
-               Documents.nominate_document(document, team_member, valid_attrs, opts)
+               Documents.nominate_document(scope, document, team_member, valid_attrs, opts)
 
       assert "Team member cannot nominate. Too many nominations." in errors_on(changeset).business_rule
     end
 
     test "nominate_document/1 with a document with an unresolved nomination returns error changeset" do
       scope = user_scope_fixture()
-      document = scope |> document_fixture() |> nominate_document()
+      document = scope |> document_fixture() |> then(&nominate_document(scope, &1))
 
       team_member =
         scope
@@ -224,7 +234,8 @@ defmodule Nomify.DocumentsTest do
         comments: "some comments"
       }
 
-      assert {:error, changeset} = Documents.nominate_document(document, team_member, valid_attrs)
+      assert {:error, changeset} =
+               Documents.nominate_document(scope, document, team_member, valid_attrs)
 
       assert "Nomination denied. Document has unresolved nomination." in errors_on(changeset).business_rule
     end
@@ -239,7 +250,7 @@ defmodule Nomify.DocumentsTest do
       }
 
       assert {:ok, %Nomination{} = nomination} =
-               Documents.update_nomination(nomination, update_attrs)
+               Documents.update_nomination(scope, nomination, update_attrs)
 
       assert nomination.status == :in_review
       assert nomination.comments == "some updated comments"
@@ -250,7 +261,8 @@ defmodule Nomify.DocumentsTest do
       nomination = nomination_fixture(scope)
       document = nomination.document
 
-      assert {:error, %Ecto.Changeset{}} = Documents.update_nomination(nomination, @invalid_attrs)
+      assert {:error, %Ecto.Changeset{}} =
+               Documents.update_nomination(scope, nomination, @invalid_attrs)
 
       assert Documents.nomination_equal?(
                nomination,
@@ -266,7 +278,7 @@ defmodule Nomify.DocumentsTest do
       invalid_status_attrs = %{comment: "some updated comments", status: :approved}
 
       assert {:error, changeset} =
-               Documents.update_nomination(nomination, invalid_status_attrs)
+               Documents.update_nomination(scope, nomination, invalid_status_attrs)
 
       assert "Nomination cannot be approved. Not under review" in errors_on(changeset).status
     end
@@ -276,7 +288,7 @@ defmodule Nomify.DocumentsTest do
       nomination = nomination_fixture(scope)
       document = nomination.document
 
-      assert {:ok, %Nomination{}} = Documents.delete_nomination(nomination)
+      assert {:ok, %Nomination{}} = Documents.delete_nomination(scope, nomination)
 
       assert_raise Ecto.NoResultsError, fn ->
         Documents.get_nomination!(document, nomination.id)

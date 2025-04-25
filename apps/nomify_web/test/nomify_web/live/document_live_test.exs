@@ -133,7 +133,7 @@ defmodule NomifyWeb.DocumentLiveTest do
       assert html =~ "Nomination created successfully"
     end
 
-    test "publishes document", %{conn: conn, document: document} do
+    test "publishes document", %{conn: conn, scope: scope, document: document} do
       {:ok, show_live, html} = live(conn, ~p"/documents/#{document}")
 
       assert html =~ "Show Document"
@@ -145,7 +145,7 @@ defmodule NomifyWeb.DocumentLiveTest do
       html = render(show_live)
       assert html =~ "Document not approved for publication."
 
-      _document = approve_document(document)
+      _document = approve_document(scope, document)
 
       {:ok, show_live, _html} = live(conn, ~p"/documents/#{document}")
 

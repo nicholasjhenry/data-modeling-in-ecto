@@ -4,7 +4,6 @@ defmodule Nomify.DocumentsFixtures do
   entities via the `Nomify.Documents` context.
   """
 
-  import Nomify.AccountsFixtures, only: [user_scope_fixture: 0]
   import Nomify.TeamsFixtures
 
   @doc """
@@ -23,33 +22,32 @@ defmodule Nomify.DocumentsFixtures do
     document
   end
 
-  def nominate_document(document) do
-    scope = user_scope_fixture()
-
+  def nominate_document(scope, document) do
     team_member =
       scope
       |> team_member_fixture()
       |> update_team_member_privilege(:nominate)
 
     {:ok, _nomination} =
-      Nomify.Documents.nominate_document(document, team_member, %{comments: "some comment"})
+      Nomify.Documents.nominate_document(scope, document, team_member, %{comments: "some comment"})
 
     Nomify.Documents.get_document!(document.id)
   end
 
-  def approve_document(document) do
-    scope = user_scope_fixture()
-
+  def approve_document(scope, document) do
     team_member =
       scope
       |> team_member_fixture()
       |> update_team_member_privilege(:nominate)
 
     {:ok, nomination} =
-      Nomify.Documents.nominate_document(document, team_member, %{comments: "some comment"})
+      Nomify.Documents.nominate_document(scope, document, team_member, %{comments: "some comment"})
 
-    {:ok, nomination} = Nomify.Documents.update_nomination(nomination, %{status: :in_review})
-    {:ok, _nomination} = Nomify.Documents.update_nomination(nomination, %{status: :approved})
+    {:ok, nomination} =
+      Nomify.Documents.update_nomination(scope, nomination, %{status: :in_review})
+
+    {:ok, _nomination} =
+      Nomify.Documents.update_nomination(scope, nomination, %{status: :approved})
 
     # Reload with new nominations
     Nomify.Documents.get_document!(document.id)
@@ -74,7 +72,7 @@ defmodule Nomify.DocumentsFixtures do
         status: :pending
       })
 
-    {:ok, nomination} = Nomify.Documents.nominate_document(document, team_member, attrs)
+    {:ok, nomination} = Nomify.Documents.nominate_document(scope, document, team_member, attrs)
 
     nomination
   end
