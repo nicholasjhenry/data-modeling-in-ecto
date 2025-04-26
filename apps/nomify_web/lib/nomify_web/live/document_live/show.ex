@@ -83,6 +83,7 @@ defmodule NomifyWeb.DocumentLive.Show do
   def mount(%{"id" => id}, _session, socket) do
     if connected?(socket) do
       Documents.subscribe_documents(socket.assigns.current_scope)
+      Documents.subscribe_nominations(socket.assigns.current_scope)
     end
 
     document = Documents.get_document!(id)

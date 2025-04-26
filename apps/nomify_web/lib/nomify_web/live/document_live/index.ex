@@ -66,6 +66,6 @@ defmodule NomifyWeb.DocumentLive.Index do
   @impl true
   def handle_info({type, %Documents.Document{}}, socket)
       when type in [:created, :updated, :deleted] do
-    {:noreply, stream(socket, :people, Documents.list_documents(), reset: true)}
+    {:noreply, stream(socket, :documents, Documents.list_documents(), reset: true)}
   end
 end

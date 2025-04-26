@@ -85,6 +85,7 @@ defmodule NomifyWeb.TeamLive.Show do
   def mount(%{"id" => id}, _session, socket) do
     if connected?(socket) do
       Teams.subscribe_teams(socket.assigns.current_scope)
+      Teams.subscribe_team_members(socket.assigns.current_scope)
     end
 
     team = Teams.get_team!(id)
