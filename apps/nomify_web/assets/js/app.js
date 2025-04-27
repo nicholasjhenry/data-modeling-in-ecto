@@ -87,3 +87,11 @@ if (process.env.NODE_ENV === "development") {
     },
   );
 }
+
+window.addEventListener("phx:js-exec", ({ detail }) => {
+  document.querySelectorAll(`[${detail.attr}]`).forEach((el) => {
+    if (el.id == detail.id) {
+      liveSocket.execJS(el, el.getAttribute(detail.attr));
+    }
+  });
+});

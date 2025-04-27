@@ -3,6 +3,8 @@ defmodule NomifyWeb.DocumentLive.Index do
 
   alias Nomify.Documents
 
+  import Nomify.Result
+
   @impl true
   def render(assigns) do
     ~H"""
@@ -58,9 +60,21 @@ defmodule NomifyWeb.DocumentLive.Index do
   @impl true
   def handle_event("delete", %{"id" => id}, socket) do
     document = Documents.get_document!(id)
-    {:ok, _} = Documents.delete_document(socket.assigns.current_scope, document)
 
-    {:noreply, stream_delete(socket, :documents, document)}
+    case Documents.delete_document(socket.assigns.current_scope, document) do
+      {:ok, _document} ->
+        {:noreply, stream_delete(socket, :documents, document)}
+
+      {:error, %Ecto.Changeset{} = changeset} ->
+        [message | _rest] = errors_on(changeset).nominations
+
+        socket =
+          socket
+          |> put_flash(:error, "Nominations " <> message)
+          |> push_event("js-exec", %{id: "documents-#{id}", attr: "data-show"})
+
+        {:noreply, socket}
+    end
   end
 
   @impl true
