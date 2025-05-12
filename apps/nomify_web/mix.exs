@@ -57,7 +57,8 @@ defmodule NomifyWeb.MixProject do
       {:telemetry_poller, "~> 1.0"},
       {:nomify, in_umbrella: true},
       {:jason, "~> 1.2"},
-      {:bandit, "~> 1.5"}
+      {:bandit, "~> 1.5"},
+      {:tidewave, "~> 0.1", only: [:dev]}
     ]
   end
 

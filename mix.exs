@@ -6,6 +6,7 @@ defmodule Nomify.Umbrella.MixProject do
       apps_path: "apps",
       version: "0.1.0",
       start_permanent: Mix.env() == :prod,
+      consolidate_protocols: Mix.env() != :dev,
       deps: deps(),
       aliases: aliases(),
       listeners: [Phoenix.CodeReloader],
@@ -29,6 +30,7 @@ defmodule Nomify.Umbrella.MixProject do
   # and cannot be accessed from applications inside the apps/ folder.
   defp deps do
     [
+      {:igniter, "~> 0.5", only: [:dev, :test]},
       {:phoenix, "~> 1.8.0-rc.0", override: true},
       # Required to run "mix format" on ~H/.heex files from the umbrella root
       {:phoenix_live_view, ">= 0.0.0"},
