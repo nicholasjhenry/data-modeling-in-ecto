@@ -2,8 +2,8 @@ defmodule Nomify.Teams.Team do
   @moduledoc """
   A Team is a structured group within an organization, characterized by its format and associated members.
   """
-  use Ecto.Schema
-  import Ecto.Changeset
+
+  use Nomify, :record
 
   alias Nomify.Teams.TeamMember
 

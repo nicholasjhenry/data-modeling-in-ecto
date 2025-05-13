@@ -1,6 +1,5 @@
 defmodule Nomify.Accounts.User do
-  use Ecto.Schema
-  import Ecto.Changeset
+  use Nomify, :record
 
   alias Nomify.Directory.Person
 

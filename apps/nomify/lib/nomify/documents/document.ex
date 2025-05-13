@@ -3,9 +3,7 @@ defmodule Nomify.Documents.Document do
   A document is a record of internally authored content and may include related nominations or approvals.
   """
 
-  use Ecto.Schema
-  import Ecto.Changeset
-  import Nomify.Result
+  use Nomify, :record
 
   alias Nomify.Documents.Nomination
   alias Nomify.SecurityLevel

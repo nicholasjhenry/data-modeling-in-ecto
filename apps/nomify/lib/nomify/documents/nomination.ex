@@ -4,10 +4,7 @@ defmodule Nomify.Documents.Nomination do
   consideration by a team member.
   """
 
-  use Ecto.Schema
-  import Ecto.Changeset
-  import Ecto.Query, warn: false
-  import Nomify.Result
+  use Nomify, :record
 
   alias Nomify.Documents.Document
   alias Nomify.Teams.TeamMember

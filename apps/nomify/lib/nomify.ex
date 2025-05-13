@@ -14,4 +14,20 @@ defmodule Nomify do
 
   ![Ecto ERD](./assets/erd.png) [View Larger Image](./assets/erd.png)
   """
+
+  @doc false
+  def record do
+    quote do
+      use Ecto.Schema
+
+      import Ecto.Changeset
+      import Ecto.Query, warn: false
+      import Nomify.Result
+    end
+  end
+
+  @doc false
+  defmacro __using__(which) when is_atom(which) do
+    apply(__MODULE__, which, [])
+  end
 end

@@ -3,11 +3,7 @@ defmodule Nomify.Teams.TeamMember do
   A Team Member is an individual associated with a team who holds specific role within the team.
   """
 
-  use Ecto.Schema
-
-  import Ecto.Changeset
-  import Ecto.Query, warn: false
-  import Nomify.Result
+  use Nomify, :record
 
   alias Nomify.SecurityLevel
 

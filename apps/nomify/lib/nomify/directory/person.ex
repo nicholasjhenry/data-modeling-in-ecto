@@ -3,8 +3,7 @@ defmodule Nomify.Directory.Person do
   A Person is an individual entity representing a human being playing multiple roles in the system (e.g. team member).
   """
 
-  use Ecto.Schema
-  import Ecto.Changeset
+  use Nomify, :record
 
   alias Nomify.Util.EmailAddress
 
