@@ -1,4 +1,6 @@
 defmodule Nomify.Util.EmailAddress.Ecto.Type do
+  @moduledoc false
+
   use Ecto.Type
 
   alias Nomify.Util.EmailAddress

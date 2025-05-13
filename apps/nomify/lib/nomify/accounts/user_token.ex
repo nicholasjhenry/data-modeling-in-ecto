@@ -1,4 +1,6 @@
 defmodule Nomify.Accounts.UserToken do
+  @moduledoc false
+
   use Ecto.Schema
   import Ecto.Query
   alias Nomify.Accounts.UserToken
