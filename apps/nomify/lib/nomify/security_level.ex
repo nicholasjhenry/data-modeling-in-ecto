@@ -1,4 +1,9 @@
 defmodule Nomify.SecurityLevel do
+  @moduledoc """
+  A security level is a classification that represents the degree of sensitivity
+  or confidentiality associated with a resource or information.
+  """
+
   @security_levels %{
     0 => :low,
     1 => :medium,
@@ -6,10 +11,14 @@ defmodule Nomify.SecurityLevel do
     3 => :secret
   }
 
+  @type t :: :low | :medium | :high | :secret
+
+  @doc false
   def values do
     Map.values(@security_levels)
   end
 
+  @doc false
   def compare(security_level1, security_level2) do
     ranked_security_levels = switch_key_value(@security_levels)
 

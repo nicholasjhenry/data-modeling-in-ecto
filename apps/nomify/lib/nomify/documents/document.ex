@@ -1,4 +1,8 @@
 defmodule Nomify.Documents.Document do
+  @moduledoc """
+  A document is a record of internally authored content and may include related nominations or approvals.
+  """
+
   use Ecto.Schema
   import Ecto.Changeset
   import Nomify.Result
@@ -6,11 +10,38 @@ defmodule Nomify.Documents.Document do
   alias Nomify.Documents.Nomination
   alias Nomify.SecurityLevel
 
+  @typedoc """
+  ## Fields
+
+  A Document has these fields:
+
+  - `title` (descriptive): The title of the document.
+  - `publication_date` (time): The date the document was published.
+  - `security_level` (type): The security classification of the document.
+
+  ## Associations
+
+  A Document associates with:
+
+  - `nominations` (Specific Item - Transaction): The nominations related to the document.
+  - `latest_nomination` (Specific Item - Transaction): The most recent nomination for the document.
+  """
+  @type t :: %__MODULE__{
+          id: integer(),
+          title: String.t(),
+          publication_date: Date.t() | nil,
+          security_level: SecurityLevel.t(),
+          nominations: list(Nomination.t()),
+          latest_nomination: Nomination.t() | nil,
+          inserted_at: NaiveDateTime.t(),
+          updated_at: NaiveDateTime.t()
+        }
+
   schema "document_documents" do
     # SECTION: Fields
     field :title, :string
     field :publication_date, :date
-    field :security_level, Ecto.Enum, values: [:low, :medium, :high, :secret]
+    field :security_level, Ecto.Enum, values: SecurityLevel.values()
 
     # SECTION: Associations
     has_many :nominations, Nomination
@@ -76,6 +107,7 @@ defmodule Nomify.Documents.Document do
 
   # SECTION: Assoc Validations
 
+  @doc false
   def check_nomination(document) do
     if document.latest_nomination && document.latest_nomination.status in [:pending, :approved] do
       {:error, "Nomination denied. Document has unresolved nomination."}

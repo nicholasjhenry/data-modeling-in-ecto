@@ -1,20 +1,67 @@
 defmodule Nomify.Teams.TeamMember do
+  @moduledoc """
+  A Team Member is an individual associated with a team who holds specific role within the team.
+  """
+
   use Ecto.Schema
 
   import Ecto.Changeset
   import Ecto.Query, warn: false
   import Nomify.Result
 
+  alias Nomify.SecurityLevel
+
   alias Nomify.Directory.Person
   alias Nomify.Documents.Nomination
   alias Nomify.Teams.Privileges
   alias Nomify.Teams.Team
 
+  @typedoc """
+  ## Fields
+
+  A Team Member has these fields:
+
+  - `role` (role): The role of the team member within the team.
+  - `privileges` (descriptive): The privileges assigned to the team member.
+  - `security_level` (operating state): The security clearance level of the team member.
+  - `nominations_per_period_count` (calculation): The number of nominations made by the team member in the current period.
+  - `max_nominations_allowed` (calculation): The maximum number of nominations the team member is allowed to make in a period.
+  - `title` (descriptive): The title of the person associated with the team member.
+  - `name` (descriptive): The name of the person associated with the team member.
+  - `email` (descriptive): The email of the person associated with the team member.
+
+  ## Associations
+
+  A Team Member associates with:
+
+  - `person` (actor - role): The person who is acting as the team member.
+  - `team` (group - member): The team to which the team member belongs.
+  - `nominations` (role - transaction): The nominations made by the team member.
+  """
+  @type t :: %__MODULE__{
+          id: integer(),
+          role: :admin | :chair | :member,
+          privileges: Privileges.t(),
+          security_level: SecurityLevel.t(),
+          nominations_per_period_count: integer() | nil,
+          max_nominations_allowed: integer() | nil,
+          title: String.t() | nil,
+          name: String.t() | nil,
+          email: String.t() | nil,
+          person_id: integer(),
+          team_id: integer(),
+          person: Person.t() | Ecto.Association.NotLoaded.t(),
+          team: Team.t() | Ecto.Association.NotLoaded.t(),
+          nominations: [Nomination.t()] | Ecto.Association.NotLoaded.t(),
+          inserted_at: NaiveDateTime.t(),
+          updated_at: NaiveDateTime.t()
+        }
+
   schema "team_members" do
     # SECTION: Fields
     field :role, Ecto.Enum, values: [:admin, :chair, :member], default: :member
     field :privileges, Privileges, default: Privileges.none()
-    field :security_level, Ecto.Enum, values: [:low, :medium, :high, :secret], default: :low
+    field :security_level, Ecto.Enum, values: SecurityLevel.values(), default: :low
 
     # SECTION: Fields - Calculated
     field :nominations_per_period_count, :integer, virtual: true
@@ -34,9 +81,7 @@ defmodule Nomify.Teams.TeamMember do
     field :email, :string, virtual: true
 
     # SECTION: Associations
-    # NOTE: actor - role (generic - specific)
     belongs_to :person, Person
-    # NOTE: group - member (whole - part)
     belongs_to :team, Team
 
     has_many :nominations, Nomination
@@ -53,6 +98,7 @@ defmodule Nomify.Teams.TeamMember do
 
   # SECTION: Database Queries
 
+  @doc false
   def base_query(query \\ __MODULE__) do
     from team_member in query,
       join: person in assoc(team_member, :person),

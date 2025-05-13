@@ -1,4 +1,9 @@
 defmodule Nomify.Documents.Nomination do
+  @moduledoc """
+  A nomination is a record that represents the act of proposing a document for
+  consideration by a team member.
+  """
+
   use Ecto.Schema
   import Ecto.Changeset
   import Ecto.Query, warn: false
@@ -6,6 +11,35 @@ defmodule Nomify.Documents.Nomination do
 
   alias Nomify.Documents.Document
   alias Nomify.Teams.TeamMember
+
+  @typedoc """
+  ## Fields
+
+  A Nomination has these fields:
+
+  - `comments` (descriptive): Notes or remarks about the nomination.
+  - `status` (lifecycle state): The current state of the nomination process.
+  - `nomination_date` (time): The date the nomination was created.
+
+  ## Associations
+
+  A Nomination associates with:
+
+  - `document` (SpecificItem - Transaction): The document being proposed for consideration.
+  - `team_member` (Role - Transaction): The team member proposing the document.
+  """
+  @type t :: %__MODULE__{
+          id: Ecto.UUID.t(),
+          comments: String.t() | nil,
+          status: :pending | :in_review | :rejected | :approved,
+          nomination_date: Date.t(),
+          document_id: Ecto.UUID.t(),
+          document: Document.t() | Ecto.Association.NotLoaded.t(),
+          team_member_id: Ecto.UUID.t(),
+          team_member: TeamMember.t() | Ecto.Association.NotLoaded.t(),
+          inserted_at: NaiveDateTime.t(),
+          updated_at: NaiveDateTime.t()
+        }
 
   schema "document_nominations" do
     # SECTION: Fields
@@ -37,6 +71,7 @@ defmodule Nomify.Documents.Nomination do
 
   # SECTION: Database Queries
 
+  @doc false
   def latest(query \\ __MODULE__) do
     from query, order_by: [desc: :inserted_at], limit: 1
   end
@@ -50,6 +85,7 @@ defmodule Nomify.Documents.Nomination do
     |> validate_required([:comments])
   end
 
+  @doc false
   def update_changeset(nomination, attrs) do
     nomination
     |> cast(attrs, [:comments, :status])

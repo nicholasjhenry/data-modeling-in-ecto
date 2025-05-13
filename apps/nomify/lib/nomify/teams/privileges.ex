@@ -1,9 +1,16 @@
 defmodule Nomify.Teams.Privileges do
+  @moduledoc """
+  Privileges defines team privileges.
+  """
+
+  @type t :: :delete | :nominate
+
   use Bitmask, [
     :delete,
     :nominate
   ]
 
+  @doc false
   def parse(params) do
     flags = get_all_values() |> Keyword.keys()
     data = flags |> Enum.map(&{&1, nil}) |> Map.new()

@@ -1,8 +1,34 @@
 defmodule Nomify.Teams.Team do
+  @moduledoc """
+  A Team is a structured group within an organization, characterized by its format and associated members.
+  """
   use Ecto.Schema
   import Ecto.Changeset
 
   alias Nomify.Teams.TeamMember
+
+  @typedoc """
+  ## Fields
+
+  A Team has these fields:
+
+  - `description` (descriptive): A description of the team.
+  - `format` (type): The format of the team, which can be none, single, or multiple.
+
+  ## Associations
+
+  A Team associates with:
+
+  - `team_members` (Group - Member): Represents the members belonging to the team.
+  """
+  @type t :: %__MODULE__{
+          id: integer(),
+          description: String.t(),
+          format: :none | :single | :multiple,
+          team_members: [TeamMember.t()],
+          inserted_at: NaiveDateTime.t(),
+          updated_at: NaiveDateTime.t()
+        }
 
   schema "team_teams" do
     # SECTION: Fields
@@ -10,7 +36,6 @@ defmodule Nomify.Teams.Team do
     field :format, Ecto.Enum, values: [:none, :single, :multiple]
 
     # SECTION: Associations
-    # NOTE: group - member (whole - part)
     has_many :team_members, TeamMember
 
     timestamps()
