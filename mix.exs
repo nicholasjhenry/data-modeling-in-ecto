@@ -12,7 +12,34 @@ defmodule Nomify.Umbrella.MixProject do
       listeners: [Phoenix.CodeReloader],
       preferred_cli_env: [
         "test.watch": :test
-      ]
+      ],
+      # Docs
+      name: "Nomify",
+      source_url: "https://github.com/nicholasjhenry/nomify-next",
+      docs: &docs/0
+    ]
+  end
+
+  defp docs do
+    [
+      main: "Nomify",
+      # logo: "path/to/logo.png",
+      formatters: ["html"],
+      ignore_apps: [:nomify_web],
+      main: "readme",
+      extras: [
+        "README.md"
+      ],
+      assets: %{
+        "guides/assets" => "assets"
+      },
+      api_reference: true,
+      groups_for_modules: [
+        Documents: [
+          ~r"^Nomify\.Documents\..*"
+        ]
+      ],
+      nest_modules_by_prefix: []
     ]
   end
 
@@ -35,6 +62,7 @@ defmodule Nomify.Umbrella.MixProject do
       # Required to run "mix format" on ~H/.heex files from the umbrella root
       {:phoenix_live_view, ">= 0.0.0"},
       # Application dependencies
+      {:ex_doc, "~> 0.38.1", only: [:dev]},
       {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false},
       {:mix_test_watch, "~> 1.0", only: [:dev, :test], runtime: false}
     ]
