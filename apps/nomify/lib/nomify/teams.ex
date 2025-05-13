@@ -1,6 +1,6 @@
 defmodule Nomify.Teams do
   @moduledoc """
-  The Resources context.
+  The Teams component is responsible for managing teams and members.
   """
 
   import Ecto.Query, warn: false

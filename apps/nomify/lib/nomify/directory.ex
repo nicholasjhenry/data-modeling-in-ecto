@@ -1,6 +1,6 @@
 defmodule Nomify.Directory do
   @moduledoc """
-  The Directory context.
+  The Directory component is responsible for managing people.
   """
 
   import Ecto.Query, warn: false

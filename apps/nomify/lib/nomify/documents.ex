@@ -1,6 +1,6 @@
 defmodule Nomify.Documents do
   @moduledoc """
-  The Documents context.
+  The Documents component is responsible for managing documents and nominations.
   """
 
   import Ecto.Query, warn: false
