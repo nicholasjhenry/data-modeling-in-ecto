@@ -62,6 +62,7 @@ defmodule Nomify.Umbrella.MixProject do
       # Required to run "mix format" on ~H/.heex files from the umbrella root
       {:phoenix_live_view, ">= 0.0.0"},
       # Application dependencies
+      {:ecto_erd, "~> 0.6.4", only: [:dev]},
       {:ex_doc, "~> 0.38.1", only: [:dev]},
       {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false},
       {:mix_test_watch, "~> 1.0", only: [:dev, :test], runtime: false}
@@ -80,7 +81,15 @@ defmodule Nomify.Umbrella.MixProject do
   defp aliases do
     [
       # run `mix setup` in all child apps
-      setup: ["cmd mix setup"]
+      setup: ["cmd mix setup"],
+      docs: ["docs", "docs.gen.erd"],
+      "docs.gen.erd": [
+        "cmd mkdir -p doc/assets",
+        # NOTE: See `./.ecto_erd.exs for configuration`
+        "ecto.gen.erd --output-path doc/assets/ecto_erd.dot",
+        # process in the root of the umbrella (../../)
+        "cmd dot -Tpng ../../doc/assets/ecto_erd.dot -o ../../doc/assets/erd.png"
+      ]
     ]
   end
 end
