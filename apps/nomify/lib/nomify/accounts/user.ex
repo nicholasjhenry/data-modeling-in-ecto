@@ -6,30 +6,30 @@ defmodule Nomify.Accounts.User do
   @typedoc """
   ## Fields
 
-  A user has these fields:
+  A User has these fields:
 
   - `email` (descriptive): The email address of the user.
-  - `password` (descriptive): The plaintext password of the user, used only during authentication.
-  - `hashed_password` (descriptive): The securely hashed version of the user's password.
-  - `current_password` (descriptive): The current plaintext password of the user, used for validation during updates.
-  - `confirmed_at` (time): The timestamp when the user's account was confirmed.
-  - `authenticated_at` (time): The timestamp when the user was last authenticated.
+  - `password` (descriptive): The plaintext password, used only temporarily during changes.
+  - `hashed_password` (descriptive): The securely hashed password.
+  - `current_password` (descriptive): The current password, used for validation during updates.
+  - `confirmed_at` (time): The timestamp when the user confirmed their account.
+  - `authenticated_at` (time): The timestamp when the user last authenticated.
 
   ## Associations
 
-  A user associates with:
+  A User associates with:
 
-  - `person` (Actor - Role): Links the user to a person entity, representing the individual associated with the account.
+  - `person` (Actor - Role): Links the user to a person entity.
   """
   @type t :: %__MODULE__{
-          id: Ecto.UUID.t(),
+          id: integer(),
           email: String.t(),
           password: String.t() | nil,
           hashed_password: String.t() | nil,
           current_password: String.t() | nil,
           confirmed_at: NaiveDateTime.t() | nil,
           authenticated_at: NaiveDateTime.t() | nil,
-          person_id: Ecto.UUID.t() | nil,
+          person_id: integer() | nil,
           person: Person.t() | nil,
           inserted_at: NaiveDateTime.t(),
           updated_at: NaiveDateTime.t()

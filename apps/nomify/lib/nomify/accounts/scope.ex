@@ -18,6 +18,13 @@ defmodule Nomify.Accounts.Scope do
 
   alias Nomify.Accounts.User
 
+  @typedoc """
+  ## Fields
+
+  A Scope has these fields:
+
+  - `user` (descriptive): The user associated with the scope.
+  """
   @type t :: %__MODULE__{
           user: User.t() | nil
         }

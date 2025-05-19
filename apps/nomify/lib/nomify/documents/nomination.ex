@@ -1,6 +1,6 @@
 defmodule Nomify.Documents.Nomination do
   @moduledoc """
-  A nomination is a record that represents the act of proposing a document for
+  A nomination is an event that represents the act of proposing a document for
   consideration by a team member.
   """
 
@@ -26,13 +26,13 @@ defmodule Nomify.Documents.Nomination do
   - `team_member` (Role - Transaction): The team member proposing the document.
   """
   @type t :: %__MODULE__{
-          id: Ecto.UUID.t(),
+          id: integer(),
           comments: String.t() | nil,
           status: :pending | :in_review | :rejected | :approved,
           nomination_date: Date.t(),
-          document_id: Ecto.UUID.t(),
+          document_id: integer(),
           document: Document.t() | Ecto.Association.NotLoaded.t(),
-          team_member_id: Ecto.UUID.t(),
+          team_member_id: integer(),
           team_member: TeamMember.t() | Ecto.Association.NotLoaded.t(),
           inserted_at: NaiveDateTime.t(),
           updated_at: NaiveDateTime.t()

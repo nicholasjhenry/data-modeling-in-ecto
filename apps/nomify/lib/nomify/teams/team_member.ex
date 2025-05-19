@@ -1,6 +1,6 @@
 defmodule Nomify.Teams.TeamMember do
   @moduledoc """
-  A Team Member is an individual associated with a team who holds specific role within the team.
+  A member of a team who holds a specific role and privileges.
   """
 
   use Nomify, :record
@@ -15,24 +15,24 @@ defmodule Nomify.Teams.TeamMember do
   @typedoc """
   ## Fields
 
-  A Team Member has these fields:
+  A TeamMember has these fields:
 
-  - `role` (role): The role of the team member within the team.
+  - `role` (role): The role of the team member (e.g., admin, chair, member).
   - `privileges` (descriptive): The privileges assigned to the team member.
-  - `security_level` (operating state): The security clearance level of the team member.
-  - `nominations_per_period_count` (calculation): The number of nominations made by the team member in the current period.
-  - `max_nominations_allowed` (calculation): The maximum number of nominations the team member is allowed to make in a period.
-  - `title` (descriptive): The title of the person associated with the team member.
-  - `name` (descriptive): The name of the person associated with the team member.
-  - `email` (descriptive): The email of the person associated with the team member.
+  - `security_level` (type): The security classification of the team member.
+  - `nominations_per_period_count` (descriptive): The count of nominations made by the team member in the current period.
+  - `max_nominations_allowed` (descriptive): The maximum number of nominations allowed for the team member in the current period.
+  - `title` (descriptive): The title or honorific of the team member.
+  - `name` (descriptive): The full name of the team member.
+  - `email` (descriptive): The email address of the team member.
 
   ## Associations
 
-  A Team Member associates with:
+  A TeamMember associates with:
 
-  - `person` (actor - role): The person who is acting as the team member.
-  - `team` (group - member): The team to which the team member belongs.
-  - `nominations` (role - transaction): The nominations made by the team member.
+  - `person` (Actor - Role): Links the team member to a person entity, representing the individual associated with the team member.
+  - `team` (Group - Member): Represents the team to which the team member belongs.
+  - `nominations` (Role - Transaction): The nominations made by the team member.
   """
   @type t :: %__MODULE__{
           id: integer(),
@@ -45,10 +45,10 @@ defmodule Nomify.Teams.TeamMember do
           name: String.t() | nil,
           email: String.t() | nil,
           person_id: integer(),
+          person: Person.t() | nil,
           team_id: integer(),
-          person: Person.t() | Ecto.Association.NotLoaded.t(),
-          team: Team.t() | Ecto.Association.NotLoaded.t(),
-          nominations: [Nomination.t()] | Ecto.Association.NotLoaded.t(),
+          team: Team.t() | nil,
+          nominations: list(Nomination.t()),
           inserted_at: NaiveDateTime.t(),
           updated_at: NaiveDateTime.t()
         }
