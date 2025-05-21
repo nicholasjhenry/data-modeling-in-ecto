@@ -35,8 +35,25 @@ defmodule Nomify.Umbrella.MixProject do
       },
       api_reference: true,
       groups_for_modules: [
+        Accounts: [
+          ~r"^Nomify\.Accounts",
+          ~r"^Nomify\.Accounts\..*"
+        ],
+        Directory: [
+          ~r"^Nomify\.Directory",
+          ~r"^Nomify\.Directory\..*"
+        ],
+        Teams: [
+          ~r"^Nomify\.Teams",
+          ~r"^Nomify\.Teams\..*"
+        ],
         Documents: [
+          ~r"^Nomify\.Documents",
           ~r"^Nomify\.Documents\..*"
+        ],
+        Util: [
+          ~r"^Nomify\.Util",
+          ~r"^Nomify\.Util\..*"
         ]
       ],
       nest_modules_by_prefix: []
