@@ -166,19 +166,15 @@ defmodule Nomify.Teams.TeamMember do
   # SECTION: Field validations
 
   defp validate_role(changeset) do
-    team = changeset.data.team
+    team = get_assoc(changeset, :team, :struct)
     role = get_change(changeset, :role)
 
-    team
-    |> check_role_chair(role)
-    |> put_result(changeset, :role)
-  end
-
-  defp check_role_chair(team, role) do
     if role == :chair do
-      Team.check_chair_eligibility(team)
+      team
+      |> Team.check_chair_eligibility(changeset.data)
+      |> put_result(changeset, :role)
     else
-      :ok
+      changeset
     end
   end
 
@@ -187,24 +183,42 @@ defmodule Nomify.Teams.TeamMember do
   @doc false
   def put_person_changeset(changeset, person) do
     changeset
-    |> put_assoc(:team, team)
-    |> validate_team()
+    |> put_assoc(:person, person)
+    |> validate_person_assoc()
   end
 
   @doc false
   def put_team_changeset(changeset, team) do
     changeset
-    |> put_assoc(:person, person)
-    |> validate_person()
+    |> put_assoc(:team, team)
+    |> validate_team_assoc()
   end
 
   # SECTION: Assoc Validations
 
-  defp validate_team(changeset) do
+  defp validate_person_assoc(changeset) do
+    person = get_assoc(changeset, :person, :struct)
+
+    # Example: Association Validation - Property Validation
+    changeset =
+      if Person.valid_email?(person) do
+        changeset
+      else
+        add_error(changeset, :business_rule, "Person cannot be team member. Invalid email.")
+      end
+
     validate_person_team_conflict(changeset)
   end
 
   # NOTE: Conflict Rules
+  defp validate_team_assoc(changeset) do
+    team = get_assoc(changeset, :team, :struct)
+
+    team
+    |> Team.check_team_member(apply_changes(changeset))
+    |> put_result(changeset, :role)
+    |> validate_person_team_conflict()
+  end
   #
   # > Conflict rules come into play when business rules define restrictions between objects that
   # > collaborate through an intermediary object. In essence, conflict rules are collaboration
@@ -218,17 +232,6 @@ defmodule Nomify.Teams.TeamMember do
     )
   end
 
-  defp validate_person(changeset) do
-    changeset = validate_person_team_conflict(changeset)
-
-    person = get_assoc(changeset, :person, :struct)
-
-    if Person.valid_email?(person) do
-      changeset
-    else
-      add_error(changeset, :business_rule, "Person cannot be team member. Invalid email.")
-    end
-  end
 
   @doc false
   def check_nomination(team_member, opts \\ []) do

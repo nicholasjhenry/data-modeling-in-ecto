@@ -60,7 +60,7 @@ defmodule Nomify.Teams.Team do
   # SECTION: Assoc Validations
 
   @doc false
-  def check_chair_eligibility(team) do
+  def check_chair_eligibility(team, _team_member) do
     case team.format do
       :none ->
         {:error, "Tried to add chair team member to no chairs team."}
@@ -76,6 +76,14 @@ defmodule Nomify.Teams.Team do
 
       :multiple ->
         :ok
+    end
+  end
+
+  def check_team_member(team, team_member) do
+    if team_member.role == :chair do
+      check_chair_eligibility(team, team_member)
+    else
+      :ok
     end
   end
 end
