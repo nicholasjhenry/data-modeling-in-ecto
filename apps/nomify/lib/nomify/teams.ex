@@ -118,12 +118,12 @@ defmodule Nomify.Teams do
   def create_team_member(%Scope{} = scope, team, person) do
     with {:ok, team = %TeamMember{}} <-
            %TeamMember{}
-           # NOTE: Streamlined Object Modeling
+           # NOTE: Principle 75: Properties Before Collaborators
            #
-           # Principle 75: Properties Before Collaborators
-           #
-           # Object construction methods initialize properties before establishing collaborations because
-           # collaboration rules may check property values.
+           # > Object construction methods initialize properties before establishing collaborations because
+           # > collaboration rules may check property values.
+           # >
+           # > -- Streamlined Object Modeling
            #
            |> TeamMember.insert_changeset()
            |> TeamMember.put_team_changeset(team)

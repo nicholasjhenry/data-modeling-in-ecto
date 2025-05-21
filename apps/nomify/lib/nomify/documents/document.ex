@@ -1,6 +1,7 @@
 defmodule Nomify.Documents.Document do
   @moduledoc """
-  A document is a record of internally authored content and may include related nominations or approvals.
+  A document is a record of internally authored content and may include related
+  nominations or approvals.
   """
 
   use Nomify, :record
@@ -66,9 +67,9 @@ defmodule Nomify.Documents.Document do
   def changeset(document, attrs) do
     document
     |> cast(attrs, [:title, :security_level])
-    # Logical validation rules
+    # Example: Logical field validations
     |> validate_required([:title, :security_level])
-    # Business validation rule
+    # Example: Business field validation
     |> validate_title
   end
 
@@ -102,7 +103,10 @@ defmodule Nomify.Documents.Document do
     |> put_result(changeset, :business_rule)
   end
 
-  defp check_publishable(document) do
+  # SECTION: Field Checks
+
+  @doc false
+  def check_publishable(document) do
     cond do
       !approved?(document) -> {:error, "Document not approved for publication."}
       published?(document) -> {:error, "Document already published."}
@@ -110,7 +114,7 @@ defmodule Nomify.Documents.Document do
     end
   end
 
-  # SECTION: Assoc Validations
+  # SECTION: Assoc Checks
 
   @doc false
   def check_nomination(document) do
@@ -121,9 +125,8 @@ defmodule Nomify.Documents.Document do
     end
   end
 
-  # NOTE: Example of a conflict rule
-
   @doc false
+  # Example: Conflict check
   def check_nomination_conflict(document, team_member) do
     if SecurityLevel.compare(document.security_level, team_member.security_level) == :gt do
       {:error, "Security violation. Team member has improper security."}

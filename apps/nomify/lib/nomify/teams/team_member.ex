@@ -1,6 +1,14 @@
 defmodule Nomify.Teams.TeamMember do
   @moduledoc """
-  A member of a team who holds a specific role and privileges.
+  A member of a team who holds a specific role and privileges. A person can
+  play different roles -- chair, admin, or member -- on many different teams.
+
+  > #### Essential Ecto {: .info}
+  >
+  > The team member implements all three templates:
+  > - Generic - **Specific** (Actor - Role)
+  > - Whole - **Part** (Group - Member)
+  > - **Specific** - Transaction (Role - Transaction)
   """
 
   use Nomify, :record
@@ -63,12 +71,14 @@ defmodule Nomify.Teams.TeamMember do
     field :nominations_per_period_count, :integer, virtual: true
     field :max_nominations_allowed, :integer, virtual: true
 
-    # NOTE:
+    # NOTE: Record Inheritance
     #
     # > Any coding template for the generic – specific pattern must accommodate the object inheritance
     # > mechanism, which specifies the properties and services in the generic that are accessible from
     # > the specific object. What object inheritance really means is that certain determine mine and
     # > analyze transactions services available in the generic are also available in the specific.
+    # >
+    # > -- Streamlined Object Modeling
     #
 
     # SECTION: Fields - Person
@@ -79,7 +89,6 @@ defmodule Nomify.Teams.TeamMember do
     # SECTION: Associations
     belongs_to :person, Person
     belongs_to :team, Team
-
     has_many :nominations, Nomination
 
     timestamps()
@@ -194,6 +203,17 @@ defmodule Nomify.Teams.TeamMember do
     |> validate_team_assoc()
   end
 
+  # NJH: Alternative Implementation
+  #
+  # defp put_assocs_changeset(changeset, person, team) do
+  #   changeset
+  #   |> put_assoc(:person, person)
+  #   |> validate_person()
+  #   |> put_assoc(:team, team)
+  #   |> validate_team()
+  #   |> validate_person_team_conflict(changeset)
+  # end
+
   # SECTION: Assoc Validations
 
   defp validate_person_assoc(changeset) do
@@ -210,7 +230,6 @@ defmodule Nomify.Teams.TeamMember do
     validate_person_team_conflict(changeset)
   end
 
-  # NOTE: Conflict Rules
   defp validate_team_assoc(changeset) do
     team = get_assoc(changeset, :team, :struct)
 
@@ -219,10 +238,14 @@ defmodule Nomify.Teams.TeamMember do
     |> put_result(changeset, :role)
     |> validate_person_team_conflict()
   end
+
+  # NOTE: Conflict Validations
   #
   # > Conflict rules come into play when business rules define restrictions between objects that
   # > collaborate through an intermediary object. In essence, conflict rules are collaboration
   # > rules between indirect collaborators, that is, in-laws.
+  # >
+  # > -- Streamlined Object Modeling
 
   defp validate_person_team_conflict(changeset) do
     unique_constraint(changeset, [:person_id, :team_id],
@@ -232,6 +255,7 @@ defmodule Nomify.Teams.TeamMember do
     )
   end
 
+  # SECTION: Assoc Checks
 
   @doc false
   def check_nomination(team_member, opts \\ []) do

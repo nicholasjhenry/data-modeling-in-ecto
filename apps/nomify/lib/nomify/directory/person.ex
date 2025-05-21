@@ -1,6 +1,6 @@
 defmodule Nomify.Directory.Person do
   @moduledoc """
-  A Person is an individual entity representing a human being playing multiple roles in the system (e.g. team member).
+  A Person is record of an individual entity playing multiple roles in the system.
   """
 
   use Nomify, :record

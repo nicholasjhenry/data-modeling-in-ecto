@@ -1,6 +1,7 @@
 defmodule Nomify.Teams.Team do
   @moduledoc """
-  A Team is a structured group within an organization, characterized by its format and associated members.
+  A Team is a structured group within an organization, characterized by its format
+  and associated members.
   """
 
   use Nomify, :record
@@ -57,7 +58,7 @@ defmodule Nomify.Teams.Team do
     |> validate_required([:description, :format])
   end
 
-  # SECTION: Assoc Validations
+  # SECTION: Assoc Checks
 
   @doc false
   def check_chair_eligibility(team, _team_member) do
