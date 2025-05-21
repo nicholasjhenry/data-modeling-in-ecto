@@ -69,8 +69,7 @@ defmodule Nomify.Documents do
   def delete_document(%Scope{} = scope, %Document{} = document) do
     with {:ok, document = %Document{}} <-
            document
-           |> Ecto.Changeset.change()
-           |> Ecto.Changeset.no_assoc_constraint(:nominations)
+           |> Document.delete_changeset()
            |> Repo.delete() do
       broadcast_documents(scope, {:deleted, document})
       {:ok, document}

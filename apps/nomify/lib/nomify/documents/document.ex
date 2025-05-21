@@ -79,6 +79,13 @@ defmodule Nomify.Documents.Document do
     |> validate_publication_date
   end
 
+  @doc false
+  def delete_changeset(document) do
+    document
+    |> change()
+    |> no_assoc_constraint(:nominations)
+  end
+
   # SECTION: Field Validations
 
   defp validate_title(changeset) do
