@@ -121,8 +121,8 @@ defmodule Nomify.Documents do
     with {:ok, nomination = %Nomination{}} <-
            %Nomination{}
            |> Nomination.insert_changeset(attrs)
-           |> Nomination.put_document(document)
-           |> Nomination.put_team_member(team_member, team_member_opts)
+           |> Nomination.put_document_changeset(document)
+           |> Nomination.put_team_member_changeset(team_member, team_member_opts)
            |> Repo.insert() do
       broadcast_nominations(scope, {:created, nomination})
       {:ok, nomination}

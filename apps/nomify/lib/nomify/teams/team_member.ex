@@ -185,14 +185,14 @@ defmodule Nomify.Teams.TeamMember do
   # SECTION: Assoc Changesets
 
   @doc false
-  def put_team(changeset, team) do
+  def put_person_changeset(changeset, person) do
     changeset
     |> put_assoc(:team, team)
     |> validate_team()
   end
 
   @doc false
-  def put_person(changeset, person) do
+  def put_team_changeset(changeset, team) do
     changeset
     |> put_assoc(:person, person)
     |> validate_person()

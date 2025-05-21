@@ -126,8 +126,8 @@ defmodule Nomify.Teams do
            # collaboration rules may check property values.
            #
            |> TeamMember.insert_changeset()
-           |> TeamMember.put_team(team)
-           |> TeamMember.put_person(person)
+           |> TeamMember.put_team_changeset(team)
+           |> TeamMember.put_person_changeset(person)
            |> Repo.insert() do
       broadcast_team_members(scope, {:created, team})
       {:ok, team}

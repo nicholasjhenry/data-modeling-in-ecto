@@ -121,14 +121,14 @@ defmodule Nomify.Documents.Nomination do
   # SECTION: Assoc Changesets
 
   @doc false
-  def put_document(changeset, document) do
+  def put_document_changeset(changeset, document) do
     changeset
     |> put_assoc(:document, document)
     |> validate_document()
   end
 
   @doc false
-  def put_team_member(changeset, team_member, opts \\ []) do
+  def put_team_member_changeset(changeset, team_member, opts \\ []) do
     changeset
     |> put_assoc(:team_member, team_member)
     |> validate_team_member(opts)
