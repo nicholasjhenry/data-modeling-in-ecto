@@ -1,8 +1,6 @@
 defmodule Nomify.Accounts.User do
   use Nomify, :record
 
-  alias Nomify.Directory.Person
-
   @typedoc """
   ## Fields
 
@@ -14,13 +12,8 @@ defmodule Nomify.Accounts.User do
   - `current_password` (descriptive): The current password, used for validation during updates.
   - `confirmed_at` (time): The timestamp when the user confirmed their account.
   - `authenticated_at` (time): The timestamp when the user last authenticated.
-
-  ## Associations
-
-  A User associates with:
-
-  - `person` (Actor - Role): Links the user to a person entity.
   """
+
   @type t :: %__MODULE__{
           id: integer(),
           email: String.t(),
@@ -29,8 +22,6 @@ defmodule Nomify.Accounts.User do
           current_password: String.t() | nil,
           confirmed_at: NaiveDateTime.t() | nil,
           authenticated_at: NaiveDateTime.t() | nil,
-          person_id: integer() | nil,
-          person: Person.t() | nil,
           inserted_at: NaiveDateTime.t(),
           updated_at: NaiveDateTime.t()
         }
@@ -42,8 +33,6 @@ defmodule Nomify.Accounts.User do
     field :current_password, :string, virtual: true, redact: true
     field :confirmed_at, :naive_datetime
     field :authenticated_at, :naive_datetime, virtual: true
-
-    belongs_to :person, Person
 
     timestamps()
   end
@@ -62,8 +51,6 @@ defmodule Nomify.Accounts.User do
   def email_changeset(user, attrs, opts \\ []) do
     user
     |> cast(attrs, [:email])
-    |> cast_assoc(:person)
-    |> validate_person()
     |> validate_email(opts)
   end
 
@@ -92,14 +79,6 @@ defmodule Nomify.Accounts.User do
     else
       changeset
     end
-  end
-
-  defp validate_person(changeset) do
-    unique_constraint(changeset, [:person_id],
-      message: "Tried to add person twice to a user.",
-      error_key: :business_rule,
-      name: :team_members_team_id_person_id_index
-    )
   end
 
   @doc """

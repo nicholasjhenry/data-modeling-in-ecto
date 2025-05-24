@@ -122,6 +122,7 @@ defmodule NomifyWeb.TeamMemberLiveTest do
       assert html =~ "Team member&#39;s team role updated successfully"
     end
 
+    @tag :wip
     test "changes team_member privileges in listing", %{
       conn: conn,
       team: team,

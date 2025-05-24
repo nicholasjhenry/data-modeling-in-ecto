@@ -9,15 +9,12 @@ defmodule Nomify.AccountsFixtures do
   alias Nomify.Accounts
   alias Nomify.Accounts.Scope
 
-  import Nomify.DirectoryFixtures
-
   def unique_user_email, do: "user#{System.unique_integer()}@example.com"
   def valid_user_password, do: "hello world!"
 
   def valid_user_attributes(attrs \\ %{}) do
     Enum.into(attrs, %{
-      email: unique_user_email(),
-      person: valid_person_attributes()
+      email: unique_user_email()
     })
   end
 

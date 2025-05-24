@@ -20,18 +20,14 @@ defmodule NomifyWeb.UserLive.Registration do
         </.header>
 
         <.form for={@form} id="registration_form" phx-submit="save" phx-change="validate">
-          <.inputs_for :let={form_person} field={@form[:person]}>
-            <.input
-              field={form_person[:name]}
-              type="text"
-              label="Name"
-              required
-              phx-mounted={JS.focus()}
-            />
-            <.input field={form_person[:title]} type="text" label="Title" required />
-          </.inputs_for>
-
-          <.input field={@form[:email]} type="email" label="Email" autocomplete="username" required />
+          <.input
+            field={@form[:email]}
+            type="email"
+            label="Email"
+            autocomplete="username"
+            required
+            phx-mounted={JS.focus()}
+          />
 
           <.button variant="primary" phx-disable-with="Creating account..." class="w-full">
             Create an account

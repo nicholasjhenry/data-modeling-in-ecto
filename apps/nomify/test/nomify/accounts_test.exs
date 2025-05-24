@@ -79,8 +79,7 @@ defmodule Nomify.AccountsTest do
 
     test "registers user without password" do
       email = unique_user_email()
-      attrs = valid_user_attributes(email: email)
-      {:ok, user} = Accounts.register_user(attrs)
+      {:ok, user} = Accounts.register_user(valid_user_attributes(email: email))
       assert user.email == email
       assert is_nil(user.hashed_password)
       assert is_nil(user.confirmed_at)
