@@ -6,7 +6,6 @@ defmodule Nomify.Documents do
   import Ecto.Query, warn: false
   alias Nomify.Repo
 
-  alias Nomify.Accounts
   alias Nomify.Accounts.Scope
   alias Nomify.Documents.Document
   alias Nomify.Teams.TeamMember
