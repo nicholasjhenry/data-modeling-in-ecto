@@ -83,14 +83,13 @@ defmodule Nomify.Documents.Nomination do
   def insert_changeset(nomination, attrs) do
     nomination
     |> cast(attrs, [:comments])
-    |> validate_required([:comments])
   end
 
   @doc false
   def update_changeset(nomination, attrs) do
     nomination
     |> cast(attrs, [:comments, :status])
-    |> validate_required([:comments, :status])
+    |> validate_required([:status])
     |> validate_status
   end
 
