@@ -28,7 +28,19 @@ defmodule Nomify.Umbrella.MixProject do
       ignore_apps: [:nomify_web],
       main: "readme",
       extras: [
-        "README.md"
+        "README.md",
+        "guides/10_essential_ecto.md",
+        "guides/20_association_patterns.md",
+        "guides/30_association_validations.md",
+        "guides/40_fields_and_actions.md",
+        "guides/50_implementing_associations.md",
+        "guides/60_implementing_business_rules.md",
+        "notebooks/case_study_1.livemd",
+        "notebooks/case_study_2.livemd"
+      ],
+      groups_for_extras: [
+        Guides: Path.wildcard("guides/*.md"),
+        "Case Studies": Path.wildcard("notebooks/*.livemd")
       ],
       assets: %{
         "guides/assets" => "assets"
