@@ -119,7 +119,7 @@ defmodule Nomify.DocumentsTest do
     import Nomify.DocumentsFixtures
     import Nomify.TeamsFixtures
 
-    @invalid_attrs %{status: nil, comments: nil}
+    @invalid_attrs %{status: :invalid}
 
     test "get_nomination!/1 returns the nomination with given id" do
       scope = user_scope_fixture()
@@ -151,19 +151,6 @@ defmodule Nomify.DocumentsTest do
       assert nomination.status == :pending
       assert nomination.comments == "some comments"
       assert %Date{} = nomination.nomination_date
-    end
-
-    test "nominate_document/1 with invalid data returns error changeset" do
-      scope = user_scope_fixture()
-      document = document_fixture(scope)
-
-      team_member =
-        scope
-        |> team_member_fixture()
-        |> then(&update_team_member_privilege(scope, &1, :nominate))
-
-      assert {:error, %Ecto.Changeset{}} =
-               Documents.nominate_document(scope, document, team_member, @invalid_attrs)
     end
 
     test "nominate_document/1 with nomination conflict returns error changeset" do

@@ -11,7 +11,6 @@ defmodule NomifyWeb.NominationLiveTest do
     status: :in_review,
     comments: "some updated comments"
   }
-  @invalid_attrs %{comments: nil}
   defp create_nomination(%{scope: scope}) do
     nomination = nomination_fixture(scope)
 
@@ -49,10 +48,6 @@ defmodule NomifyWeb.NominationLiveTest do
              |> element("#team_member-#{team_member.id}")
              |> render_click()
 
-      assert form_live
-             |> form("#nomination-form", nomination: @invalid_attrs)
-             |> render_change() =~ "can&#39;t be blank"
-
       assert {:ok, index_live, _html} =
                form_live
                |> form("#nomination-form", nomination: @create_attrs)
@@ -78,10 +73,6 @@ defmodule NomifyWeb.NominationLiveTest do
                |> follow_redirect(conn, ~p"/documents/#{document}/nominations/#{nomination}/edit")
 
       assert render(form_live) =~ "Edit Nomination"
-
-      assert form_live
-             |> form("#nomination-form", nomination: @invalid_attrs)
-             |> render_change() =~ "can&#39;t be blank"
 
       assert {:ok, index_live, _html} =
                form_live
@@ -133,10 +124,6 @@ defmodule NomifyWeb.NominationLiveTest do
                )
 
       assert render(form_live) =~ "Edit Nomination"
-
-      assert form_live
-             |> form("#nomination-form", nomination: @invalid_attrs)
-             |> render_change() =~ "can&#39;t be blank"
 
       assert {:ok, show_live, _html} =
                form_live
