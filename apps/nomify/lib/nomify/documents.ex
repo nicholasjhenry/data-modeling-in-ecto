@@ -43,13 +43,14 @@ defmodule Nomify.Documents do
            |> Document.changeset(attrs)
            |> Repo.insert() do
       broadcast_documents(scope, {:created, document})
-      {:ok, preload_document(document)}
+      {:ok, document}
     end
   end
 
   def publish_document(scope, document) do
     with {:ok, document = %Document{}} <-
            document
+           |> Repo.preload(:nominations)
            |> Document.publish_changeset(%{publication_date: Date.utc_today()})
            |> Repo.update() do
       broadcast_documents(scope, {:updated, document})
@@ -140,10 +141,11 @@ defmodule Nomify.Documents do
     team_member = Repo.preload(team_member, :nominations)
 
     team_member_opts = Keyword.get(opts, :team_member, [])
+    current_date = Keyword.get(opts, :current_date, Date.utc_today())
 
     with {:ok, nomination = %Nomination{}} <-
            %Nomination{}
-           |> Nomination.insert_changeset(attrs)
+           |> Nomination.insert_changeset(attrs, current_date)
            |> Nomination.put_document_changeset(document)
            |> Nomination.put_team_member_changeset(team_member, team_member_opts)
            |> Repo.insert() do
@@ -171,8 +173,10 @@ defmodule Nomify.Documents do
   end
 
   def change_nomination(%Nomination{} = nomination, attrs \\ %{}) do
+    current_date = Date.utc_today()
+
     nomination
-    |> Nomination.insert_changeset(attrs)
+    |> Nomination.insert_changeset(attrs, current_date)
     |> Nomination.update_changeset(attrs)
   end
 
@@ -181,5 +185,17 @@ defmodule Nomify.Documents do
       lhs.comments == rhs.comments and
       lhs.document_id == rhs.document_id and
       lhs.team_member_id == rhs.team_member_id
+  end
+
+  def test_old_nomination(scope, team_member) do
+    document = test_document(scope)
+    current_date = Date.new!(2001, 01, 01)
+
+    {:ok, nomination} =
+      nominate_document(scope, document, team_member, %{comment: "Old test nomination"},
+        current_date: current_date
+      )
+
+    nomination
   end
 end

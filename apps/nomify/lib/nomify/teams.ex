@@ -200,6 +200,21 @@ defmodule Nomify.Teams do
       lhs.team_id == rhs.team_id
   end
 
+  def test_team_member_admin(scope) do
+    person = Directory.test_person(scope)
+    team = test_team(scope)
+
+    {:ok, team_member} = create_team_member(scope, team, person)
+
+    {:ok, team_member} =
+      update_team_member_privileges(scope, team_member, %{nominate: true})
+
+    {:ok, team_member_admin} =
+      update_team_member_role(scope, team_member, %{role: :admin})
+
+    team_member_admin
+  end
+
   def test_team_member_no_nominate(scope) do
     person = Directory.test_person(scope)
     team = test_team(scope)

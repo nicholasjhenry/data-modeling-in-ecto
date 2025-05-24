@@ -61,7 +61,7 @@ defmodule Nomify.Documents.Nomination do
       values: [:pending, :in_review, :rejected, :approved],
       default: :pending
 
-    field :nomination_date, :date, autogenerate: {Date, :utc_today, []}
+    field :nomination_date, :date
 
     # SECTION: Associations
     belongs_to :document, Document
@@ -80,9 +80,10 @@ defmodule Nomify.Documents.Nomination do
   # SECTION: Field Changesets
 
   @doc false
-  def insert_changeset(nomination, attrs) do
+  def insert_changeset(nomination, attrs, current_date) do
     nomination
     |> cast(attrs, [:comments])
+    |> put_change(:nomination_date, current_date)
   end
 
   @doc false

@@ -1,0 +1,56 @@
+# Case Study 2
+
+## Preface
+
+```elixir
+alias Nomify.Accounts
+alias Nomify.Documents
+alias Nomify.Teams
+
+import Nomify.Result
+
+scope = Accounts.test_scope()
+
+nil
+```
+
+## Team member exceeding nomination allowance
+
+```elixir
+team_member = Teams.test_team_member_admin(scope)
+_nomination = Documents.test_old_nomination(scope, team_member)
+_nomination = Documents.test_old_nomination(scope, team_member)
+_nomination = Documents.test_old_nomination(scope, team_member)
+_nomination = Documents.test_old_nomination(scope, team_member)
+nomination = Documents.test_old_nomination(scope, team_member)
+
+# doesn't blow when add this because is more than 30 days after othersw.
+
+document = Documents.test_document(scope)
+{:ok, _nomination} = Documents.nominate_document(scope, document, team_member)
+
+document = Documents.test_document(scope)
+{:ok, _nomination} = Documents.nominate_document(scope, document, team_member)
+
+document = Documents.test_document(scope)
+{:ok, nomination} = Documents.nominate_document(scope, document, team_member)
+{:ok, in_review_nomination} = Documents.update_nomination(scope, nomination, %{status: :in_review})
+{:ok, _nomination} = Documents.update_nomination(scope, in_review_nomination, %{status: :approved})
+{:ok, published_document} = Documents.publish_document(scope, document)
+
+IO.puts("published: #{published_document}")
+
+# Downgrade team role to reduce number of allowed nominations
+{:ok, team_member} = Teams.update_team_member_role(scope, team_member, %{role: "member"})
+
+document = Documents.test_document(scope)
+{:ok, nomination} = Documents.nominate_document(scope, document, team_member)
+
+document = Documents.test_document(scope)
+{:ok, nomination} = Documents.nominate_document(scope, document, team_member)
+
+document = Documents.test_document(scope)
+{:error, changeset} = Documents.nominate_document(scope, document, team_member)
+
+"Team member cannot nominate. Too many nominations." in errors_on(changeset).business_rule
+```
