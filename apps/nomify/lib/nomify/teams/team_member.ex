@@ -129,7 +129,7 @@ defmodule Nomify.Teams.TeamMember do
   end
 
   @doc false
-  def count_nominations_per_period(team_member, opts \\ []) do
+  def put_nominations_per_period_count(team_member, opts \\ []) do
     end_date = Keyword.get(opts, :end_date, Date.utc_today())
     {days, :day} = @nominations_time_period
 
@@ -263,7 +263,7 @@ defmodule Nomify.Teams.TeamMember do
 
     team_member =
       team_member
-      |> count_nominations_per_period()
+      |> put_nominations_per_period_count()
       |> determine_max_nominations_allowed(nomination_allowance_opts)
 
     cond do
