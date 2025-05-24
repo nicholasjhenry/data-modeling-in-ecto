@@ -1,0 +1,16 @@
+#!/bin/sh
+
+# script/update: Update application to run for its current checkout.
+
+set -e
+
+cd "$(dirname "$0")/.."
+
+source ./script/sh/read_env
+
+script/bootstrap
+
+echo "==> Updating db…"
+# run all database migrations to ensure everything is up to date.
+
+eval "$(read_env)" mix ecto.migrate

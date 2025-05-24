@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# read_env(): Reads vars from .env file to be inlined with a shell command.
+#             Example:
+#
+#                 source ./script/sh/read_env
+#                 eval "$(read_vars) iex -S mix
+
+read_env() {
+    if [ ! -f .env ]; then
+        echo "Error: .env file not found!" >&2
+        return 1
+    fi
+
+    # Read .env file, ignoring comments and empty lines
+    while IFS='=' read -r key value; do
+        # Skip comments and empty lines
+        if [[ -z "$key" || "$key" =~ ^# ]]; then
+            continue
+        fi
+
+        # Trim quotes from the value if needed
+        value=$(echo "$value" | sed -E "s/^['\"](.*)['\"]$/\1/")
+
+        # Quote values if they contain spaces or special characters
+        if [[ "$value" =~ [^a-zA-Z0-9_/.-] ]]; then
+            echo "$key=\"$value\""
+        else
+            echo "$key=$value"
+        fi
+    done <.env | tr '\n' ' '
+}
