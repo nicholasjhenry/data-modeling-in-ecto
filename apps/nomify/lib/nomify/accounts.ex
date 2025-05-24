@@ -6,7 +6,7 @@ defmodule Nomify.Accounts do
   import Ecto.Query, warn: false
   alias Nomify.Repo
 
-  alias Nomify.Accounts.{User, UserToken, UserNotifier}
+  alias Nomify.Accounts.{Scope, User, UserToken, UserNotifier}
 
   ## Database getters
 
@@ -302,5 +302,9 @@ defmodule Nomify.Accounts do
            |> Repo.transaction() do
       {:ok, user, expired_tokens}
     end
+  end
+
+  def test_scope do
+    %Scope{user: %User{id: 1}}
   end
 end

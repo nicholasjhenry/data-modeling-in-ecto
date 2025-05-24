@@ -6,6 +6,7 @@ defmodule Nomify.Documents do
   import Ecto.Query, warn: false
   alias Nomify.Repo
 
+  alias Nomify.Accounts
   alias Nomify.Accounts.Scope
   alias Nomify.Documents.Document
   alias Nomify.Teams.TeamMember
@@ -29,7 +30,7 @@ defmodule Nomify.Documents do
   def get_document!(id) do
     Document
     |> Repo.get!(id)
-    |> Repo.preload(nominations: [team_member: TeamMember.base_query()])
+    |> preload_document()
   end
 
   defp preload_document(document) do
@@ -88,6 +89,18 @@ defmodule Nomify.Documents do
       (is_nil(lhs.publication_date) and is_nil(rhs.publication_date))
   end
 
+  def test_document(scope) do
+    attrs = %{title: "Test Document", security_level: :low}
+    {:ok, document} = create_document(scope, attrs)
+    document
+  end
+
+  def test_document_secret(scope) do
+    attrs = %{title: "Test Document", security_level: :secret}
+    {:ok, document} = create_document(scope, attrs)
+    document
+  end
+
   alias Nomify.Documents.Nomination
 
   def subscribe_nominations(%Scope{} = scope) do
@@ -102,17 +115,27 @@ defmodule Nomify.Documents do
     Phoenix.PubSub.broadcast(Nomify.PubSub, "user:#{key}:nominations", message)
   end
 
-  def list_nominations do
-    Repo.all(Nomination)
+  def list_nominations_by_document(document) do
+    query =
+      from nomination in Nomination,
+        where: nomination.document_id == ^document.id
+
+    query
+    |> Repo.all()
+    |> preload_nomination()
   end
 
   def get_nomination!(document, id) do
     Nomination
     |> Repo.get_by!(document_id: document.id, id: id)
-    |> Repo.preload(team_member: TeamMember.base_query())
+    |> preload_nomination()
   end
 
-  def nominate_document(%Scope{} = scope, document, team_member, attrs, opts \\ []) do
+  defp preload_nomination(nomination) do
+    Repo.preload(nomination, document: [], team_member: TeamMember.base_query())
+  end
+
+  def nominate_document(%Scope{} = scope, document, team_member, attrs \\ %{}, opts \\ []) do
     document = Repo.preload(document, latest_nomination: Nomination.latest())
     team_member = Repo.preload(team_member, :nominations)
 

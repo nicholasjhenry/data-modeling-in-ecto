@@ -170,4 +170,15 @@ defmodule Nomify.Documents.Nomination do
       changeset
     end
   end
+
+  defimpl String.Chars do
+    def to_string(nomination) do
+      """
+      Nomination on: #{nomination.nomination_date}
+      Status: #{nomination.status}
+      #{nomination.document}
+      #{nomination.team_member}
+      """
+    end
+  end
 end

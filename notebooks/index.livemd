@@ -1,0 +1,68 @@
+# Scenarios
+
+## Preface
+
+
+
+```elixir
+alias Nomify.Accounts
+alias Nomify.Documents
+alias Nomify.Teams
+
+import Nomify.Result
+```
+
+## Scenario: Team member without nominate privileges nominates a document
+
+```elixir
+scope = Accounts.test_scope()
+team_member_1 = Teams.test_team_member_no_nominate(scope)
+document = Documents.test_document(scope)
+
+{:error, changeset} = Documents.nominate_document(scope, document, team_member_1)
+
+errors_on(changeset).business_rule
+```
+
+```elixir
+delay = 3
+
+scope = Accounts.test_scope()
+document = Documents.test_document_secret(scope)
+
+team_member_2 = Teams.test_team_member_secret(scope)
+
+{:ok, nomination} = Documents.nominate_document(scope, document, team_member_2)
+{:ok, nomination} = Documents.update_nomination(scope, nomination, %{status: :in_review})
+{:ok, _nomination} = Documents.update_nomination(scope, nomination, %{status: :rejected})
+
+Process.sleep(delay * 1000)
+
+team_member_3 = Teams.test_team_member_secret(scope) |> dbg
+
+{:ok, nomination} = Documents.nominate_document(scope, document, team_member_3)
+{:ok, nomination} = Documents.update_nomination(scope, nomination, %{status: :in_review})
+{:ok, _nomination} = Documents.update_nomination(scope, nomination, %{status: :rejected})
+
+Process.sleep(delay * 1000)
+
+{:ok, nomination} = Documents.nominate_document(scope, document, team_member_2)
+{:ok, nomination} = Documents.update_nomination(scope, nomination, %{status: :in_review})
+{:ok, _nomination} = Documents.update_nomination(scope, nomination, %{status: :approved})
+
+document
+|> Documents.list_nominations_by_document()
+|> Enum.join("\n")
+|> IO.puts
+
+
+team_member_2_nominations_per_days = 
+  Teams.count_team_member_nominations_per_period(team_member_2)
+
+team_member_1_nominations_per_days = 
+   Teams.count_team_member_nominations_per_period(team_member_1)
+
+IO.puts("🎉 Noms per days #2 : #{team_member_2_nominations_per_days}")
+IO.puts("🎉 Noms per days #1 : #{team_member_1_nominations_per_days}")
+
+```

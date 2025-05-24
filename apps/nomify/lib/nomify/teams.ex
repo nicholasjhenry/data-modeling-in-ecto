@@ -6,6 +6,7 @@ defmodule Nomify.Teams do
   import Ecto.Query, warn: false
   alias Nomify.Repo
 
+  alias Nomify.Directory
   alias Nomify.Accounts.Scope
 
   # SECTION: Team
@@ -71,6 +72,12 @@ defmodule Nomify.Teams do
     lhs.id == rhs.id &&
       lhs.description == rhs.description &&
       lhs.format == rhs.format
+  end
+
+  def test_team(scope) do
+    attrs = %{description: "Test Team", format: :none}
+    {:ok, team} = create_team(scope, attrs)
+    team
   end
 
   # SECTION: Team Members
@@ -177,6 +184,13 @@ defmodule Nomify.Teams do
     TeamMember.changeset(team_member, attrs)
   end
 
+  def count_team_member_nominations_per_period(%TeamMember{} = team_member, opts \\ []) do
+    team_member
+    |> Repo.preload(:nominations)
+    |> TeamMember.put_nominations_per_period_count(opts)
+    |> Map.fetch!(:nominations_per_period_count)
+  end
+
   def team_member_equal?(lhs, rhs) do
     lhs.id == rhs.id &&
       lhs.role == rhs.role &&
@@ -184,5 +198,26 @@ defmodule Nomify.Teams do
       lhs.security_level == rhs.security_level &&
       lhs.person_id == rhs.person_id &&
       lhs.team_id == rhs.team_id
+  end
+
+  def test_team_member_no_nominate(scope) do
+    person = Directory.test_person(scope)
+    team = test_team(scope)
+
+    {:ok, team_member_no_nominate} = create_team_member(scope, team, person)
+    team_member_no_nominate
+  end
+
+  def test_team_member_secret(scope) do
+    person = Directory.test_person(scope)
+    team = test_team(scope)
+
+    {:ok, team_member} = create_team_member(scope, team, person)
+
+    {:ok, team_member} =
+      update_team_member_privileges(scope, team_member, %{nominate: true})
+
+    {:ok, team_member_secret} = update_team_member(scope, team_member, %{security_level: :secret})
+    team_member_secret
   end
 end

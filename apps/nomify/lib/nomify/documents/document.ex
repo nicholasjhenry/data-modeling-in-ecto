@@ -134,4 +134,10 @@ defmodule Nomify.Documents.Document do
       :ok
     end
   end
+
+  defimpl String.Chars do
+    def to_string(document) do
+      "📄 #{document.title} (#{document.security_level})"
+    end
+  end
 end

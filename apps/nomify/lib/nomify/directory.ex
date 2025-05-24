@@ -6,6 +6,7 @@ defmodule Nomify.Directory do
   import Ecto.Query, warn: false
   alias Nomify.Repo
 
+  alias Nomify.Accounts
   alias Nomify.Accounts.Scope
   alias Nomify.Directory.Person
 
@@ -63,5 +64,16 @@ defmodule Nomify.Directory do
 
   def change_person(%Person{} = person, attrs \\ %{}) do
     Person.changeset(person, attrs)
+  end
+
+  def test_person(scope) do
+    {:ok, person} =
+      create_person(scope, %{
+        name: "John Smith",
+        title: "CTO",
+        email: "john@example.com"
+      })
+
+    person
   end
 end
