@@ -1,4 +1,4 @@
-defmodule Examples.Repo.Migrations.CreateOfficeSupplyStorePeople do
+defmodule Examples.Repo.Migrations.CreateOfficeSupplyStoreOrganizations do
   use Ecto.Migration
 
   def change do
