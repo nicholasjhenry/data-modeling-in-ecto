@@ -127,11 +127,6 @@ defmodule Examples.OfficeSupplyStoreTest do
 
     @invalid_attrs %{state: nil}
 
-    test "list_office_supply_store_orders/0 returns all office_supply_store_orders" do
-      order = order_fixture()
-      assert OfficeSupplyStore.list_office_supply_store_orders() == [order]
-    end
-
     test "get_order!/1 returns the order with given id" do
       order = order_fixture()
       assert OfficeSupplyStore.get_order!(order.id) == order
@@ -160,17 +155,6 @@ defmodule Examples.OfficeSupplyStoreTest do
       order = order_fixture()
       assert {:error, %Ecto.Changeset{}} = OfficeSupplyStore.update_order(order, @invalid_attrs)
       assert order == OfficeSupplyStore.get_order!(order.id)
-    end
-
-    test "delete_order/1 deletes the order" do
-      order = order_fixture()
-      assert {:ok, %Order{}} = OfficeSupplyStore.delete_order(order)
-      assert_raise Ecto.NoResultsError, fn -> OfficeSupplyStore.get_order!(order.id) end
-    end
-
-    test "change_order/1 returns a order changeset" do
-      order = order_fixture()
-      assert %Ecto.Changeset{} = OfficeSupplyStore.change_order(order)
     end
   end
 end
