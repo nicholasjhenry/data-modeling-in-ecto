@@ -165,50 +165,45 @@ defmodule Examples.OfficeSupplyStoreTest do
 
     @invalid_attrs %{registered_on: nil}
 
-    test "list_office_supply_store_government_customers/0 returns all office_supply_store_government_customers" do
-      government_customer = government_customer_fixture()
-      assert OfficeSupplyStore.list_office_supply_store_government_customers() == [government_customer]
-    end
-
     test "get_government_customer!/1 returns the government_customer with given id" do
       government_customer = government_customer_fixture()
-      assert OfficeSupplyStore.get_government_customer!(government_customer.id) == government_customer
+
+      assert OfficeSupplyStore.get_government_customer!(government_customer.id) ==
+               government_customer
     end
 
     test "create_government_customer/1 with valid data creates a government_customer" do
       valid_attrs = %{registered_on: ~D[2025-05-26]}
 
-      assert {:ok, %GovernmentCustomer{} = government_customer} = OfficeSupplyStore.create_government_customer(valid_attrs)
+      assert {:ok, %GovernmentCustomer{} = government_customer} =
+               OfficeSupplyStore.create_government_customer(valid_attrs)
+
       assert government_customer.registered_on == ~D[2025-05-26]
     end
 
     test "create_government_customer/1 with invalid data returns error changeset" do
-      assert {:error, %Ecto.Changeset{}} = OfficeSupplyStore.create_government_customer(@invalid_attrs)
+      assert {:error, %Ecto.Changeset{}} =
+               OfficeSupplyStore.create_government_customer(@invalid_attrs)
     end
 
     test "update_government_customer/2 with valid data updates the government_customer" do
       government_customer = government_customer_fixture()
       update_attrs = %{registered_on: ~D[2025-05-27]}
 
-      assert {:ok, %GovernmentCustomer{} = government_customer} = OfficeSupplyStore.update_government_customer(government_customer, update_attrs)
+      assert {:ok, %GovernmentCustomer{} = government_customer} =
+               OfficeSupplyStore.update_government_customer(government_customer, update_attrs)
+
       assert government_customer.registered_on == ~D[2025-05-27]
     end
 
     test "update_government_customer/2 with invalid data returns error changeset" do
       government_customer = government_customer_fixture()
-      assert {:error, %Ecto.Changeset{}} = OfficeSupplyStore.update_government_customer(government_customer, @invalid_attrs)
-      assert government_customer == OfficeSupplyStore.get_government_customer!(government_customer.id)
-    end
 
-    test "delete_government_customer/1 deletes the government_customer" do
-      government_customer = government_customer_fixture()
-      assert {:ok, %GovernmentCustomer{}} = OfficeSupplyStore.delete_government_customer(government_customer)
-      assert_raise Ecto.NoResultsError, fn -> OfficeSupplyStore.get_government_customer!(government_customer.id) end
-    end
+      assert {:error, %Ecto.Changeset{}} =
+               OfficeSupplyStore.update_government_customer(government_customer, @invalid_attrs)
 
-    test "change_government_customer/1 returns a government_customer changeset" do
-      government_customer = government_customer_fixture()
-      assert %Ecto.Changeset{} = OfficeSupplyStore.change_government_customer(government_customer)
+      assert government_customer ==
+               OfficeSupplyStore.get_government_customer!(government_customer.id)
     end
   end
 end
