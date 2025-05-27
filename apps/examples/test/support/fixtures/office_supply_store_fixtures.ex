@@ -37,4 +37,18 @@ defmodule Examples.OfficeSupplyStoreFixtures do
 
     organization
   end
+
+  @doc """
+  Generate a order.
+  """
+  def order_fixture(attrs \\ %{}) do
+    {:ok, order} =
+      attrs
+      |> Enum.into(%{
+        state: :payment_pending
+      })
+      |> Examples.OfficeSupplyStore.create_order()
+
+    order
+  end
 end

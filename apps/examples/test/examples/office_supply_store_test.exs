@@ -119,4 +119,58 @@ defmodule Examples.OfficeSupplyStoreTest do
       assert organization == OfficeSupplyStore.get_organization!(organization.id)
     end
   end
+
+  describe "office_supply_store_orders" do
+    alias Examples.OfficeSupplyStore.Order
+
+    import Examples.OfficeSupplyStoreFixtures
+
+    @invalid_attrs %{state: nil}
+
+    test "list_office_supply_store_orders/0 returns all office_supply_store_orders" do
+      order = order_fixture()
+      assert OfficeSupplyStore.list_office_supply_store_orders() == [order]
+    end
+
+    test "get_order!/1 returns the order with given id" do
+      order = order_fixture()
+      assert OfficeSupplyStore.get_order!(order.id) == order
+    end
+
+    test "create_order/1 with valid data creates a order" do
+      valid_attrs = %{state: :payment_pending}
+
+      assert {:ok, %Order{} = order} = OfficeSupplyStore.create_order(valid_attrs)
+      assert order.state == :payment_pending
+    end
+
+    test "create_order/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = OfficeSupplyStore.create_order(@invalid_attrs)
+    end
+
+    test "update_order/2 with valid data updates the order" do
+      order = order_fixture()
+      update_attrs = %{state: :delivery_pending}
+
+      assert {:ok, %Order{} = order} = OfficeSupplyStore.update_order(order, update_attrs)
+      assert order.state == :delivery_pending
+    end
+
+    test "update_order/2 with invalid data returns error changeset" do
+      order = order_fixture()
+      assert {:error, %Ecto.Changeset{}} = OfficeSupplyStore.update_order(order, @invalid_attrs)
+      assert order == OfficeSupplyStore.get_order!(order.id)
+    end
+
+    test "delete_order/1 deletes the order" do
+      order = order_fixture()
+      assert {:ok, %Order{}} = OfficeSupplyStore.delete_order(order)
+      assert_raise Ecto.NoResultsError, fn -> OfficeSupplyStore.get_order!(order.id) end
+    end
+
+    test "change_order/1 returns a order changeset" do
+      order = order_fixture()
+      assert %Ecto.Changeset{} = OfficeSupplyStore.change_order(order)
+    end
+  end
 end
