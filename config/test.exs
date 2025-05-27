@@ -16,6 +16,14 @@ config :nomify, Nomify.Repo,
   pool: Ecto.Adapters.SQL.Sandbox,
   pool_size: System.schedulers_online() * 2
 
+config :examples, Examples.Repo,
+  username: "postgres",
+  password: "postgres",
+  hostname: "localhost",
+  database: "examples_test#{System.get_env("MIX_TEST_PARTITION")}",
+  pool: Ecto.Adapters.SQL.Sandbox,
+  pool_size: System.schedulers_online() * 2
+
 # We don't run a server during test. If one is required,
 # you can enable the server option below.
 config :nomify_web, NomifyWeb.Endpoint,

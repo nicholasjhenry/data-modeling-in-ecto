@@ -55,6 +55,7 @@ defmodule NomifyWeb.MixProject do
        depth: 1},
       {:telemetry_metrics, "~> 1.0"},
       {:telemetry_poller, "~> 1.0"},
+      {:examples, in_umbrella: true},
       {:nomify, in_umbrella: true},
       {:jason, "~> 1.2"},
       {:bandit, "~> 1.5"},

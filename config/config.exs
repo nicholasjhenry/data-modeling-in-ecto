@@ -26,6 +26,9 @@ config :nomify, :scopes,
 config :nomify,
   ecto_repos: [Nomify.Repo]
 
+config :examples,
+  ecto_repos: [Examples.Repo]
+
 # Configures the mailer
 #
 # By default it uses the "Local" adapter which stores the emails
