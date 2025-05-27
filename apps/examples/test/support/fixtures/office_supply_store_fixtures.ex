@@ -51,4 +51,18 @@ defmodule Examples.OfficeSupplyStoreFixtures do
 
     order
   end
+
+  @doc """
+  Generate a government_customer.
+  """
+  def government_customer_fixture(attrs \\ %{}) do
+    {:ok, government_customer} =
+      attrs
+      |> Enum.into(%{
+        registered_on: ~D[2025-05-26]
+      })
+      |> Examples.OfficeSupplyStore.create_government_customer()
+
+    government_customer
+  end
 end
