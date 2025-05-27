@@ -57,4 +57,64 @@ defmodule Examples.OfficeSupplyStoreTest do
       assert person == OfficeSupplyStore.get_person!(person.id)
     end
   end
+
+  describe "office_supply_store_people" do
+    alias Examples.OfficeSupplyStore.Organization
+
+    import Examples.OfficeSupplyStoreFixtures
+
+    @invalid_attrs %{name: nil, state: nil, telephone_number: nil, government_id: nil}
+
+    test "list_office_supply_store_people/0 returns all office_supply_store_people" do
+      organization = organization_fixture()
+      assert OfficeSupplyStore.list_office_supply_store_people() == [organization]
+    end
+
+    test "get_organization!/1 returns the organization with given id" do
+      organization = organization_fixture()
+      assert OfficeSupplyStore.get_organization!(organization.id) == organization
+    end
+
+    test "create_organization/1 with valid data creates a organization" do
+      valid_attrs = %{name: "some name", state: :active, telephone_number: "some telephone_number", government_id: "some government_id"}
+
+      assert {:ok, %Organization{} = organization} = OfficeSupplyStore.create_organization(valid_attrs)
+      assert organization.name == "some name"
+      assert organization.state == :active
+      assert organization.telephone_number == "some telephone_number"
+      assert organization.government_id == "some government_id"
+    end
+
+    test "create_organization/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = OfficeSupplyStore.create_organization(@invalid_attrs)
+    end
+
+    test "update_organization/2 with valid data updates the organization" do
+      organization = organization_fixture()
+      update_attrs = %{name: "some updated name", state: :inactive, telephone_number: "some updated telephone_number", government_id: "some updated government_id"}
+
+      assert {:ok, %Organization{} = organization} = OfficeSupplyStore.update_organization(organization, update_attrs)
+      assert organization.name == "some updated name"
+      assert organization.state == :inactive
+      assert organization.telephone_number == "some updated telephone_number"
+      assert organization.government_id == "some updated government_id"
+    end
+
+    test "update_organization/2 with invalid data returns error changeset" do
+      organization = organization_fixture()
+      assert {:error, %Ecto.Changeset{}} = OfficeSupplyStore.update_organization(organization, @invalid_attrs)
+      assert organization == OfficeSupplyStore.get_organization!(organization.id)
+    end
+
+    test "delete_organization/1 deletes the organization" do
+      organization = organization_fixture()
+      assert {:ok, %Organization{}} = OfficeSupplyStore.delete_organization(organization)
+      assert_raise Ecto.NoResultsError, fn -> OfficeSupplyStore.get_organization!(organization.id) end
+    end
+
+    test "change_organization/1 returns a organization changeset" do
+      organization = organization_fixture()
+      assert %Ecto.Changeset{} = OfficeSupplyStore.change_organization(organization)
+    end
+  end
 end

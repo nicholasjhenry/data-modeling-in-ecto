@@ -20,4 +20,21 @@ defmodule Examples.OfficeSupplyStoreFixtures do
 
     person
   end
+
+  @doc """
+  Generate a organization.
+  """
+  def organization_fixture(attrs \\ %{}) do
+    {:ok, organization} =
+      attrs
+      |> Enum.into(%{
+        government_id: "some government_id",
+        name: "some name",
+        state: :active,
+        telephone_number: "some telephone_number"
+      })
+      |> Examples.OfficeSupplyStore.create_organization()
+
+    organization
+  end
 end
