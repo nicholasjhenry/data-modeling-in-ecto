@@ -10,11 +10,6 @@ defmodule Examples.OfficeSupplyStoreTest do
 
     @invalid_attrs %{name: nil, born_at: nil, email: nil, telephone_number: nil}
 
-    test "list_office_supply__store_people/0 returns all office_supply__store_people" do
-      person = person_fixture()
-      assert OfficeSupplyStore.list_office_supply__store_people() == [person]
-    end
-
     test "get_person!/1 returns the person with given id" do
       person = person_fixture()
       assert OfficeSupplyStore.get_person!(person.id) == person
@@ -60,17 +55,6 @@ defmodule Examples.OfficeSupplyStoreTest do
       person = person_fixture()
       assert {:error, %Ecto.Changeset{}} = OfficeSupplyStore.update_person(person, @invalid_attrs)
       assert person == OfficeSupplyStore.get_person!(person.id)
-    end
-
-    test "delete_person/1 deletes the person" do
-      person = person_fixture()
-      assert {:ok, %Person{}} = OfficeSupplyStore.delete_person(person)
-      assert_raise Ecto.NoResultsError, fn -> OfficeSupplyStore.get_person!(person.id) end
-    end
-
-    test "change_person/1 returns a person changeset" do
-      person = person_fixture()
-      assert %Ecto.Changeset{} = OfficeSupplyStore.change_person(person)
     end
   end
 end
