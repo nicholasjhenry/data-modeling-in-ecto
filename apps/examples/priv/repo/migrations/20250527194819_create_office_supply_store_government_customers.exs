@@ -4,7 +4,9 @@ defmodule Examples.Repo.Migrations.CreateOfficeSupplyStoreGovernmentCustomers do
   def change do
     create table(:office_supply_store_government_customers) do
       add :registered_on, :date
-      add :organization_id, references(:office_supply_store_organizations, on_delete: :nothing)
+
+      add :organization_id, references(:office_supply_store_organizations, on_delete: :nothing),
+        null: false
 
       timestamps()
     end

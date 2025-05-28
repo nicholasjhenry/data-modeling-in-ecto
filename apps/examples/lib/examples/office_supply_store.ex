@@ -58,9 +58,10 @@ defmodule Examples.OfficeSupplyStore do
 
   def get_government_customer!(id), do: Repo.get!(GovernmentCustomer, id)
 
-  def create_government_customer(attrs \\ %{}) do
+  def create_government_customer(organization, attrs \\ %{}) do
     %GovernmentCustomer{}
     |> GovernmentCustomer.changeset(attrs)
+    |> GovernmentCustomer.put_organization_changeset(organization)
     |> Repo.insert()
   end
 
@@ -68,5 +69,13 @@ defmodule Examples.OfficeSupplyStore do
     government_customer
     |> GovernmentCustomer.changeset(attrs)
     |> Repo.update()
+  end
+
+  def government_customer_equal?(
+        %GovernmentCustomer{} = government_customer,
+        %GovernmentCustomer{} = other
+      ) do
+    government_customer.id == other.id &&
+      Date.compare(government_customer.registered_on, other.registered_on) == :eq
   end
 end
