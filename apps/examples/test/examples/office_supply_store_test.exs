@@ -213,4 +213,58 @@ defmodule Examples.OfficeSupplyStoreTest do
       )
     end
   end
+
+  describe "office_supply_store_business_customers" do
+    alias Examples.OfficeSupplyStore.BusinessCustomer
+
+    import Examples.OfficeSupplyStoreFixtures
+
+    @invalid_attrs %{registered_on: nil}
+
+    test "list_office_supply_store_business_customers/0 returns all office_supply_store_business_customers" do
+      business_customer = business_customer_fixture()
+      assert OfficeSupplyStore.list_office_supply_store_business_customers() == [business_customer]
+    end
+
+    test "get_business_customer!/1 returns the business_customer with given id" do
+      business_customer = business_customer_fixture()
+      assert OfficeSupplyStore.get_business_customer!(business_customer.id) == business_customer
+    end
+
+    test "create_business_customer/1 with valid data creates a business_customer" do
+      valid_attrs = %{registered_on: ~D[2025-05-27]}
+
+      assert {:ok, %BusinessCustomer{} = business_customer} = OfficeSupplyStore.create_business_customer(valid_attrs)
+      assert business_customer.registered_on == ~D[2025-05-27]
+    end
+
+    test "create_business_customer/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = OfficeSupplyStore.create_business_customer(@invalid_attrs)
+    end
+
+    test "update_business_customer/2 with valid data updates the business_customer" do
+      business_customer = business_customer_fixture()
+      update_attrs = %{registered_on: ~D[2025-05-28]}
+
+      assert {:ok, %BusinessCustomer{} = business_customer} = OfficeSupplyStore.update_business_customer(business_customer, update_attrs)
+      assert business_customer.registered_on == ~D[2025-05-28]
+    end
+
+    test "update_business_customer/2 with invalid data returns error changeset" do
+      business_customer = business_customer_fixture()
+      assert {:error, %Ecto.Changeset{}} = OfficeSupplyStore.update_business_customer(business_customer, @invalid_attrs)
+      assert business_customer == OfficeSupplyStore.get_business_customer!(business_customer.id)
+    end
+
+    test "delete_business_customer/1 deletes the business_customer" do
+      business_customer = business_customer_fixture()
+      assert {:ok, %BusinessCustomer{}} = OfficeSupplyStore.delete_business_customer(business_customer)
+      assert_raise Ecto.NoResultsError, fn -> OfficeSupplyStore.get_business_customer!(business_customer.id) end
+    end
+
+    test "change_business_customer/1 returns a business_customer changeset" do
+      business_customer = business_customer_fixture()
+      assert %Ecto.Changeset{} = OfficeSupplyStore.change_business_customer(business_customer)
+    end
+  end
 end
