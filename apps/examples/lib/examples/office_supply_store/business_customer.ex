@@ -1,6 +1,5 @@
 defmodule Examples.OfficeSupplyStore.BusinessCustomer do
-  use Ecto.Schema
-  import Ecto.Changeset
+  use Examples, :record
 
   alias Examples.OfficeSupplyStore.Organization
   alias Examples.OfficeSupplyStore.GovernmentCustomer
@@ -24,20 +23,24 @@ defmodule Examples.OfficeSupplyStore.BusinessCustomer do
   def put_organization_changeset(business_customer, organization) do
     business_customer
     |> put_assoc(:organization, organization)
-    |> validate_organization_assoc()
+    |> validate_assoc(:organization, &validate_organization/1)
   end
 
-  defp validate_organization_assoc(changeset) do
-    organization = get_assoc(changeset, :organization, :struct)
+  defp validate_organization(changeset) do
+    changeset
+    |> validate_organization_multiplicity()
+    |> validate_organization_fields()
+  end
 
-    if match?(%GovernmentCustomer{}, organization.government_customer) do
-      add_error(
-        changeset,
-        :organization,
-        "cannot be assigned the role of Business Customer because it already holds the role of Government Customer"
-      )
+  def validate_organization_multiplicity(changeset) do
+    if match?(%GovernmentCustomer{}, changeset.data.government_customer) do
+      add_error(changeset, :government_customer, "is already assigned")
     else
       changeset
     end
+  end
+
+  def validate_organization_fields(changeset) do
+    validate_required(changeset, :telephone_number, message: "is required")
   end
 end

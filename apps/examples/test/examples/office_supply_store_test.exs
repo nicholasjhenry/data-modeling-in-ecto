@@ -197,9 +197,17 @@ defmodule Examples.OfficeSupplyStoreTest do
       assert {:error, changeset} =
                OfficeSupplyStore.create_government_customer(organization, valid_attrs)
 
-      assert "cannot be assigned the role of Government Customer because it already holds the role of Business Customer" in errors_on(
-               changeset
-             ).organization
+      assert "is already assigned" in errors_on(changeset).organization.business_customer
+    end
+
+    test "create_government_customer/1 with an organization without a government ID returns an error" do
+      organization = organization_fixture(government_id: nil)
+      valid_attrs = %{registered_on: ~D[2025-05-26]}
+
+      assert {:error, changeset} =
+               OfficeSupplyStore.create_government_customer(organization, valid_attrs)
+
+      assert "is required" in errors_on(changeset).organization.government_id
     end
 
     test "update_government_customer/2 with valid data updates the government_customer" do
@@ -266,8 +274,22 @@ defmodule Examples.OfficeSupplyStoreTest do
 
       valid_attrs = %{registered_on: ~D[2025-05-27]}
 
-      assert {:error, %Ecto.Changeset{}} =
+      assert {:error, changeset} =
                OfficeSupplyStore.create_business_customer(organization, valid_attrs)
+
+      assert "is already assigned" in errors_on(changeset).organization.government_customer
+    end
+
+    test "create_business_customer/1 with an organization without a contact telephone number returns an error" do
+      organization = organization_fixture(telephone_number: nil)
+      _government_customer = government_customer_fixture(organization)
+
+      valid_attrs = %{registered_on: ~D[2025-05-27]}
+
+      assert {:error, changeset} =
+               OfficeSupplyStore.create_business_customer(organization, valid_attrs)
+
+      assert "is required" in errors_on(changeset).organization.telephone_number
     end
 
     test "update_business_customer/2 with valid data updates the business_customer" do

@@ -21,6 +21,6 @@ defmodule Examples.OfficeSupplyStore.Organization do
   def changeset(organization, attrs) do
     organization
     |> cast(attrs, [:name, :government_id, :telephone_number, :state])
-    |> validate_required([:name, :government_id, :telephone_number, :state])
+    |> validate_required([:name, :state])
   end
 end
