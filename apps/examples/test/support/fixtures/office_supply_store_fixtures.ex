@@ -71,13 +71,15 @@ defmodule Examples.OfficeSupplyStoreFixtures do
   @doc """
   Generate a business_customer.
   """
-  def business_customer_fixture(attrs \\ %{}) do
-    {:ok, business_customer} =
+  def business_customer_fixture(organization \\ organization_fixture(), attrs \\ %{}) do
+    attrs =
       attrs
       |> Enum.into(%{
         registered_on: ~D[2025-05-27]
       })
-      |> Examples.OfficeSupplyStore.create_business_customer()
+
+    {:ok, business_customer} =
+      Examples.OfficeSupplyStore.create_business_customer(organization, attrs)
 
     business_customer
   end

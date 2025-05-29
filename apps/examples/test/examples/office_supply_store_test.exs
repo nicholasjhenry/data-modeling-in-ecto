@@ -189,6 +189,19 @@ defmodule Examples.OfficeSupplyStoreTest do
                OfficeSupplyStore.create_government_customer(organization, @invalid_attrs)
     end
 
+    test "create_government_customer/1 with an organization associated with a business customer returns an error" do
+      organization = organization_fixture()
+      _business_customer = business_customer_fixture(organization)
+      valid_attrs = %{registered_on: ~D[2025-05-26]}
+
+      assert {:error, changeset} =
+               OfficeSupplyStore.create_government_customer(organization, valid_attrs)
+
+      assert "cannot be assigned the role of Government Customer because it already holds the role of Business Customer" in errors_on(
+               changeset
+             ).organization
+    end
+
     test "update_government_customer/2 with valid data updates the government_customer" do
       government_customer = government_customer_fixture()
       update_attrs = %{registered_on: ~D[2025-05-27]}
@@ -223,21 +236,38 @@ defmodule Examples.OfficeSupplyStoreTest do
 
     test "get_business_customer!/1 returns the business_customer with given id" do
       business_customer = business_customer_fixture()
-      assert OfficeSupplyStore.get_business_customer!(business_customer.id) == business_customer
+
+      assert OfficeSupplyStore.business_customer_equal?(
+               OfficeSupplyStore.get_business_customer!(business_customer.id),
+               business_customer
+             )
     end
 
     test "create_business_customer/1 with valid data creates a business_customer" do
+      organization = organization_fixture()
       valid_attrs = %{registered_on: ~D[2025-05-27]}
 
       assert {:ok, %BusinessCustomer{} = business_customer} =
-               OfficeSupplyStore.create_business_customer(valid_attrs)
+               OfficeSupplyStore.create_business_customer(organization, valid_attrs)
 
       assert business_customer.registered_on == ~D[2025-05-27]
     end
 
     test "create_business_customer/1 with invalid data returns error changeset" do
+      organization = organization_fixture()
+
       assert {:error, %Ecto.Changeset{}} =
-               OfficeSupplyStore.create_business_customer(@invalid_attrs)
+               OfficeSupplyStore.create_business_customer(organization, @invalid_attrs)
+    end
+
+    test "create_business_customer/1 with an organization associated with a government customer returns an error" do
+      organization = organization_fixture()
+      _government_customer = government_customer_fixture(organization)
+
+      valid_attrs = %{registered_on: ~D[2025-05-27]}
+
+      assert {:error, %Ecto.Changeset{}} =
+               OfficeSupplyStore.create_business_customer(organization, valid_attrs)
     end
 
     test "update_business_customer/2 with valid data updates the business_customer" do
@@ -256,7 +286,10 @@ defmodule Examples.OfficeSupplyStoreTest do
       assert {:error, %Ecto.Changeset{}} =
                OfficeSupplyStore.update_business_customer(business_customer, @invalid_attrs)
 
-      assert business_customer == OfficeSupplyStore.get_business_customer!(business_customer.id)
+      assert OfficeSupplyStore.business_customer_equal?(
+               business_customer,
+               OfficeSupplyStore.get_business_customer!(business_customer.id)
+             )
     end
   end
 end

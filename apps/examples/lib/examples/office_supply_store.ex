@@ -59,6 +59,8 @@ defmodule Examples.OfficeSupplyStore do
   def get_government_customer!(id), do: Repo.get!(GovernmentCustomer, id)
 
   def create_government_customer(organization, attrs \\ %{}) do
+    organization = Repo.preload(organization, :business_customer)
+
     %GovernmentCustomer{}
     |> GovernmentCustomer.changeset(attrs)
     |> GovernmentCustomer.put_organization_changeset(organization)
@@ -83,9 +85,12 @@ defmodule Examples.OfficeSupplyStore do
 
   def get_business_customer!(id), do: Repo.get!(BusinessCustomer, id)
 
-  def create_business_customer(attrs \\ %{}) do
+  def create_business_customer(organization, attrs \\ %{}) do
+    organization = Repo.preload(organization, :government_customer)
+
     %BusinessCustomer{}
     |> BusinessCustomer.changeset(attrs)
+    |> BusinessCustomer.put_organization_changeset(organization)
     |> Repo.insert()
   end
 
@@ -93,5 +98,13 @@ defmodule Examples.OfficeSupplyStore do
     business_customer
     |> BusinessCustomer.changeset(attrs)
     |> Repo.update()
+  end
+
+  def business_customer_equal?(
+        %BusinessCustomer{} = business_customer,
+        %BusinessCustomer{} = other
+      ) do
+    business_customer.id == other.id &&
+      Date.compare(business_customer.registered_on, other.registered_on) == :eq
   end
 end
