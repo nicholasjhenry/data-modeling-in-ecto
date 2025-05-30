@@ -23,6 +23,7 @@ defmodule Nomify do
       import Ecto.Changeset
       import Ecto.Query, warn: false
       import Nomify.Result
+      import Nomify.Util.Validators
     end
   end
 

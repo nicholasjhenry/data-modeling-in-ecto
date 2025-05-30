@@ -179,9 +179,7 @@ defmodule Nomify.Teams.TeamMember do
     role = get_change(changeset, :role)
 
     if role == :chair do
-      team
-      |> Team.check_chair_eligibility(changeset.data)
-      |> put_result(changeset, :role)
+      Team.validate_chair_eligibility(team, changeset)
     else
       changeset
     end
@@ -203,17 +201,6 @@ defmodule Nomify.Teams.TeamMember do
     |> validate_team_assoc()
   end
 
-  # NJH: Alternative Implementation
-  #
-  # defp put_assocs_changeset(changeset, person, team) do
-  #   changeset
-  #   |> put_assoc(:person, person)
-  #   |> validate_person()
-  #   |> put_assoc(:team, team)
-  #   |> validate_team()
-  #   |> validate_person_team_conflict(changeset)
-  # end
-
   # SECTION: Assoc Validations
 
   defp validate_person_assoc(changeset) do
@@ -234,8 +221,7 @@ defmodule Nomify.Teams.TeamMember do
     team = get_assoc(changeset, :team, :struct)
 
     team
-    |> Team.check_team_member(apply_changes(changeset))
-    |> put_result(changeset, :role)
+    |> Team.validate_team_member(changeset)
     |> validate_person_team_conflict()
   end
 
@@ -255,11 +241,12 @@ defmodule Nomify.Teams.TeamMember do
     )
   end
 
-  # SECTION: Assoc Checks
+  # SECTION: Assoc Validations
 
-  @doc false
-  def check_nomination(team_member, opts \\ []) do
+  def validate_nomination(changeset, opts \\ []) do
     nomination_allowance_opts = Keyword.get(opts, :nomination_allowance, [])
+
+    team_member = changeset.data
 
     team_member =
       team_member
@@ -268,13 +255,13 @@ defmodule Nomify.Teams.TeamMember do
 
     cond do
       !Privileges.has_flag(team_member.privileges, :nominate) ->
-        {:error, "Security violation. Team member cannot nominate."}
+        add_error(changeset, :business_rule, "Security violation. Team member cannot nominate.")
 
       team_member.nominations_per_period_count >= team_member.max_nominations_allowed ->
-        {:error, "Team member cannot nominate. Too many nominations."}
+        add_error(changeset, :business_rule, "Team member cannot nominate. Too many nominations.")
 
       true ->
-        :ok
+        changeset
     end
   end
 

@@ -105,6 +105,7 @@ defmodule Nomify.Teams do
         where: ilike(person.name, ^"%#{name}%")
 
     query
+    |> TeamMember.base_query()
     |> Repo.all()
     |> Repo.preload([:team, :person])
   end
