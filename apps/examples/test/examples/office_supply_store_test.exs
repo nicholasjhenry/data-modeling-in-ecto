@@ -197,7 +197,7 @@ defmodule Examples.OfficeSupplyStoreTest do
       assert {:error, changeset} =
                OfficeSupplyStore.create_government_customer(organization, valid_attrs)
 
-      assert "is already assigned" in errors_on(changeset).organization.business_customer
+      assert "Business Customer is already assigned" in errors_on(changeset).business_rule
     end
 
     test "create_government_customer/1 with an organization without a government ID returns an error" do
@@ -207,7 +207,7 @@ defmodule Examples.OfficeSupplyStoreTest do
       assert {:error, changeset} =
                OfficeSupplyStore.create_government_customer(organization, valid_attrs)
 
-      assert "is required" in errors_on(changeset).organization.government_id
+      assert "Government ID is required" in errors_on(changeset).business_rule
     end
 
     test "update_government_customer/2 with valid data updates the government_customer" do
@@ -277,7 +277,7 @@ defmodule Examples.OfficeSupplyStoreTest do
       assert {:error, changeset} =
                OfficeSupplyStore.create_business_customer(organization, valid_attrs)
 
-      assert "is already assigned" in errors_on(changeset).organization.government_customer
+      assert "Government customer is already assigned" in errors_on(changeset).business_rule
     end
 
     test "create_business_customer/1 with an organization without a contact telephone number returns an error" do
@@ -289,7 +289,7 @@ defmodule Examples.OfficeSupplyStoreTest do
       assert {:error, changeset} =
                OfficeSupplyStore.create_business_customer(organization, valid_attrs)
 
-      assert "is required" in errors_on(changeset).organization.telephone_number
+      assert "Telephone number is required" in errors_on(changeset).business_rule
     end
 
     test "update_business_customer/2 with valid data updates the business_customer" do

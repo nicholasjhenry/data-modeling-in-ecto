@@ -24,16 +24,7 @@ defmodule Examples do
       import Ecto.Changeset
       import Ecto.Query, warn: false
 
-      def validate_assoc(changeset, name, validator) do
-        relation = get_assoc(changeset, name, :struct)
-
-        assoc_changeset =
-          relation
-          |> change()
-          |> validator.()
-
-        put_change(changeset, name, assoc_changeset)
-      end
+      import Examples.Util.Validators
     end
   end
 

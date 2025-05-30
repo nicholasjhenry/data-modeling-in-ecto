@@ -33,13 +33,13 @@ defmodule Examples.OfficeSupplyStore.GovernmentCustomer do
 
   defp validate_organization_multiplicity(changeset) do
     if match?(%BusinessCustomer{}, changeset.data.business_customer) do
-      add_error(changeset, :business_customer, "is already assigned")
+      add_error(changeset, :business_rule, "Business Customer is already assigned")
     else
       changeset
     end
   end
 
   defp validate_organization_fields(changeset) do
-    validate_required(changeset, :government_id, message: "is required")
+    validate_required(changeset, :government_id, message: "Government ID is required")
   end
 end
