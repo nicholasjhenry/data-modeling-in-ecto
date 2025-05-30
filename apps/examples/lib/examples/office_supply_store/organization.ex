@@ -23,4 +23,9 @@ defmodule Examples.OfficeSupplyStore.Organization do
     |> cast(attrs, [:name, :government_id, :telephone_number, :state])
     |> validate_required([:name, :state])
   end
+
+  @doc false
+  def active?(organization) do
+    organization.state == :active
+  end
 end

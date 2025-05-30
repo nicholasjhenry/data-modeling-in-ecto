@@ -210,6 +210,17 @@ defmodule Examples.OfficeSupplyStoreTest do
       assert "Government ID is required" in errors_on(changeset).business_rule
     end
 
+    test "create_government_customer/1 with an inactive organization returns an error" do
+      organization = organization_fixture(state: :inactive)
+
+      valid_attrs = %{registered_on: ~D[2025-05-27]}
+
+      assert {:error, changeset} =
+               OfficeSupplyStore.create_government_customer(organization, valid_attrs)
+
+      assert "Organization is not active" in errors_on(changeset).business_rule
+    end
+
     test "update_government_customer/2 with valid data updates the government_customer" do
       government_customer = government_customer_fixture()
       update_attrs = %{registered_on: ~D[2025-05-27]}
@@ -290,6 +301,17 @@ defmodule Examples.OfficeSupplyStoreTest do
                OfficeSupplyStore.create_business_customer(organization, valid_attrs)
 
       assert "Telephone number is required" in errors_on(changeset).business_rule
+    end
+
+    test "create_business_customer/1 with an inactive organization returns an error" do
+      organization = organization_fixture(state: :inactive)
+
+      valid_attrs = %{registered_on: ~D[2025-05-27]}
+
+      assert {:error, changeset} =
+               OfficeSupplyStore.create_business_customer(organization, valid_attrs)
+
+      assert "Organization is not active" in errors_on(changeset).business_rule
     end
 
     test "update_business_customer/2 with valid data updates the business_customer" do

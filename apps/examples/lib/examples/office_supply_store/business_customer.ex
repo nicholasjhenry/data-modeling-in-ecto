@@ -30,6 +30,7 @@ defmodule Examples.OfficeSupplyStore.BusinessCustomer do
     changeset
     |> validate_organization_multiplicity(organization)
     |> validate_organization_fields(organization)
+    |> validate_organization_state(organization)
   end
 
   def validate_organization_multiplicity(changeset, organization) do
@@ -43,6 +44,14 @@ defmodule Examples.OfficeSupplyStore.BusinessCustomer do
   def validate_organization_fields(changeset, organization) do
     if organization.telephone_number == nil do
       add_error(changeset, :business_rule, "Telephone number is required")
+    else
+      changeset
+    end
+  end
+
+  def validate_organization_state(changeset, organization) do
+    if !Organization.active?(organization) do
+      add_error(changeset, :business_rule, "Organization is not active")
     else
       changeset
     end

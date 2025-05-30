@@ -29,6 +29,7 @@ defmodule Examples.OfficeSupplyStore.GovernmentCustomer do
     changeset
     |> validate_organization_multiplicity(organization)
     |> validate_organization_fields(organization)
+    |> validate_organization_state(organization)
   end
 
   defp validate_organization_multiplicity(changeset, organization) do
@@ -42,6 +43,14 @@ defmodule Examples.OfficeSupplyStore.GovernmentCustomer do
   defp validate_organization_fields(changeset, organization) do
     if organization.government_id == nil do
       add_error(changeset, :business_rule, "Government ID is required")
+    else
+      changeset
+    end
+  end
+
+  def validate_organization_state(changeset, organization) do
+    if !Organization.active?(organization) do
+      add_error(changeset, :business_rule, "Organization is not active")
     else
       changeset
     end
