@@ -58,37 +58,41 @@ defmodule Nomify.Teams.Team do
     |> validate_required([:description, :format])
   end
 
-  # SECTION: Assoc Checks
+  # SECTION: Assoc validations
 
   @doc false
-  def validate_chair_eligibility(team, changeset) do
+  def validate_chair_eligibility(team, team_member_changeset) do
     case team.format do
       :none ->
-        add_error(changeset, :business_rule, "Tried to add chair team member to no chairs team.")
+        add_error(
+          team_member_changeset,
+          :business_rule,
+          "Tried to add chair team member to no chairs team."
+        )
 
       :single ->
         chairs = get_chairs(team)
 
         if Enum.count(chairs) > 0 do
           add_error(
-            changeset,
+            team_member_changeset,
             :business_rule,
             "Tried to add another chair team member to single chair team."
           )
         else
-          changeset
+          team_member_changeset
         end
 
       :multiple ->
-        changeset
+        team_member_changeset
     end
   end
 
-  def validate_team_member(team, changeset) do
-    if get_field(changeset, :role) == :chair do
-      validate_chair_eligibility(team, changeset)
+  def validate_team_member(team, team_member_changeset) do
+    if get_field(team_member_changeset, :role) == :chair do
+      validate_chair_eligibility(team, team_member_changeset)
     else
-      changeset
+      team_member_changeset
     end
   end
 end

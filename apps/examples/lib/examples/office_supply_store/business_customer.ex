@@ -23,24 +23,28 @@ defmodule Examples.OfficeSupplyStore.BusinessCustomer do
   def put_organization_changeset(business_customer, organization) do
     business_customer
     |> put_assoc(:organization, organization)
-    |> validate_assoc(:organization, &validate_organization/1)
+    |> validate_assoc(:organization, &validate_organization(&2, &1))
   end
 
-  defp validate_organization(changeset) do
+  defp validate_organization(changeset, organization) do
     changeset
-    |> validate_organization_multiplicity()
-    |> validate_organization_fields()
+    |> validate_organization_multiplicity(organization)
+    |> validate_organization_fields(organization)
   end
 
-  def validate_organization_multiplicity(changeset) do
-    if match?(%GovernmentCustomer{}, changeset.data.government_customer) do
+  def validate_organization_multiplicity(changeset, organization) do
+    if match?(%GovernmentCustomer{}, organization.government_customer) do
       add_error(changeset, :business_rule, "Government customer is already assigned")
     else
       changeset
     end
   end
 
-  def validate_organization_fields(changeset) do
-    validate_required(changeset, :telephone_number, message: "Telephone number is required")
+  def validate_organization_fields(changeset, organization) do
+    if organization.telephone_number == nil do
+      add_error(changeset, :business_rule, "Telephone number is required")
+    else
+      changeset
+    end
   end
 end

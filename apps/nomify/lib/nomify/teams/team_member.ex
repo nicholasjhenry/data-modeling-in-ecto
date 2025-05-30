@@ -191,19 +191,19 @@ defmodule Nomify.Teams.TeamMember do
   def put_person_changeset(changeset, person) do
     changeset
     |> put_assoc(:person, person)
-    |> validate_person_assoc()
+    |> validate_person()
   end
 
   @doc false
   def put_team_changeset(changeset, team) do
     changeset
     |> put_assoc(:team, team)
-    |> validate_team_assoc()
+    |> validate_team()
   end
 
   # SECTION: Assoc Validations
 
-  defp validate_person_assoc(changeset) do
+  defp validate_person(changeset) do
     person = get_assoc(changeset, :person, :struct)
 
     # Example: Association Validation - Property Validation
@@ -217,7 +217,7 @@ defmodule Nomify.Teams.TeamMember do
     validate_person_team_conflict(changeset)
   end
 
-  defp validate_team_assoc(changeset) do
+  defp validate_team(changeset) do
     team = get_assoc(changeset, :team, :struct)
 
     team
@@ -243,10 +243,8 @@ defmodule Nomify.Teams.TeamMember do
 
   # SECTION: Assoc Validations
 
-  def validate_nomination(changeset, opts \\ []) do
+  def validate_nomination(team_member, nomination_changeset, opts \\ []) do
     nomination_allowance_opts = Keyword.get(opts, :nomination_allowance, [])
-
-    team_member = changeset.data
 
     team_member =
       team_member
@@ -255,13 +253,21 @@ defmodule Nomify.Teams.TeamMember do
 
     cond do
       !Privileges.has_flag(team_member.privileges, :nominate) ->
-        add_error(changeset, :business_rule, "Security violation. Team member cannot nominate.")
+        add_error(
+          nomination_changeset,
+          :business_rule,
+          "Security violation. Team member cannot nominate."
+        )
 
       team_member.nominations_per_period_count >= team_member.max_nominations_allowed ->
-        add_error(changeset, :business_rule, "Team member cannot nominate. Too many nominations.")
+        add_error(
+          nomination_changeset,
+          :business_rule,
+          "Team member cannot nominate. Too many nominations."
+        )
 
       true ->
-        changeset
+        nomination_changeset
     end
   end
 

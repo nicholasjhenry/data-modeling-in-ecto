@@ -114,9 +114,7 @@ defmodule Nomify.Documents.Document do
 
   # SECTION: Assoc Validations
 
-  def validate_nomination(changeset) do
-    document = changeset.data
-
+  def validate_nomination(document, changeset) do
     if document.latest_nomination && document.latest_nomination.status in [:pending, :approved] do
       add_error(
         changeset,
