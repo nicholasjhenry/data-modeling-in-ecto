@@ -58,8 +58,9 @@ defmodule Examples.Warehouse do
     loading_area = Repo.preload(loading_area, :loading_bins)
     loading_bin = Repo.preload(loading_bin, :loading_area)
 
-    loading_area
-    |> LoadingBin.put_loading_area_changeset(loading_bin)
+    loading_bin
+    |> LoadingBin.changeset(%{})
+    |> LoadingBin.put_loading_area_changeset(loading_area)
     |> Repo.update()
   end
 
@@ -72,8 +73,9 @@ defmodule Examples.Warehouse do
     loading_area = Repo.preload(loading_area, :loading_bins)
     loading_bin = Repo.preload(loading_bin, :loading_area)
 
-    loading_area
-    |> LoadingBin.remove_loading_bin_changeset(loading_bin)
+    loading_bin
+    |> LoadingBin.changeset(%{})
+    |> LoadingBin.remove_loading_area_changeset(loading_area)
     |> Repo.update()
   end
 

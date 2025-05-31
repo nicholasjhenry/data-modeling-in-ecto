@@ -34,21 +34,19 @@ defmodule Examples.Warehouse.LoadingBin do
   # SECTION: Assoc Action Changesets
 
   @doc false
-  def put_loading_area_changeset(loading_area, loading_bin) do
-    loading_bin
-    |> change
+  def put_loading_area_changeset(changeset, loading_area) do
+    changeset
     |> put_assoc(:loading_area, loading_area)
-    |> validate_put_loading_area(loading_area, loading_bin)
-    |> LoadingArea.validate_put_loading_bin(loading_area, loading_bin)
+    |> validate_put_loading_area(loading_area, apply_changes(changeset))
+    |> LoadingArea.validate_put_loading_bin(loading_area, apply_changes(changeset))
   end
 
   @doc false
-  def remove_loading_bin_changeset(loading_area, loading_bin) do
-    loading_bin
-    |> change
+  def remove_loading_area_changeset(changeset, loading_area) do
+    changeset
     |> put_change(:loading_area, nil)
-    |> validate_remove_loading_area(loading_area, loading_bin)
-    |> LoadingArea.validate_remove_loading_bin(loading_area, loading_bin)
+    |> validate_remove_loading_area(loading_area, apply_changes(changeset))
+    |> LoadingArea.validate_remove_loading_bin(loading_area, apply_changes(changeset))
   end
 
   # SECTION: Assoc Action Validations

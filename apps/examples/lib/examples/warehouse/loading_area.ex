@@ -38,8 +38,8 @@ defmodule Examples.Warehouse.LoadingArea do
 
     changeset
     |> put_assoc(:loading_bins, [loading_bin | loading_bins])
-    |> validate_put_loading_bin(loading_area, loading_bin)
     |> LoadingBin.validate_put_loading_area(loading_area, loading_bin)
+    |> validate_put_loading_bin(loading_area, loading_bin)
   end
 
   # SECTION: Assoc Action Validations
