@@ -8,7 +8,7 @@ defmodule Examples.Warehouse.LoadingArea do
     field :type, Ecto.Enum, values: [:room_temperature, :refrigerated, :freezing]
     field :size, :decimal, default: Decimal.new(0)
     field :average_temperature, :decimal, default: Decimal.new("20")
-    field :state, Ecto.Enum, values: [:static, :receiving]
+    field :state, Ecto.Enum, values: [:static, :receiving], default: :static
 
     has_many :loading_bins, LoadingBin
 
@@ -18,8 +18,15 @@ defmodule Examples.Warehouse.LoadingArea do
   @doc false
   def changeset(loading_area, attrs) do
     loading_area
-    |> cast(attrs, [:type, :size, :average_temperature, :state])
-    |> validate_required([:type, :size, :average_temperature, :state])
+    |> cast(attrs, [:type, :size, :average_temperature])
+    |> validate_required([:type, :size, :average_temperature])
+  end
+
+  @doc false
+  def receive_changeset(loading_area) do
+    loading_area
+    |> change
+    |> put_change(:state, :receiving)
   end
 
   # SECTION: Assoc Action Changesets
@@ -52,13 +59,16 @@ defmodule Examples.Warehouse.LoadingArea do
     changeset
     |> validate_loading_bin_cardinality(loading_area, loading_bins)
     |> validate_loading_bin_fields(loading_area, loading_bins)
+    |> validate_loading_bin_state(loading_area, loading_bins)
   end
 
   @doc false
   def validate_remove_loading_bin(changeset, loading_area, loading_bin) do
     loading_bins = Enum.reject(loading_area.loading_bins, &(&1.id == loading_bin.id))
 
-    validate_loading_bin_cardinality(changeset, loading_area, loading_bins)
+    changeset
+    |> validate_loading_bin_cardinality(loading_area, loading_bins)
+    |> validate_loading_bin_state(loading_area, loading_bins)
   end
 
   # SECTION: Assoc Business Rule Validations
@@ -78,6 +88,18 @@ defmodule Examples.Warehouse.LoadingArea do
 
     if Decimal.compare(loading_area.size, required_size) == :lt do
       add_error(changeset, :business_rule, "Loading area size is too small")
+    else
+      changeset
+    end
+  end
+
+  def validate_loading_bin_state(changeset, loading_area, _loading_bins) do
+    if loading_area.state == :receiving do
+      add_error(
+        changeset,
+        :business_rule,
+        "Cannot remove loading bins while loading area is receiving"
+      )
     else
       changeset
     end

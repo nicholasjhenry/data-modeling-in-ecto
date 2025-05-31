@@ -24,6 +24,12 @@ defmodule Examples.Warehouse do
     |> Repo.update()
   end
 
+  def loading_area_receive!(loading_area) do
+    loading_area
+    |> LoadingArea.receive_changeset()
+    |> Repo.update()
+  end
+
   def loading_area_equal?(%LoadingArea{} = loading_area1, %LoadingArea{} = loading_area2) do
     loading_area1.type == loading_area2.type &&
       Decimal.equal?(loading_area1.size, loading_area2.size) &&

@@ -14,7 +14,6 @@ defmodule Examples.WarehouseFixtures do
       Enum.into(attrs, %{
         average_temperature: "20",
         size: "100",
-        state: :static,
         type: :room_temperature
       })
 

@@ -52,7 +52,6 @@ defmodule Examples.WarehouseTest do
       update_attrs = %{
         size: "456.7",
         type: :refrigerated,
-        state: :receiving,
         average_temperature: "456.7"
       }
 
@@ -61,7 +60,7 @@ defmodule Examples.WarehouseTest do
 
       assert loading_area.size == Decimal.new("456.7")
       assert loading_area.type == :refrigerated
-      assert loading_area.state == :receiving
+      assert loading_area.state == :static
       assert loading_area.average_temperature == Decimal.new("456.7")
     end
 
@@ -259,6 +258,23 @@ defmodule Examples.WarehouseTest do
       assert "Loading area exceeds loading bins acceptable temperature range" in errors_on(
                changeset
              ).business_rule
+    end
+
+    test "while receiving a delivery, a loading area cannot add or remove loading bins" do
+      loading_area = loading_area_fixture()
+      loading_bin_1 = loading_bin_fixture()
+      loading_bin_2 = loading_bin_fixture()
+
+      {:ok, _loading_bin} = Warehouse.relocate_loading_bin(loading_area, loading_bin_1)
+      {:ok, loading_area} = Warehouse.loading_area_receive!(loading_area)
+
+      assert {:error, changeset} = Warehouse.remove_loading_bin(loading_area, loading_bin_1)
+
+      assert "Cannot remove loading bins while loading area is receiving" in errors_on(changeset).business_rule
+
+      assert {:error, changeset} = Warehouse.relocate_loading_bin(loading_area, loading_bin_2)
+
+      assert "Cannot remove loading bins while loading area is receiving" in errors_on(changeset).business_rule
     end
   end
 end
