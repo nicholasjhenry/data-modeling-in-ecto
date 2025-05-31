@@ -11,7 +11,7 @@ defmodule Examples.WarehouseFixtures do
     attrs =
       Enum.into(attrs, %{
         average_temperature: "120.5",
-        size: "120.5",
+        size: "100",
         state: :static,
         type: :room_temperature
       })
@@ -28,9 +28,9 @@ defmodule Examples.WarehouseFixtures do
     {:ok, loading_bin} =
       attrs
       |> Enum.into(%{
-        acceptable_temperature_range: "some acceptable_temperature_range",
+        acceptable_temperature_range: NumRange.new(1, 100),
         designation: :food,
-        size: "120.5",
+        size: "50",
         state: :empty
       })
       |> Examples.Warehouse.create_loading_bin()

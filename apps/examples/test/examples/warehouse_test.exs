@@ -166,7 +166,7 @@ defmodule Examples.WarehouseTest do
       loading_bin = loading_bin_fixture()
 
       valid_attrs = %{
-        size: "120.5",
+        size: "100",
         type: :room_temperature,
         state: :static,
         average_temperature: "120.5"
@@ -193,6 +193,37 @@ defmodule Examples.WarehouseTest do
 
       loading_area = Warehouse.get_loading_area!(loading_area.id)
       refute Warehouse.loading_bin_located?(loading_area, relocated_loading_bin)
+    end
+
+    test "loading area cannot add a loading bin whose size is greater than its available space" do
+      oversize_loading_bin = loading_bin_fixture(size: 200)
+
+      valid_attrs = %{
+        size: "100",
+        type: :room_temperature,
+        state: :static,
+        average_temperature: "120.5"
+      }
+
+      assert {:error, changeset} =
+               Warehouse.create_loading_area(oversize_loading_bin, valid_attrs)
+
+      assert "Loading area size is too small" in errors_on(changeset).business_rule
+
+      loading_bin = loading_bin_fixture(size: 50)
+
+      assert {:ok, loading_area} =
+               Warehouse.create_loading_area(loading_bin, valid_attrs)
+
+      another_loading_bin = loading_bin_fixture(size: 50)
+
+      assert {:ok, _loading_area} =
+               Warehouse.relocate_loading_bin(loading_area, another_loading_bin)
+
+      assert {:error, changeset} =
+               Warehouse.relocate_loading_bin(loading_area, oversize_loading_bin)
+
+      assert "Loading area size is too small" in errors_on(changeset).business_rule
     end
   end
 end

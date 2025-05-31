@@ -23,9 +23,12 @@ defmodule Examples.Warehouse.LoadingBin do
 
   @doc false
   def add_loading_bin_changeset(loading_bin, loading_area) do
-    loading_bin
-    |> change
-    |> put_assoc(:loading_area, loading_area)
+    changeset =
+      loading_bin
+      |> change
+      |> put_assoc(:loading_area, loading_area)
+
+    LoadingArea.validate_add_loading_bin(loading_area, changeset)
   end
 
   @doc false
