@@ -14,7 +14,7 @@ defmodule Examples.Warehouse do
   def create_loading_area(%LoadingBin{} = loading_bin, attrs \\ %{}) do
     %LoadingArea{}
     |> LoadingArea.changeset(attrs)
-    |> LoadingArea.put_loading_bin(loading_bin)
+    |> LoadingArea.put_loading_bin_changeset(loading_bin)
     |> Repo.insert()
   end
 
@@ -44,6 +44,28 @@ defmodule Examples.Warehouse do
   def update_loading_bin(%LoadingBin{} = loading_bin, attrs) do
     loading_bin
     |> LoadingBin.changeset(attrs)
+    |> Repo.update()
+  end
+
+  def relocate_loading_bin(loading_area, loading_bin) do
+    loading_bin = Repo.preload(loading_bin, :loading_area)
+
+    loading_bin
+    |> LoadingBin.add_loading_bin_changeset(loading_area)
+    |> Repo.update()
+  end
+
+  def loading_bin_located?(loading_area, loading_bin) do
+    loading_area = Repo.preload(loading_area, :loading_bins)
+    Enum.any?(loading_area.loading_bins, &(&1.id == loading_bin.id))
+  end
+
+  def remove_loading_bin(loading_area, loading_bin) do
+    loading_area = Repo.preload(loading_area, :loading_bins)
+    loading_bin = Repo.preload(loading_bin, :loading_area)
+
+    loading_bin
+    |> LoadingBin.remove_loading_bin_changeset(loading_area)
     |> Repo.update()
   end
 end

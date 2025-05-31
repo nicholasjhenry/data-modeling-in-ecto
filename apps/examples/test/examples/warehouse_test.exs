@@ -75,22 +75,6 @@ defmodule Examples.WarehouseTest do
                Warehouse.get_loading_area!(loading_area.id)
              )
     end
-
-    test "loading area contains at least one loading bin" do
-      loading_bin = loading_bin_fixture()
-
-      valid_attrs = %{
-        size: "120.5",
-        type: :room_temperature,
-        state: :static,
-        average_temperature: "120.5"
-      }
-
-      assert {:ok, %LoadingArea{} = loading_area} =
-               Warehouse.create_loading_area(loading_bin, valid_attrs)
-
-      assert List.first(loading_area.loading_bins).id == loading_bin.id
-    end
   end
 
   describe "warehouse_loading_bins" do
@@ -153,6 +137,62 @@ defmodule Examples.WarehouseTest do
                Warehouse.update_loading_bin(loading_bin, @invalid_attrs)
 
       assert loading_bin == Warehouse.get_loading_bin!(loading_bin.id)
+    end
+  end
+
+  describe "warehouse_loading_areas and warehouse_loading_bins" do
+    alias Examples.Warehouse.LoadingArea
+    alias Examples.Warehouse.LoadingBin
+
+    import Examples.WarehouseFixtures
+
+    test "loading area contains at least one loading bin" do
+      loading_bin = loading_bin_fixture()
+
+      valid_attrs = %{
+        size: "120.5",
+        type: :room_temperature,
+        state: :static,
+        average_temperature: "120.5"
+      }
+
+      assert {:ok, %LoadingArea{} = loading_area} =
+               Warehouse.create_loading_area(loading_bin, valid_attrs)
+
+      assert List.first(loading_area.loading_bins).id == loading_bin.id
+    end
+
+    test "loading bin is always within one loading area, being moved between loading areas, or not in use" do
+      loading_bin = loading_bin_fixture()
+
+      valid_attrs = %{
+        size: "120.5",
+        type: :room_temperature,
+        state: :static,
+        average_temperature: "120.5"
+      }
+
+      assert {:ok, %LoadingArea{} = loading_area} =
+               Warehouse.create_loading_area(loading_bin, valid_attrs)
+
+      loading_bin = Warehouse.get_loading_bin!(loading_bin.id)
+      assert {:error, changeset} = Warehouse.remove_loading_bin(loading_area, loading_bin)
+
+      assert "Loading area requires at least one loading bin" in errors_on(changeset).business_rule
+
+      another_loading_bin = loading_bin_fixture()
+
+      assert {:ok, relocated_loading_bin} =
+               Warehouse.relocate_loading_bin(loading_area, another_loading_bin)
+
+      loading_area = Warehouse.get_loading_area!(loading_area.id)
+      assert Warehouse.loading_bin_located?(loading_area, relocated_loading_bin)
+
+      assert {:ok, relocated_loading_bin} =
+               Warehouse.remove_loading_bin(loading_area, relocated_loading_bin)
+
+      loading_area = Warehouse.get_loading_area!(loading_area.id)
+      refute Warehouse.loading_bin_located?(loading_area, relocated_loading_bin)
     end
   end
 end
