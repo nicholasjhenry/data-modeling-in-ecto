@@ -22,6 +22,8 @@ defmodule Examples.Warehouse.LoadingArea do
     |> validate_required([:type, :size, :average_temperature, :state])
   end
 
+  # SECTION: Assoc Action Changesets
+
   @doc false
   def put_loading_bin_changeset(changeset, loading_bin) do
     loading_bins = get_assoc(changeset, :loading_bins, :struct)
@@ -30,13 +32,21 @@ defmodule Examples.Warehouse.LoadingArea do
 
     changeset
     |> put_assoc(:loading_bins, loading_bins)
+    |> validate_put_loading_area(loading_area, loading_bins)
+    |> LoadingBin.validate_put_loading_area(loading_area, loading_bin)
+  end
+
+  # SECTION: Assoc Action Validations
+
+  @doc false
+  def validate_put_loading_area(changeset, loading_area, loading_bins) do
+    changeset
     |> validate_loading_bin_cardinality(loading_area, loading_bins)
     |> validate_loading_bin_fields(loading_area, loading_bins)
-    |> LoadingBin.validate_add_loading_area(loading_area, loading_bin)
   end
 
   @doc false
-  def validate_add_loading_bin(changeset, loading_area, loading_bin) do
+  def validate_put_loading_bin(changeset, loading_area, loading_bin) do
     loading_bins = [loading_bin | loading_area.loading_bins]
 
     changeset
@@ -45,15 +55,13 @@ defmodule Examples.Warehouse.LoadingArea do
   end
 
   @doc false
-  def validate_removing_loading_bin(loading_area, loading_bin_changeset) do
-    loading_bins =
-      Enum.reject(
-        loading_area.loading_bins,
-        &(&1.id == get_field(loading_bin_changeset, :id))
-      )
+  def validate_remove_loading_bin(changeset, loading_area, loading_bin) do
+    loading_bins = Enum.reject(loading_area.loading_bins, &(&1.id == loading_bin.id))
 
-    validate_loading_bin_cardinality(loading_bin_changeset, loading_area, loading_bins)
+    validate_loading_bin_cardinality(changeset, loading_area, loading_bins)
   end
+
+  # SECTION: Assoc Business Rule Validations
 
   @doc false
   def validate_loading_bin_cardinality(changeset, _loading_area, loading_bins) do

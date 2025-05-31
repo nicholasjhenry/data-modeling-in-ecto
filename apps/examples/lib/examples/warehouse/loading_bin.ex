@@ -25,16 +25,58 @@ defmodule Examples.Warehouse.LoadingBin do
     |> validate_required([:size, :acceptable_temperature_range, :state, :designation])
   end
 
+  # SECTION: Assoc Action Changesets
+
   @doc false
-  def add_loading_bin_changeset(loading_area, loading_bin) do
+  def put_loading_area_changeset(loading_area, loading_bin) do
     loading_bin
     |> change
     |> put_assoc(:loading_area, loading_area)
-    |> LoadingArea.validate_add_loading_bin(loading_area, loading_bin)
-    |> validate_add_loading_area(loading_area, loading_bin)
+    |> validate_put_loading_area(loading_area, loading_bin)
+    |> LoadingArea.validate_put_loading_bin(loading_area, loading_bin)
   end
 
-  def validate_add_loading_area(changeset, loading_area, loading_bin) do
+  @doc false
+  def remove_loading_bin_changeset(loading_bin, loading_area) do
+    loading_bin
+    |> change
+    |> put_change(:loading_area, nil)
+    |> validate_remove_loading_area(loading_area, loading_bin)
+    |> LoadingArea.validate_remove_loading_bin(loading_area, loading_bin)
+  end
+
+  # SECTION: Assoc Action Validations
+
+  @doc false
+  def validate_put_loading_area(changeset, loading_area, loading_bin) do
+    changeset
+    |> validate_loading_area_fields(loading_area, loading_bin)
+    |> validate_loading_area_type(loading_area, loading_bin)
+  end
+
+  @doc false
+  def validate_remove_loading_area(changeset, _loading_area, _loading_bin) do
+    changeset
+  end
+
+  # SECTION: Assoc Business Rules
+
+  @doc false
+  def validate_loading_area_type(changeset, _loading_area, _loading_bin) do
+    # loading bin knows the types of loading areas—room temperature, refrigerated, or freezing—that can house in
+
+    changeset
+  end
+
+  @doc false
+  def validate_loading_area_cardinality(changeset, _loading_area, _loading_bin) do
+    # loading bin is always within one loading area, being moved between loading areas, or not in use
+
+    changeset
+  end
+
+  @doc false
+  def validate_loading_area_fields(changeset, loading_area, loading_bin) do
     if not temperature_in_range?(
          loading_area.average_temperature,
          loading_bin.acceptable_temperature_range
@@ -52,21 +94,5 @@ defmodule Examples.Warehouse.LoadingBin do
   defp temperature_in_range?(temperature, range) do
     Decimal.compare(temperature, range.lower) == :gt and
       Decimal.compare(temperature, range.upper) == :lt
-  end
-
-  @doc false
-  def remove_loading_bin_changeset(loading_bin, loading_area) do
-    changeset = change(loading_bin)
-
-    # changeset =
-    #   validate_assoc(changeset, :loading_area, &LoadingArea.validate_remove_loading_bin/2)
-
-    changeset = LoadingArea.validate_removing_loading_bin(loading_area, changeset)
-
-    if changeset.valid? do
-      put_change(changeset, :loading_area, nil)
-    else
-      changeset
-    end
   end
 end
