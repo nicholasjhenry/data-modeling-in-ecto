@@ -93,7 +93,6 @@ defmodule Examples.WarehouseTest do
     test "create_loading_bin/1 with valid data creates a loading_bin" do
       valid_attrs = %{
         size: "120.5",
-        state: :empty,
         acceptable_temperature_range: NumRange.new(1, 100),
         designation: :food
       }
@@ -114,7 +113,6 @@ defmodule Examples.WarehouseTest do
 
       update_attrs = %{
         size: "456.7",
-        state: :full,
         acceptable_temperature_range: NumRange.new(100, 200),
         designation: :toxic_materials
       }
@@ -123,7 +121,7 @@ defmodule Examples.WarehouseTest do
                Warehouse.update_loading_bin(loading_bin, update_attrs)
 
       assert loading_bin.size == Decimal.new("456.7")
-      assert loading_bin.state == :full
+      assert loading_bin.state == :empty
       assert NumRange.equal?(loading_bin.acceptable_temperature_range, NumRange.new(100, 200))
       assert loading_bin.designation == :toxic_materials
     end
@@ -266,7 +264,7 @@ defmodule Examples.WarehouseTest do
       loading_bin_2 = loading_bin_fixture()
 
       {:ok, _loading_bin} = Warehouse.relocate_loading_bin(loading_area, loading_bin_1)
-      {:ok, loading_area} = Warehouse.loading_area_receive!(loading_area)
+      {:ok, loading_area} = Warehouse.loading_area_receive(loading_area)
 
       assert {:error, changeset} = Warehouse.remove_loading_bin(loading_area, loading_bin_1)
 
@@ -275,6 +273,24 @@ defmodule Examples.WarehouseTest do
       assert {:error, changeset} = Warehouse.relocate_loading_bin(loading_area, loading_bin_2)
 
       assert "Cannot remove loading bins while loading area is receiving" in errors_on(changeset).business_rule
+    end
+
+    test "while it contains goods, a loading bin cannot be removed from its loading area" do
+      loading_bin_1 = loading_bin_fixture()
+      loading_bin_2 = loading_bin_fixture()
+      loading_area_1 = loading_area_fixture(loading_bin_1)
+
+      {:ok, _loading_bin} = Warehouse.relocate_loading_bin(loading_area_1, loading_bin_2)
+      {:ok, loading_bin_1} = Warehouse.load_loading_bin(loading_bin_1)
+      loading_area_1 = Warehouse.get_loading_area!(loading_area_1.id)
+
+      assert {:error, changeset} = Warehouse.remove_loading_bin(loading_area_1, loading_bin_1)
+      assert "Loading bin is currently loaded" in errors_on(changeset).business_rule
+
+      loading_area_2 = loading_area_fixture()
+
+      assert {:error, changeset} = Warehouse.relocate_loading_bin(loading_area_2, loading_bin_1)
+      assert "Loading bin is currently loaded" in errors_on(changeset).business_rule
     end
   end
 end

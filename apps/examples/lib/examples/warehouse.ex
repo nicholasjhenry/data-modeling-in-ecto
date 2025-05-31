@@ -24,7 +24,7 @@ defmodule Examples.Warehouse do
     |> Repo.update()
   end
 
-  def loading_area_receive!(loading_area) do
+  def loading_area_receive(loading_area) do
     loading_area
     |> LoadingArea.receive_changeset()
     |> Repo.update()
@@ -54,6 +54,7 @@ defmodule Examples.Warehouse do
   end
 
   def relocate_loading_bin(loading_area, loading_bin) do
+    loading_area = Repo.preload(loading_area, :loading_bins)
     loading_bin = Repo.preload(loading_bin, :loading_area)
 
     loading_area
@@ -72,6 +73,12 @@ defmodule Examples.Warehouse do
 
     loading_bin
     |> LoadingBin.remove_loading_bin_changeset(loading_area)
+    |> Repo.update()
+  end
+
+  def load_loading_bin(loading_bin) do
+    loading_bin
+    |> LoadingBin.load_changeset()
     |> Repo.update()
   end
 end

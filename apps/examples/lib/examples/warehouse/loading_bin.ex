@@ -10,7 +10,7 @@ defmodule Examples.Warehouse.LoadingBin do
     field :acceptable_temperature_range, NumRange,
       default: NumRange.new(Decimal.new("10"), Decimal.new("30"))
 
-    field :state, Ecto.Enum, values: [:empty, :full]
+    field :state, Ecto.Enum, values: [:empty, :loaded], default: :empty
     field :designation, Ecto.Enum, values: [:food, :toxic_materials, :goods]
 
     belongs_to :loading_area, LoadingArea, on_replace: :nilify
@@ -21,8 +21,14 @@ defmodule Examples.Warehouse.LoadingBin do
   @doc false
   def changeset(loading_bin, attrs) do
     loading_bin
-    |> cast(attrs, [:size, :acceptable_temperature_range, :state, :designation])
-    |> validate_required([:size, :acceptable_temperature_range, :state, :designation])
+    |> cast(attrs, [:size, :acceptable_temperature_range, :designation])
+    |> validate_required([:size, :acceptable_temperature_range, :designation])
+  end
+
+  def load_changeset(loading_bin) do
+    loading_bin
+    |> change
+    |> put_change(:state, :loaded)
   end
 
   # SECTION: Assoc Action Changesets
@@ -52,11 +58,12 @@ defmodule Examples.Warehouse.LoadingBin do
     changeset
     |> validate_loading_area_fields(loading_area, loading_bin)
     |> validate_loading_area_type(loading_area, loading_bin)
+    |> validate_loading_area_state(loading_area, loading_bin)
   end
 
   @doc false
-  def validate_remove_loading_area(changeset, _loading_area, _loading_bin) do
-    changeset
+  def validate_remove_loading_area(changeset, loading_area, loading_bin) do
+    validate_loading_area_state(changeset, loading_area, loading_bin)
   end
 
   # SECTION: Assoc Business Rules
@@ -94,5 +101,14 @@ defmodule Examples.Warehouse.LoadingBin do
   defp temperature_in_range?(temperature, range) do
     Decimal.compare(temperature, range.lower) == :gt and
       Decimal.compare(temperature, range.upper) == :lt
+  end
+
+  @doc false
+  def validate_loading_area_state(changeset, _loading_area, loading_bin) do
+    if loading_bin.state == :loaded do
+      add_error(changeset, :business_rule, "Loading bin is currently loaded")
+    else
+      changeset
+    end
   end
 end

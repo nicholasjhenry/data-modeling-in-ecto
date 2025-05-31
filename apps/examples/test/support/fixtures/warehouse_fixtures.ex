@@ -31,8 +31,7 @@ defmodule Examples.WarehouseFixtures do
       |> Enum.into(%{
         acceptable_temperature_range: NumRange.new("10", "30"),
         designation: :food,
-        size: "50",
-        state: :empty
+        size: "50"
       })
       |> Examples.Warehouse.create_loading_bin()
 
