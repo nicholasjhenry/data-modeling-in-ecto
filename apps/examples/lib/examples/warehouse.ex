@@ -13,6 +13,7 @@ defmodule Examples.Warehouse do
 
   def create_loading_area(%LoadingBin{} = loading_bin, attrs \\ %{}) do
     %LoadingArea{}
+    |> Repo.preload(:loading_bins)
     |> LoadingArea.changeset(attrs)
     |> LoadingArea.put_loading_bin_changeset(loading_bin)
     |> Repo.insert()
@@ -71,8 +72,8 @@ defmodule Examples.Warehouse do
     loading_area = Repo.preload(loading_area, :loading_bins)
     loading_bin = Repo.preload(loading_bin, :loading_area)
 
-    loading_bin
-    |> LoadingBin.remove_loading_bin_changeset(loading_area)
+    loading_area
+    |> LoadingBin.remove_loading_bin_changeset(loading_bin)
     |> Repo.update()
   end
 

@@ -34,32 +34,24 @@ defmodule Examples.Warehouse.LoadingArea do
   @doc false
   def put_loading_bin_changeset(changeset, loading_bin) do
     loading_bins = get_assoc(changeset, :loading_bins, :struct)
-    loading_bins = [loading_bin | loading_bins]
     loading_area = apply_changes(changeset)
 
     changeset
-    |> put_assoc(:loading_bins, loading_bins)
-    |> validate_put_loading_area(loading_area, loading_bins)
+    |> put_assoc(:loading_bins, [loading_bin | loading_bins])
+    |> validate_put_loading_bin(loading_area, loading_bin)
     |> LoadingBin.validate_put_loading_area(loading_area, loading_bin)
   end
 
   # SECTION: Assoc Action Validations
 
   @doc false
-  def validate_put_loading_area(changeset, loading_area, loading_bins) do
-    changeset
-    |> validate_loading_bin_cardinality(loading_area, loading_bins)
-    |> validate_loading_bin_fields(loading_area, loading_bins)
-  end
-
-  @doc false
   def validate_put_loading_bin(changeset, loading_area, loading_bin) do
     loading_bins = [loading_bin | loading_area.loading_bins]
 
     changeset
-    |> validate_loading_bin_cardinality(loading_area, loading_bins)
-    |> validate_loading_bin_fields(loading_area, loading_bins)
-    |> validate_loading_bin_state(loading_area, loading_bins)
+    |> validate_at_least_one_loading_bin(loading_area, loading_bins)
+    |> validate_accommodates_size(loading_area, loading_bins)
+    |> validate_not_receiving(loading_area, loading_bins)
   end
 
   @doc false
@@ -67,14 +59,15 @@ defmodule Examples.Warehouse.LoadingArea do
     loading_bins = Enum.reject(loading_area.loading_bins, &(&1.id == loading_bin.id))
 
     changeset
-    |> validate_loading_bin_cardinality(loading_area, loading_bins)
-    |> validate_loading_bin_state(loading_area, loading_bins)
+    |> validate_at_least_one_loading_bin(loading_area, loading_bins)
+    |> validate_not_receiving(loading_area, loading_bins)
   end
 
   # SECTION: Assoc Business Rule Validations
 
+  # NOTE: cardinality validation
   @doc false
-  def validate_loading_bin_cardinality(changeset, _loading_area, loading_bins) do
+  def validate_at_least_one_loading_bin(changeset, _loading_area, loading_bins) do
     if Enum.empty?(loading_bins) do
       add_error(changeset, :business_rule, "Loading area requires at least one loading bin")
     else
@@ -82,8 +75,9 @@ defmodule Examples.Warehouse.LoadingArea do
     end
   end
 
+  # NOTE: field validation
   @doc false
-  def validate_loading_bin_fields(changeset, loading_area, loading_bins) do
+  def validate_accommodates_size(changeset, loading_area, loading_bins) do
     required_size = Enum.reduce(loading_bins, Decimal.new(0), &Decimal.add(&2, &1.size))
 
     if Decimal.compare(loading_area.size, required_size) == :lt do
@@ -93,7 +87,9 @@ defmodule Examples.Warehouse.LoadingArea do
     end
   end
 
-  def validate_loading_bin_state(changeset, loading_area, _loading_bins) do
+  # NOTE: state validation
+  @doc false
+  def validate_not_receiving(changeset, loading_area, _loading_bins) do
     if loading_area.state == :receiving do
       add_error(
         changeset,

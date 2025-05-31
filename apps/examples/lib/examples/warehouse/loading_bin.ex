@@ -43,7 +43,7 @@ defmodule Examples.Warehouse.LoadingBin do
   end
 
   @doc false
-  def remove_loading_bin_changeset(loading_bin, loading_area) do
+  def remove_loading_bin_changeset(loading_area, loading_bin) do
     loading_bin
     |> change
     |> put_change(:loading_area, nil)
@@ -56,34 +56,36 @@ defmodule Examples.Warehouse.LoadingBin do
   @doc false
   def validate_put_loading_area(changeset, loading_area, loading_bin) do
     changeset
-    |> validate_loading_area_fields(loading_area, loading_bin)
-    |> validate_loading_area_type(loading_area, loading_bin)
-    |> validate_loading_area_state(loading_area, loading_bin)
+    |> validate_temperature_in_range(loading_area, loading_bin)
+    |> validate_not_loaded(loading_area, loading_bin)
   end
 
   @doc false
   def validate_remove_loading_area(changeset, loading_area, loading_bin) do
-    validate_loading_area_state(changeset, loading_area, loading_bin)
+    validate_not_loaded(changeset, loading_area, loading_bin)
   end
 
   # SECTION: Assoc Business Rules
 
+  # NOTE: type validation
   @doc false
-  def validate_loading_area_type(changeset, _loading_area, _loading_bin) do
+  def validate_type(changeset, _loading_area, _loading_bin) do
     # loading bin knows the types of loading areas—room temperature, refrigerated, or freezing—that can house in
 
     changeset
   end
 
   @doc false
-  def validate_loading_area_cardinality(changeset, _loading_area, _loading_bin) do
+  # NOTE: cardinality validation
+  def validate_cardinality(changeset, _loading_area, _loading_bin) do
     # loading bin is always within one loading area, being moved between loading areas, or not in use
 
     changeset
   end
 
+  # NOTE: field validation
   @doc false
-  def validate_loading_area_fields(changeset, loading_area, loading_bin) do
+  def validate_temperature_in_range(changeset, loading_area, loading_bin) do
     if not temperature_in_range?(
          loading_area.average_temperature,
          loading_bin.acceptable_temperature_range
@@ -103,8 +105,9 @@ defmodule Examples.Warehouse.LoadingBin do
       Decimal.compare(temperature, range.upper) == :lt
   end
 
+  # NOTE: assoc validation - state
   @doc false
-  def validate_loading_area_state(changeset, _loading_area, loading_bin) do
+  def validate_not_loaded(changeset, _loading_area, loading_bin) do
     if loading_bin.state == :loaded do
       add_error(changeset, :business_rule, "Loading bin is currently loaded")
     else
