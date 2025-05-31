@@ -20,4 +20,21 @@ defmodule Examples.WarehouseFixtures do
 
     loading_area
   end
+
+  @doc """
+  Generate a loading_bin.
+  """
+  def loading_bin_fixture(attrs \\ %{}) do
+    {:ok, loading_bin} =
+      attrs
+      |> Enum.into(%{
+        acceptable_temperature_range: "some acceptable_temperature_range",
+        designation: :food,
+        size: "120.5",
+        state: :empty
+      })
+      |> Examples.Warehouse.create_loading_bin()
+
+    loading_bin
+  end
 end
