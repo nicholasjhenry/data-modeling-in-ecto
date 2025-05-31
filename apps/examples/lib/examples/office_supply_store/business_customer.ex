@@ -23,22 +23,14 @@ defmodule Examples.OfficeSupplyStore.BusinessCustomer do
   def put_organization_changeset(business_customer, organization) do
     business_customer
     |> put_assoc(:organization, organization)
-    |> validate_assoc(:organization, &validate_organization(&2, &1))
+    |> validate_put_organization(organization)
   end
 
-  defp validate_organization(changeset, organization) do
+  defp validate_put_organization(changeset, organization) do
     changeset
-    |> validate_organization_multiplicity(organization)
     |> validate_organization_fields(organization)
-    |> validate_organization_state(organization)
-  end
-
-  def validate_organization_multiplicity(changeset, organization) do
-    if match?(%GovernmentCustomer{}, organization.government_customer) do
-      add_error(changeset, :business_rule, "Government customer is already assigned")
-    else
-      changeset
-    end
+    |> validate_organization_active(organization)
+    |> validate_organization_conflict(organization)
   end
 
   def validate_organization_fields(changeset, organization) do
@@ -49,9 +41,17 @@ defmodule Examples.OfficeSupplyStore.BusinessCustomer do
     end
   end
 
-  def validate_organization_state(changeset, organization) do
+  def validate_organization_active(changeset, organization) do
     if !Organization.active?(organization) do
       add_error(changeset, :business_rule, "Organization is not active")
+    else
+      changeset
+    end
+  end
+
+  def validate_organization_conflict(changeset, organization) do
+    if match?(%GovernmentCustomer{}, organization.government_customer) do
+      add_error(changeset, :business_rule, "Government customer is already assigned")
     else
       changeset
     end
