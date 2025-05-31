@@ -179,9 +179,7 @@ defmodule Nomify.Teams.TeamMember do
     role = get_change(changeset, :role)
 
     if role == :chair do
-      team
-      |> Team.check_chair_eligibility(changeset.data)
-      |> put_result(changeset, :role)
+      Team.validate_chair_eligibility(team, changeset)
     else
       changeset
     end
@@ -193,30 +191,19 @@ defmodule Nomify.Teams.TeamMember do
   def put_person_changeset(changeset, person) do
     changeset
     |> put_assoc(:person, person)
-    |> validate_person_assoc()
+    |> validate_person()
   end
 
   @doc false
   def put_team_changeset(changeset, team) do
     changeset
     |> put_assoc(:team, team)
-    |> validate_team_assoc()
+    |> validate_team()
   end
-
-  # NJH: Alternative Implementation
-  #
-  # defp put_assocs_changeset(changeset, person, team) do
-  #   changeset
-  #   |> put_assoc(:person, person)
-  #   |> validate_person()
-  #   |> put_assoc(:team, team)
-  #   |> validate_team()
-  #   |> validate_person_team_conflict(changeset)
-  # end
 
   # SECTION: Assoc Validations
 
-  defp validate_person_assoc(changeset) do
+  defp validate_person(changeset) do
     person = get_assoc(changeset, :person, :struct)
 
     # Example: Association Validation - Property Validation
@@ -230,12 +217,11 @@ defmodule Nomify.Teams.TeamMember do
     validate_person_team_conflict(changeset)
   end
 
-  defp validate_team_assoc(changeset) do
+  defp validate_team(changeset) do
     team = get_assoc(changeset, :team, :struct)
 
     team
-    |> Team.check_team_member(apply_changes(changeset))
-    |> put_result(changeset, :role)
+    |> Team.validate_team_member(changeset)
     |> validate_person_team_conflict()
   end
 
@@ -255,10 +241,9 @@ defmodule Nomify.Teams.TeamMember do
     )
   end
 
-  # SECTION: Assoc Checks
+  # SECTION: Assoc Validations
 
-  @doc false
-  def check_nomination(team_member, opts \\ []) do
+  def validate_nomination(team_member, nomination_changeset, opts \\ []) do
     nomination_allowance_opts = Keyword.get(opts, :nomination_allowance, [])
 
     team_member =
@@ -268,13 +253,21 @@ defmodule Nomify.Teams.TeamMember do
 
     cond do
       !Privileges.has_flag(team_member.privileges, :nominate) ->
-        {:error, "Security violation. Team member cannot nominate."}
+        add_error(
+          nomination_changeset,
+          :business_rule,
+          "Security violation. Team member cannot nominate."
+        )
 
       team_member.nominations_per_period_count >= team_member.max_nominations_allowed ->
-        {:error, "Team member cannot nominate. Too many nominations."}
+        add_error(
+          nomination_changeset,
+          :business_rule,
+          "Team member cannot nominate. Too many nominations."
+        )
 
       true ->
-        :ok
+        nomination_changeset
     end
   end
 

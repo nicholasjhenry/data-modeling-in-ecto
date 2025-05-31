@@ -98,40 +98,44 @@ defmodule Nomify.Documents.Document do
   end
 
   defp validate_publication_date(changeset) do
-    changeset.data
-    |> check_publishable()
-    |> put_result(changeset, :business_rule)
-  end
+    document = changeset.data
 
-  # SECTION: Field Checks
-
-  @doc false
-  def check_publishable(document) do
     cond do
-      !approved?(document) -> {:error, "Document not approved for publication."}
-      published?(document) -> {:error, "Document already published."}
-      true -> :ok
+      !approved?(document) ->
+        add_error(changeset, :business_rule, "Document not approved for publication.")
+
+      published?(document) ->
+        add_error(changeset, :business_rule, "Document already published.")
+
+      true ->
+        changeset
     end
   end
 
-  # SECTION: Assoc Checks
+  # SECTION: Assoc Validations
 
-  @doc false
-  def check_nomination(document) do
+  def validate_nomination(document, changeset) do
     if document.latest_nomination && document.latest_nomination.status in [:pending, :approved] do
-      {:error, "Nomination denied. Document has unresolved nomination."}
+      add_error(
+        changeset,
+        :business_rule,
+        "Nomination denied. Document has unresolved nomination."
+      )
     else
-      :ok
+      changeset
     end
   end
 
   @doc false
-  # Example: Conflict check
-  def check_nomination_conflict(document, team_member) do
+  def validate_nomination_conflict(document, team_member, changeset) do
     if SecurityLevel.compare(document.security_level, team_member.security_level) == :gt do
-      {:error, "Security violation. Team member has improper security."}
+      add_error(
+        changeset,
+        :business_rule,
+        "Security violation. Team member has improper security."
+      )
     else
-      :ok
+      changeset
     end
   end
 

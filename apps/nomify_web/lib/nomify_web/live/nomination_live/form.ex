@@ -10,7 +10,7 @@ defmodule NomifyWeb.NominationLive.Form do
     ~H"""
     <Layouts.app flash={@flash}>
       <.header>
-        {@page_title} - {@document.title}
+        {@page_title} - {to_string(@document)}
         <:subtitle>Use this form to manage nomination records in your database.</:subtitle>
       </.header>
 
@@ -21,7 +21,6 @@ defmodule NomifyWeb.NominationLive.Form do
       <% end %>
 
       <.form for={@form} id="nomination-form" phx-change="validate" phx-submit="save">
-        <.errors field={@form[:business_rule]} title="Business Rule Errors" />
         <.input field={@form[:comments]} type="textarea" label="Comments" />
         <%= if @live_action == :edit do %>
           <.input
@@ -67,7 +66,7 @@ defmodule NomifyWeb.NominationLive.Form do
             phx-value-team_id={team_member.team.id}
           >
             <div>
-              {team_member.person.name} ({team_member.team.description})
+              {to_string(team_member)}
             </div>
           </li>
         </ul>
@@ -131,12 +130,11 @@ defmodule NomifyWeb.NominationLive.Form do
   def handle_event("team_member_selected", %{"team_id" => team_id, "id" => id}, socket) do
     team = Teams.get_team!(team_id)
     team_member = Teams.get_team_member!(team, id)
-    team_member_name = "#{team_member.person.name} (#{team.description})"
 
     socket =
       socket
       |> assign(:team_member, team_member)
-      |> assign(:team_member_name, team_member_name)
+      |> assign(:team_member_name, to_string(team_member))
       |> assign(:team_members, [])
 
     {:noreply, socket}

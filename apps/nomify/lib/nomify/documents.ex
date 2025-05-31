@@ -147,6 +147,7 @@ defmodule Nomify.Documents do
            |> Nomination.insert_changeset(attrs, current_date)
            |> Nomination.put_document_changeset(document)
            |> Nomination.put_team_member_changeset(team_member, team_member_opts)
+           |> Nomination.validate_conflict()
            |> Repo.insert() do
       broadcast_nominations(scope, {:created, nomination})
       {:ok, nomination}

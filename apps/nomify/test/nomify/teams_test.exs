@@ -231,7 +231,7 @@ defmodule Nomify.TeamsTest do
       assert {:error, changeset} =
                Teams.update_team_member_role(scope, team_member, %{role: :chair})
 
-      "Tried to add another chair team member to single chair team." in errors_on(changeset).role
+      "Tried to add another chair team member to single chair team." in errors_on(changeset).business_rule
     end
 
     test "update_team_member_role/2 enforces team chair business rule for none-chair team" do
@@ -242,7 +242,7 @@ defmodule Nomify.TeamsTest do
       assert {:error, changeset} =
                Teams.update_team_member_role(scope, team_member, %{role: :chair})
 
-      "Tried to add chair team member to no chairs team." in errors_on(changeset).role
+      "Tried to add chair team member to no chairs team." in errors_on(changeset).business_rule
     end
 
     test "update_team_member_privileges/2 with valid data updates the team_member privileges" do
