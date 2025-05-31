@@ -12,10 +12,16 @@ defmodule Examples.WarehouseTest do
 
     test "get_loading_area!/1 returns the loading_area with given id" do
       loading_area = loading_area_fixture()
-      assert Warehouse.get_loading_area!(loading_area.id) == loading_area
+
+      assert Warehouse.loading_area_equal?(
+               Warehouse.get_loading_area!(loading_area.id),
+               loading_area
+             )
     end
 
     test "create_loading_area/1 with valid data creates a loading_area" do
+      loading_bin = loading_bin_fixture()
+
       valid_attrs = %{
         size: "120.5",
         type: :room_temperature,
@@ -23,7 +29,9 @@ defmodule Examples.WarehouseTest do
         average_temperature: "120.5"
       }
 
-      assert {:ok, %LoadingArea{} = loading_area} = Warehouse.create_loading_area(valid_attrs)
+      assert {:ok, %LoadingArea{} = loading_area} =
+               Warehouse.create_loading_area(loading_bin, valid_attrs)
+
       assert loading_area.size == Decimal.new("120.5")
       assert loading_area.type == :room_temperature
       assert loading_area.state == :static
@@ -31,7 +39,10 @@ defmodule Examples.WarehouseTest do
     end
 
     test "create_loading_area/1 with invalid data returns error changeset" do
-      assert {:error, %Ecto.Changeset{}} = Warehouse.create_loading_area(@invalid_attrs)
+      loading_bin = loading_bin_fixture()
+
+      assert {:error, %Ecto.Changeset{}} =
+               Warehouse.create_loading_area(loading_bin, @invalid_attrs)
     end
 
     test "update_loading_area/2 with valid data updates the loading_area" do
@@ -59,7 +70,26 @@ defmodule Examples.WarehouseTest do
       assert {:error, %Ecto.Changeset{}} =
                Warehouse.update_loading_area(loading_area, @invalid_attrs)
 
-      assert loading_area == Warehouse.get_loading_area!(loading_area.id)
+      assert Warehouse.loading_area_equal?(
+               loading_area,
+               Warehouse.get_loading_area!(loading_area.id)
+             )
+    end
+
+    test "loading area contains at least one loading bin" do
+      loading_bin = loading_bin_fixture()
+
+      valid_attrs = %{
+        size: "120.5",
+        type: :room_temperature,
+        state: :static,
+        average_temperature: "120.5"
+      }
+
+      assert {:ok, %LoadingArea{} = loading_area} =
+               Warehouse.create_loading_area(loading_bin, valid_attrs)
+
+      assert List.first(loading_area.loading_bins).id == loading_bin.id
     end
   end
 

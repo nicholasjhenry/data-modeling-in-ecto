@@ -7,16 +7,16 @@ defmodule Examples.WarehouseFixtures do
   @doc """
   Generate a loading_area.
   """
-  def loading_area_fixture(attrs \\ %{}) do
-    {:ok, loading_area} =
-      attrs
-      |> Enum.into(%{
+  def loading_area_fixture(loading_bin \\ loading_bin_fixture(), attrs \\ %{}) do
+    attrs =
+      Enum.into(attrs, %{
         average_temperature: "120.5",
         size: "120.5",
         state: :static,
         type: :room_temperature
       })
-      |> Examples.Warehouse.create_loading_area()
+
+    {:ok, loading_area} = Examples.Warehouse.create_loading_area(loading_bin, attrs)
 
     loading_area
   end
