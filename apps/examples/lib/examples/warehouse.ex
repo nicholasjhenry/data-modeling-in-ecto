@@ -50,8 +50,8 @@ defmodule Examples.Warehouse do
   def relocate_loading_bin(loading_area, loading_bin) do
     loading_bin = Repo.preload(loading_bin, :loading_area)
 
-    loading_bin
-    |> LoadingBin.add_loading_bin_changeset(loading_area)
+    loading_area
+    |> LoadingBin.add_loading_bin_changeset(loading_bin)
     |> Repo.update()
   end
 

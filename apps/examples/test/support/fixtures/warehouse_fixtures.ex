@@ -4,13 +4,15 @@ defmodule Examples.WarehouseFixtures do
   entities via the `Examples.Warehouse` context.
   """
 
+  alias PgRanges.NumRange
+
   @doc """
   Generate a loading_area.
   """
   def loading_area_fixture(loading_bin \\ loading_bin_fixture(), attrs \\ %{}) do
     attrs =
       Enum.into(attrs, %{
-        average_temperature: "120.5",
+        average_temperature: "20",
         size: "100",
         state: :static,
         type: :room_temperature
@@ -28,7 +30,7 @@ defmodule Examples.WarehouseFixtures do
     {:ok, loading_bin} =
       attrs
       |> Enum.into(%{
-        acceptable_temperature_range: NumRange.new(1, 100),
+        acceptable_temperature_range: NumRange.new("10", "30"),
         designation: :food,
         size: "50",
         state: :empty

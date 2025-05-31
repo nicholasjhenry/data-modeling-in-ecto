@@ -2,13 +2,15 @@ defmodule Examples.Warehouse.LoadingArea do
   use Ecto.Schema
   import Ecto.Changeset
 
+  alias Examples.Warehouse.LoadingBin
+
   schema "warehouse_loading_areas" do
     field :type, Ecto.Enum, values: [:room_temperature, :refrigerated, :freezing]
     field :size, :decimal, default: Decimal.new(0)
-    field :average_temperature, :decimal
+    field :average_temperature, :decimal, default: Decimal.new("20")
     field :state, Ecto.Enum, values: [:static, :receiving]
 
-    has_many :loading_bins, Examples.Warehouse.LoadingBin
+    has_many :loading_bins, LoadingBin
 
     timestamps()
   end
@@ -30,14 +32,14 @@ defmodule Examples.Warehouse.LoadingArea do
     |> put_assoc(:loading_bins, loading_bins)
     |> validate_loading_bin_cardinality(loading_area, loading_bins)
     |> validate_loading_bin_fields(loading_area, loading_bins)
+    |> LoadingBin.validate_add_loading_area(loading_area, loading_bin)
   end
 
   @doc false
-  def validate_add_loading_bin(loading_area, loading_bin_changeset) do
-    loading_bin = loading_bin_changeset.data
+  def validate_add_loading_bin(changeset, loading_area, loading_bin) do
     loading_bins = [loading_bin | loading_area.loading_bins]
 
-    loading_bin_changeset
+    changeset
     |> validate_loading_bin_cardinality(loading_area, loading_bins)
     |> validate_loading_bin_fields(loading_area, loading_bins)
   end

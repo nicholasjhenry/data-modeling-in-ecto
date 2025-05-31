@@ -1,4 +1,5 @@
 defmodule Examples.WarehouseTest do
+  alias PgRanges.NumRange
   use Examples.DataCase
 
   alias Examples.Warehouse
@@ -23,19 +24,19 @@ defmodule Examples.WarehouseTest do
       loading_bin = loading_bin_fixture()
 
       valid_attrs = %{
-        size: "120.5",
+        size: "100",
         type: :room_temperature,
         state: :static,
-        average_temperature: "120.5"
+        average_temperature: "20"
       }
 
       assert {:ok, %LoadingArea{} = loading_area} =
                Warehouse.create_loading_area(loading_bin, valid_attrs)
 
-      assert loading_area.size == Decimal.new("120.5")
+      assert loading_area.size == Decimal.new("100")
       assert loading_area.type == :room_temperature
       assert loading_area.state == :static
-      assert loading_area.average_temperature == Decimal.new("120.5")
+      assert loading_area.average_temperature == Decimal.new("20")
     end
 
     test "create_loading_area/1 with invalid data returns error changeset" do
@@ -79,6 +80,7 @@ defmodule Examples.WarehouseTest do
 
   describe "warehouse_loading_bins" do
     alias Examples.Warehouse.LoadingBin
+    alias PgRanges.NumRange
 
     import Examples.WarehouseFixtures
 
@@ -93,14 +95,14 @@ defmodule Examples.WarehouseTest do
       valid_attrs = %{
         size: "120.5",
         state: :empty,
-        acceptable_temperature_range: "some acceptable_temperature_range",
+        acceptable_temperature_range: NumRange.new(1, 100),
         designation: :food
       }
 
       assert {:ok, %LoadingBin{} = loading_bin} = Warehouse.create_loading_bin(valid_attrs)
       assert loading_bin.size == Decimal.new("120.5")
       assert loading_bin.state == :empty
-      assert loading_bin.acceptable_temperature_range == "some acceptable_temperature_range"
+      assert NumRange.equal?(loading_bin.acceptable_temperature_range, NumRange.new(1, 100))
       assert loading_bin.designation == :food
     end
 
@@ -114,7 +116,7 @@ defmodule Examples.WarehouseTest do
       update_attrs = %{
         size: "456.7",
         state: :full,
-        acceptable_temperature_range: "some updated acceptable_temperature_range",
+        acceptable_temperature_range: NumRange.new(100, 200),
         designation: :toxic_materials
       }
 
@@ -123,10 +125,7 @@ defmodule Examples.WarehouseTest do
 
       assert loading_bin.size == Decimal.new("456.7")
       assert loading_bin.state == :full
-
-      assert loading_bin.acceptable_temperature_range ==
-               "some updated acceptable_temperature_range"
-
+      assert NumRange.equal?(loading_bin.acceptable_temperature_range, NumRange.new(100, 200))
       assert loading_bin.designation == :toxic_materials
     end
 
@@ -150,10 +149,10 @@ defmodule Examples.WarehouseTest do
       loading_bin = loading_bin_fixture()
 
       valid_attrs = %{
-        size: "120.5",
+        size: "100",
         type: :room_temperature,
         state: :static,
-        average_temperature: "120.5"
+        average_temperature: "20"
       }
 
       assert {:ok, %LoadingArea{} = loading_area} =
@@ -169,7 +168,7 @@ defmodule Examples.WarehouseTest do
         size: "100",
         type: :room_temperature,
         state: :static,
-        average_temperature: "120.5"
+        average_temperature: "20"
       }
 
       assert {:ok, %LoadingArea{} = loading_area} =
@@ -202,7 +201,7 @@ defmodule Examples.WarehouseTest do
         size: "100",
         type: :room_temperature,
         state: :static,
-        average_temperature: "120.5"
+        average_temperature: "20"
       }
 
       assert {:error, changeset} =
@@ -224,6 +223,42 @@ defmodule Examples.WarehouseTest do
                Warehouse.relocate_loading_bin(loading_area, oversize_loading_bin)
 
       assert "Loading area size is too small" in errors_on(changeset).business_rule
+    end
+
+    test "loading bin cannot exist in a loading area whose average temperature is not within its acceptable temperature range" do
+      loading_bin =
+        loading_bin_fixture(acceptable_temperature_range: NumRange.new("10", "30"))
+
+      valid_attrs = %{
+        size: "100",
+        type: :room_temperature,
+        state: :static,
+        average_temperature: "40"
+      }
+
+      assert {:error, changeset} =
+               Warehouse.create_loading_area(loading_bin, valid_attrs)
+
+      assert "Loading area exceeds loading bins acceptable temperature range" in errors_on(
+               changeset
+             ).business_rule
+
+      valid_attrs = %{
+        size: "100",
+        type: :room_temperature,
+        state: :static,
+        average_temperature: "20"
+      }
+
+      assert {:ok, loading_area} = Warehouse.create_loading_area(loading_bin, valid_attrs)
+
+      loading_bin = loading_bin_fixture(acceptable_temperature_range: NumRange.new("0", "10"))
+
+      assert {:error, changeset} = Warehouse.relocate_loading_bin(loading_area, loading_bin)
+
+      assert "Loading area exceeds loading bins acceptable temperature range" in errors_on(
+               changeset
+             ).business_rule
     end
   end
 end
