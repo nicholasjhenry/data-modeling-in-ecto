@@ -67,4 +67,66 @@ defmodule Examples.ComputerStoreTest do
       assert system == ComputerStore.get_system!(system.id)
     end
   end
+
+  describe "computer_store_components" do
+    alias Examples.ComputerStore.Component
+
+    import Examples.ComputerStoreFixtures
+
+    @invalid_attrs %{approval_state: nil, electrical_requirements: nil, price: nil, weight: nil, system_type: nil}
+
+    test "list_computer_store_components/0 returns all computer_store_components" do
+      component = component_fixture()
+      assert ComputerStore.list_computer_store_components() == [component]
+    end
+
+    test "get_component!/1 returns the component with given id" do
+      component = component_fixture()
+      assert ComputerStore.get_component!(component.id) == component
+    end
+
+    test "create_component/1 with valid data creates a component" do
+      valid_attrs = %{approval_state: :operational, electrical_requirements: :domestic, price: "120.5", weight: "120.5", system_type: :server}
+
+      assert {:ok, %Component{} = component} = ComputerStore.create_component(valid_attrs)
+      assert component.approval_state == :operational
+      assert component.electrical_requirements == :domestic
+      assert component.price == Decimal.new("120.5")
+      assert component.weight == Decimal.new("120.5")
+      assert component.system_type == :server
+    end
+
+    test "create_component/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = ComputerStore.create_component(@invalid_attrs)
+    end
+
+    test "update_component/2 with valid data updates the component" do
+      component = component_fixture()
+      update_attrs = %{approval_state: :damaged, electrical_requirements: :overseas, price: "456.7", weight: "456.7", system_type: :workstation}
+
+      assert {:ok, %Component{} = component} = ComputerStore.update_component(component, update_attrs)
+      assert component.approval_state == :damaged
+      assert component.electrical_requirements == :overseas
+      assert component.price == Decimal.new("456.7")
+      assert component.weight == Decimal.new("456.7")
+      assert component.system_type == :workstation
+    end
+
+    test "update_component/2 with invalid data returns error changeset" do
+      component = component_fixture()
+      assert {:error, %Ecto.Changeset{}} = ComputerStore.update_component(component, @invalid_attrs)
+      assert component == ComputerStore.get_component!(component.id)
+    end
+
+    test "delete_component/1 deletes the component" do
+      component = component_fixture()
+      assert {:ok, %Component{}} = ComputerStore.delete_component(component)
+      assert_raise Ecto.NoResultsError, fn -> ComputerStore.get_component!(component.id) end
+    end
+
+    test "change_component/1 returns a component changeset" do
+      component = component_fixture()
+      assert %Ecto.Changeset{} = ComputerStore.change_component(component)
+    end
+  end
 end

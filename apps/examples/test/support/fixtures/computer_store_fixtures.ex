@@ -21,4 +21,22 @@ defmodule Examples.ComputerStoreFixtures do
 
     system
   end
+
+  @doc """
+  Generate a component.
+  """
+  def component_fixture(attrs \\ %{}) do
+    {:ok, component} =
+      attrs
+      |> Enum.into(%{
+        approval_state: :operational,
+        electrical_requirements: :domestic,
+        price: "120.5",
+        system_type: :server,
+        weight: "120.5"
+      })
+      |> Examples.ComputerStore.create_component()
+
+    component
+  end
 end
