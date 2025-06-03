@@ -224,5 +224,19 @@ defmodule Examples.ComputerStoreTest do
 
       assert "Weight exceeds maximum" in errors_on(changeset).business_rule
     end
+
+    test "a component with domestic electrical requirements cannot go into a system intended for overseas use" do
+      component = component_fixture(electrical_requirements: :overseas)
+      system = system_fixture(component, electrical_requirements: :overseas)
+
+      another_component = component_fixture(electrical_requirements: :domestic)
+
+      assert {:error, changeset} =
+               ComputerStore.add_component_to_system(system, another_component)
+
+      assert "Component and system have incompatible electrical requirements" in errors_on(
+               changeset
+             ).business_rule
+    end
   end
 end

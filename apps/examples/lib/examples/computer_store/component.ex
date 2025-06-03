@@ -31,12 +31,32 @@ defmodule Examples.ComputerStore.Component do
 
   @doc false
   def validate_put_system(system_changeset, component) do
+    system_changeset
+    |> validate_system_type(component)
+    |> validate_electrical_requirements(component)
+  end
+
+  @doc false
+  def validate_system_type(system_changeset, component) do
     if component.system_type != :both &&
          get_field(system_changeset, :type) != component.system_type do
       add_error(
         system_changeset,
         :business_rule,
         "Invalid component type for system; they must be compatiable"
+      )
+    else
+      system_changeset
+    end
+  end
+
+  @doc false
+  def validate_electrical_requirements(system_changeset, component) do
+    if get_field(system_changeset, :electrical_requirements) != component.electrical_requirements do
+      add_error(
+        system_changeset,
+        :business_rule,
+        "Component and system have incompatible electrical requirements"
       )
     else
       system_changeset
