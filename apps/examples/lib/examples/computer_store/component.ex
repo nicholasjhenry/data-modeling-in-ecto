@@ -5,7 +5,7 @@ defmodule Examples.ComputerStore.Component do
   alias Examples.ComputerStore.System
 
   schema "computer_store_components" do
-    field :system_type, Ecto.Enum, values: [:server, :workstation]
+    field :system_type, Ecto.Enum, values: [:server, :workstation, :both]
     field :price, :decimal
     field :weight, :decimal
     field :electrical_requirements, Ecto.Enum, values: [:domestic, :overseas]
@@ -27,5 +27,19 @@ defmodule Examples.ComputerStore.Component do
       :electrical_requirements,
       :approval_state
     ])
+  end
+
+  @doc false
+  def validate_put_system(system_changeset, component) do
+    if component.system_type != :both &&
+         get_field(system_changeset, :type) != component.system_type do
+      add_error(
+        system_changeset,
+        :business_rule,
+        "Invalid component type for system; they must be compatiable"
+      )
+    else
+      system_changeset
+    end
   end
 end

@@ -181,5 +181,24 @@ defmodule Examples.ComputerStoreTest do
 
       assert ComputerStore.contains_component?(another_system, component)
     end
+
+    test "component knows what type of system, a server or a workstation, it can join" do
+      workstation_component = component_fixture(system_type: :workstation)
+
+      server_component = component_fixture(system_type: :server)
+      server_system = system_fixture(server_component, type: :server)
+
+      assert {:error, changeset} =
+               ComputerStore.add_component_to_system(server_system, workstation_component)
+
+      assert "Invalid component type for system; they must be compatiable" in errors_on(changeset).business_rule
+
+      multi_system_component = component_fixture(system_type: :both)
+
+      assert {:ok, server_system} =
+               ComputerStore.add_component_to_system(server_system, multi_system_component)
+
+      assert ComputerStore.contains_component?(server_system, multi_system_component)
+    end
   end
 end

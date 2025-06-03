@@ -33,6 +33,7 @@ defmodule Examples.ComputerStore.System do
 
     changeset
     |> put_assoc(:components, components)
+    |> Component.validate_put_system(component)
     |> validate_put_component(components)
   end
 
