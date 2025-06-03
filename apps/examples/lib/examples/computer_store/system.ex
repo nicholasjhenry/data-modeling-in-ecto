@@ -55,6 +55,8 @@ defmodule Examples.ComputerStore.System do
   def validate_put_component(changeset, components) do
     changeset
     |> validate_must_have_at_least_one_component(components)
+    |> validate_price_within_maximum(components)
+    |> validate_weight_within_maximum(components)
   end
 
   @doc false
@@ -67,6 +69,38 @@ defmodule Examples.ComputerStore.System do
   def validate_must_have_at_least_one_component(changeset, components) do
     if Enum.count(components) == 0 do
       add_error(changeset, :business_rule, "System must have at least one component")
+    else
+      changeset
+    end
+  end
+
+  @doc false
+  def validate_price_within_maximum(changeset, components) do
+    total_component_price =
+      Enum.reduce(components, Decimal.new(0), fn component, acc ->
+        Decimal.add(component.price, acc)
+      end)
+
+    system_price = get_field(changeset, :price)
+
+    if system_price <= total_component_price do
+      add_error(changeset, :business_rule, "Price exceeds maximum")
+    else
+      changeset
+    end
+  end
+
+  @doc false
+  def validate_weight_within_maximum(changeset, components) do
+    total_component_weight =
+      Enum.reduce(components, Decimal.new(0), fn component, acc ->
+        Decimal.add(component.weight, acc)
+      end)
+
+    system_weight = get_field(changeset, :weight)
+
+    if system_weight <= total_component_weight do
+      add_error(changeset, :business_rule, "Weight exceeds maximum")
     else
       changeset
     end

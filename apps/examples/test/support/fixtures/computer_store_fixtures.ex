@@ -12,9 +12,9 @@ defmodule Examples.ComputerStoreFixtures do
       Enum.into(attrs, %{
         approval_state: :pending,
         electrical_requirements: :domestic,
-        price: "120.5",
+        price: "100",
         type: :server,
-        weight: "120.5"
+        weight: "200"
       })
 
     {:ok, system} = Examples.ComputerStore.create_system(component, attrs)
@@ -31,9 +31,9 @@ defmodule Examples.ComputerStoreFixtures do
       |> Enum.into(%{
         approval_state: :operational,
         electrical_requirements: :domestic,
-        price: "120.5",
+        price: "10",
         system_type: :server,
-        weight: "120.5"
+        weight: "20"
       })
       |> Examples.ComputerStore.create_component()
 

@@ -200,5 +200,29 @@ defmodule Examples.ComputerStoreTest do
 
       assert ComputerStore.contains_component?(server_system, multi_system_component)
     end
+
+    test "system cannot add a component whose price exceeds the maximum" do
+      component = component_fixture(price: "10.00")
+      system = system_fixture(component, price: "20.00")
+
+      another_component = component_fixture(price: "50.00")
+
+      assert {:error, changeset} =
+               ComputerStore.add_component_to_system(system, another_component)
+
+      assert "Price exceeds maximum" in errors_on(changeset).business_rule
+    end
+
+    test "system cannot add a component whose weight exceeds the maximum" do
+      component = component_fixture(weight: "100")
+      system = system_fixture(component, weight: "200")
+
+      another_component = component_fixture(weight: "300")
+
+      assert {:error, changeset} =
+               ComputerStore.add_component_to_system(system, another_component)
+
+      assert "Weight exceeds maximum" in errors_on(changeset).business_rule
+    end
   end
 end
