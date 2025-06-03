@@ -22,6 +22,8 @@ defmodule Examples.ComputerStoreTest do
     end
 
     test "create_system/1 with valid data creates a system" do
+      component = component_fixture()
+
       valid_attrs = %{
         type: :server,
         price: "120.5",
@@ -30,7 +32,7 @@ defmodule Examples.ComputerStoreTest do
         approval_state: :pending
       }
 
-      assert {:ok, %System{} = system} = ComputerStore.create_system(valid_attrs)
+      assert {:ok, %System{} = system} = ComputerStore.create_system(component, valid_attrs)
       assert system.type == :server
       assert system.price == Decimal.new("120.5")
       assert system.weight == Decimal.new("120.5")
@@ -39,7 +41,8 @@ defmodule Examples.ComputerStoreTest do
     end
 
     test "create_system/1 with invalid data returns error changeset" do
-      assert {:error, %Ecto.Changeset{}} = ComputerStore.create_system(@invalid_attrs)
+      component = component_fixture()
+      assert {:error, %Ecto.Changeset{}} = ComputerStore.create_system(component, @invalid_attrs)
     end
 
     test "update_system/2 with valid data updates the system" do
@@ -141,11 +144,18 @@ defmodule Examples.ComputerStoreTest do
   describe "computer_store_systems and computer_store_components" do
     import Examples.ComputerStoreFixtures
 
-    test "add a component to a system" do
-      system = system_fixture()
+    test "a system has at least one component" do
       component = component_fixture()
 
-      assert {:ok, system} = ComputerStore.add_component_to_system(system, component)
+      valid_attrs = %{
+        type: :server,
+        price: "120.5",
+        weight: "120.5",
+        electrical_requirements: :domestic,
+        approval_state: :pending
+      }
+
+      assert {:ok, system} = ComputerStore.create_system(component, valid_attrs)
       assert List.first(system.components).id == component.id
     end
   end

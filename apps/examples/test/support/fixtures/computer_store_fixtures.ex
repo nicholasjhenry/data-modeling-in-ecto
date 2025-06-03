@@ -7,17 +7,17 @@ defmodule Examples.ComputerStoreFixtures do
   @doc """
   Generate a system.
   """
-  def system_fixture(attrs \\ %{}) do
-    {:ok, system} =
-      attrs
-      |> Enum.into(%{
+  def system_fixture(component \\ component_fixture(), attrs \\ %{}) do
+    attrs =
+      Enum.into(attrs, %{
         approval_state: :pending,
         electrical_requirements: :domestic,
         price: "120.5",
         type: :server,
         weight: "120.5"
       })
-      |> Examples.ComputerStore.create_system()
+
+    {:ok, system} = Examples.ComputerStore.create_system(component, attrs)
 
     system
   end

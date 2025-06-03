@@ -23,9 +23,23 @@ defmodule Examples.ComputerStore.System do
     |> validate_required([:type, :price, :weight, :electrical_requirements, :approval_state])
   end
 
-  def add_component_changeset(system, component) do
-    system
-    |> change()
-    |> put_assoc(:components, [component | system.components])
+  @doc false
+  def put_component_changeset(changeset, component) do
+    components = get_assoc(changeset, :components, :struct)
+
+    changeset
+    |> put_assoc(:components, [component | components])
+    |> validate_put_component()
+  end
+
+  @doc false
+  def validate_put_component(changeset) do
+    components = get_assoc(changeset, :components, :struct)
+
+    if Enum.count(components) == 0 do
+      add_error(changeset, :business_rule, "system must have at least one component")
+    else
+      changeset
+    end
   end
 end
