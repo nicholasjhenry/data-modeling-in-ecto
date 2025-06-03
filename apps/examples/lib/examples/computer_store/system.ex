@@ -11,7 +11,7 @@ defmodule Examples.ComputerStore.System do
     field :electrical_requirements, Ecto.Enum, values: [:domestic, :overseas]
     field :approval_state, Ecto.Enum, values: [:pending, :in_progress, :complete, :rescinded]
 
-    has_many :components, Component
+    has_many :components, Component, on_replace: :nilify
 
     timestamps()
   end
@@ -23,21 +23,49 @@ defmodule Examples.ComputerStore.System do
     |> validate_required([:type, :price, :weight, :electrical_requirements, :approval_state])
   end
 
+  # SECTION: Assoc changesets
+
   @doc false
-  def put_component_changeset(changeset, component) do
+  def put_component_changeset(system, component) do
+    changeset = change(system)
     components = get_assoc(changeset, :components, :struct)
+    components = [component | components]
 
     changeset
-    |> put_assoc(:components, [component | components])
-    |> validate_put_component()
+    |> put_assoc(:components, components)
+    |> validate_put_component(components)
   end
 
   @doc false
-  def validate_put_component(changeset) do
+  def remove_component_changeset(system, component) do
+    changeset = change(system)
     components = get_assoc(changeset, :components, :struct)
+    components = Enum.reject(components, &(&1.id == component.id))
 
+    system
+    |> change
+    |> put_assoc(:components, components)
+    |> validate_remove_component(components)
+  end
+
+  # SECTION: Assoc validations
+
+  @doc false
+  def validate_put_component(changeset, components) do
+    changeset
+    |> validate_must_have_at_least_one_component(components)
+  end
+
+  @doc false
+  def validate_remove_component(changeset, components) do
+    changeset
+    |> validate_must_have_at_least_one_component(components)
+  end
+
+  @doc false
+  def validate_must_have_at_least_one_component(changeset, components) do
     if Enum.count(components) == 0 do
-      add_error(changeset, :business_rule, "system must have at least one component")
+      add_error(changeset, :business_rule, "System must have at least one component")
     else
       changeset
     end

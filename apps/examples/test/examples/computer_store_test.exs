@@ -156,7 +156,30 @@ defmodule Examples.ComputerStoreTest do
       }
 
       assert {:ok, system} = ComputerStore.create_system(component, valid_attrs)
-      assert List.first(system.components).id == component.id
+
+      assert {:error, changeset} = ComputerStore.remove_component_from_system(system, component)
+      assert "System must have at least one component" in errors_on(changeset).business_rule
+    end
+
+    test "a component can be part of at most one system; however, if removed from a system, it can be added to another system later, or it can be sold individually." do
+      component = component_fixture()
+      system = system_fixture(component)
+      another_component = component_fixture()
+
+      assert {:ok, system} = ComputerStore.add_component_to_system(system, another_component)
+
+      assert {:ok, system} = ComputerStore.remove_component_from_system(system, component)
+      refute ComputerStore.contains_component?(system, component)
+
+      component = ComputerStore.get_component!(component.id)
+      refute component.system_id
+
+      another_system = system_fixture()
+
+      assert {:ok, another_system} =
+               ComputerStore.add_component_to_system(another_system, component)
+
+      assert ComputerStore.contains_component?(another_system, component)
     end
   end
 end

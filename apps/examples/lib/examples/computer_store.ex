@@ -49,4 +49,15 @@ defmodule Examples.ComputerStore do
     |> System.put_component_changeset(component)
     |> Repo.update()
   end
+
+  def remove_component_from_system(system, component) do
+    system
+    |> Repo.preload(:components)
+    |> System.remove_component_changeset(component)
+    |> Repo.update()
+  end
+
+  def contains_component?(system, component) do
+    Enum.any?(system.components, &(&1.id == component.id))
+  end
 end
