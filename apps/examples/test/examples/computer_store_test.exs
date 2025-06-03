@@ -137,4 +137,16 @@ defmodule Examples.ComputerStoreTest do
       assert component == ComputerStore.get_component!(component.id)
     end
   end
+
+  describe "computer_store_systems and computer_store_components" do
+    import Examples.ComputerStoreFixtures
+
+    test "add a component to a system" do
+      system = system_fixture()
+      component = component_fixture()
+
+      assert {:ok, system} = ComputerStore.add_component_to_system(system, component)
+      assert List.first(system.components).id == component.id
+    end
+  end
 end

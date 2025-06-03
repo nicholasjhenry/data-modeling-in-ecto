@@ -37,4 +37,11 @@ defmodule Examples.ComputerStore do
     |> Component.changeset(attrs)
     |> Repo.update()
   end
+
+  def add_component_to_system(system, component) do
+    system
+    |> Repo.preload(:components)
+    |> System.add_component_changeset(component)
+    |> Repo.update()
+  end
 end
