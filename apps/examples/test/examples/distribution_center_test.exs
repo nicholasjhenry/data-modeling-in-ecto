@@ -46,7 +46,7 @@ defmodule Examples.DistributionCenterTest do
 
     import Examples.DistributionCenterFixtures
 
-    @invalid_attrs %{state: nil, pallet_type: nil, weight: nil, service_type: nil}
+    @invalid_attrs %{state: nil, pallet_requirement: nil, weight: nil, service_type: nil}
 
     test "get_case!/1 returns the case with given id" do
       case = case_fixture()
@@ -60,7 +60,7 @@ defmodule Examples.DistributionCenterTest do
 
       assert {:ok, %Case{} = case} = DistributionCenter.create_case(valid_attrs)
       assert case.state == :empty
-      assert case.pallet_type == :non_refrigerated
+      assert case.pallet_requirement == :non_refrigerated
       assert Decimal.equal?(case.weight, Decimal.new("120.5"))
       assert case.service_type == :regular
     end
@@ -81,6 +81,14 @@ defmodule Examples.DistributionCenterTest do
 
       assert {:ok, %Pallet{} = pallet} = DistributionCenter.load_case_in_pallet(pallet, case)
       assert List.first(pallet.cases).id == case.id
+    end
+
+    test "case validates pallet type" do
+      case = case_fixture(pallet_requirement: :refrigerated)
+      pallet = pallet_fixture(type: :non_refrigerated)
+
+      assert {:error, changeset} = DistributionCenter.load_case_in_pallet(pallet, case)
+      assert "Pallet type meet case requirements" in errors_on(changeset).business_rule
     end
   end
 end

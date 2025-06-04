@@ -3,7 +3,7 @@ defmodule Examples.Repo.Migrations.CreateDistributionCenterCases do
 
   def change do
     create table(:distribution_center_cases) do
-      add :pallet_type, :string
+      add :pallet_requirement, :string
       add :weight, :decimal
       add :service_type, :string
       add :state, :string

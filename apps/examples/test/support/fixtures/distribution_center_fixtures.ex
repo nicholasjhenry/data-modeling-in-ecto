@@ -29,7 +29,7 @@ defmodule Examples.DistributionCenterFixtures do
     {:ok, case} =
       attrs
       |> Enum.into(%{
-        pallet_type: :refrigerated,
+        pallet_requirement: :refrigerated,
         service_type: :regular,
         state: :empty,
         weight: "120.5"

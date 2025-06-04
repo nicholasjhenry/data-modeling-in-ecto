@@ -3,7 +3,7 @@ defmodule Examples.DistributionCenter.Case do
   import Ecto.Changeset
 
   schema "distribution_center_cases" do
-    field :pallet_type, Ecto.Enum,
+    field :pallet_requirement, Ecto.Enum,
       values: [:refrigerated, :non_refrigerated],
       default: :non_refrigerated
 
@@ -24,14 +24,20 @@ defmodule Examples.DistributionCenter.Case do
   @doc false
   def changeset(case, attrs) do
     case
-    |> cast(attrs, [:pallet_type, :weight, :service_type])
-    |> validate_required([:pallet_type, :weight, :service_type])
+    |> cast(attrs, [:pallet_requirement, :weight, :service_type])
+    |> validate_required([:pallet_requirement, :weight, :service_type])
   end
 
   # SECTION: Assoc validations
 
   @doc false
-  def validate_put_pallet(pallet_changeset, _case) do
-    pallet_changeset
+  def validate_put_pallet(pallet_changeset, case) do
+    pallet_type = get_field(pallet_changeset, :type)
+
+    if pallet_type != case.pallet_requirement do
+      add_error(pallet_changeset, :business_rule, "Pallet type meet case requirements")
+    else
+      pallet_changeset
+    end
   end
 end
