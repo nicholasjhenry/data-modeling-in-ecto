@@ -115,5 +115,19 @@ defmodule Examples.DistributionCenterTest do
 
       assert "Case already assigned to a pallet" in errors_on(changeset).business_rule
     end
+
+    test "validate case weight does not exceed pallet capacity" do
+      case = case_fixture(weight: 100)
+      another_case = case_fixture(weight: 300)
+      pallet = pallet_fixture(max_weight: 200)
+
+      assert {:ok, pallet} =
+               DistributionCenter.load_case_in_pallet(pallet, case)
+
+      assert {:error, changeset} =
+               DistributionCenter.load_case_in_pallet(pallet, another_case)
+
+      assert "Case weight exceeds pallet capacity" in errors_on(changeset).business_rule
+    end
   end
 end

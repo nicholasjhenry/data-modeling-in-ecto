@@ -30,6 +30,7 @@ defmodule Examples.DistributionCenter do
     pallet
     |> Repo.preload(:cases)
     |> Pallet.calculate_case_count()
+    |> Pallet.calculate_actual_weight()
     |> Pallet.put_case_changeset(case, opts)
     |> Repo.update()
   end
