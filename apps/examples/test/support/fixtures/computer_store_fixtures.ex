@@ -29,7 +29,7 @@ defmodule Examples.ComputerStoreFixtures do
     {:ok, component} =
       attrs
       |> Enum.into(%{
-        approval_state: :operational,
+        state: :operational,
         electrical_requirements: :domestic,
         price: "10",
         system_type: :server,

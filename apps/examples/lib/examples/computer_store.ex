@@ -27,6 +27,12 @@ defmodule Examples.ComputerStore do
     |> Repo.update()
   end
 
+  def approve_system(%System{} = system) do
+    system
+    |> System.approve_changeset()
+    |> Repo.update()
+  end
+
   alias Examples.ComputerStore.Component
 
   def get_component!(id), do: Repo.get!(Component, id)

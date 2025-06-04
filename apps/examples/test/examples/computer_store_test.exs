@@ -91,7 +91,7 @@ defmodule Examples.ComputerStoreTest do
 
     test "create_component/1 with valid data creates a component" do
       valid_attrs = %{
-        approval_state: :operational,
+        state: :operational,
         electrical_requirements: :domestic,
         price: "120.5",
         weight: "120.5",
@@ -99,7 +99,7 @@ defmodule Examples.ComputerStoreTest do
       }
 
       assert {:ok, %Component{} = component} = ComputerStore.create_component(valid_attrs)
-      assert component.approval_state == :operational
+      assert component.state == :operational
       assert component.electrical_requirements == :domestic
       assert component.price == Decimal.new("120.5")
       assert component.weight == Decimal.new("120.5")
@@ -114,7 +114,7 @@ defmodule Examples.ComputerStoreTest do
       component = component_fixture()
 
       update_attrs = %{
-        approval_state: :damaged,
+        state: :damaged,
         electrical_requirements: :overseas,
         price: "456.7",
         weight: "456.7",
@@ -124,7 +124,7 @@ defmodule Examples.ComputerStoreTest do
       assert {:ok, %Component{} = component} =
                ComputerStore.update_component(component, update_attrs)
 
-      assert component.approval_state == :damaged
+      assert component.state == :damaged
       assert component.electrical_requirements == :overseas
       assert component.price == Decimal.new("456.7")
       assert component.weight == Decimal.new("456.7")
@@ -237,6 +237,35 @@ defmodule Examples.ComputerStoreTest do
       assert "Component and system have incompatible electrical requirements" in errors_on(
                changeset
              ).business_rule
+    end
+
+    test "a component in a damaged or defective state cannot be added to a system" do
+      defective_component = component_fixture(state: :defective)
+      system = system_fixture()
+
+      assert {:error, changeset} =
+               ComputerStore.add_component_to_system(system, defective_component)
+
+      assert "Component must be operational" in errors_on(changeset).business_rule
+    end
+
+    test "a system approved by an inspector cannot add or remove a component unless that approval is rescinded" do
+      component_to_add = component_fixture()
+      component_to_remove = component_fixture()
+      system = system_fixture()
+
+      {:ok, system} = ComputerStore.add_component_to_system(system, component_to_remove)
+      {:ok, approved_system} = ComputerStore.approve_system(system)
+
+      assert {:error, changeset} =
+               ComputerStore.add_component_to_system(approved_system, component_to_add)
+
+      assert "System is approved; cannot add or remove a component" in errors_on(changeset).business_rule
+
+      assert {:error, changeset} =
+               ComputerStore.remove_component_from_system(approved_system, component_to_remove)
+
+      assert "System is approved; cannot add or remove a component" in errors_on(changeset).business_rule
     end
   end
 end

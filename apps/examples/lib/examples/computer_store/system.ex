@@ -9,18 +9,27 @@ defmodule Examples.ComputerStore.System do
     field :price, :decimal
     field :weight, :decimal
     field :electrical_requirements, Ecto.Enum, values: [:domestic, :overseas]
-    field :approval_state, Ecto.Enum, values: [:pending, :in_progress, :complete, :rescinded]
+    field :approval_state, Ecto.Enum, values: [:pending, :in_progress, :completed, :rescinded]
 
     has_many :components, Component, on_replace: :nilify
 
     timestamps()
   end
 
+  # SECTION: Field changesets
+
   @doc false
   def changeset(system, attrs) do
     system
     |> cast(attrs, [:type, :price, :weight, :electrical_requirements, :approval_state])
     |> validate_required([:type, :price, :weight, :electrical_requirements, :approval_state])
+  end
+
+  @doc false
+  def approve_changeset(system) do
+    system
+    |> change
+    |> put_change(:approval_state, :completed)
   end
 
   # SECTION: Assoc changesets
@@ -33,8 +42,8 @@ defmodule Examples.ComputerStore.System do
 
     changeset
     |> put_assoc(:components, components)
-    |> Component.validate_put_system(component)
     |> validate_put_component(components)
+    |> Component.validate_put_system(component)
   end
 
   @doc false
@@ -57,12 +66,14 @@ defmodule Examples.ComputerStore.System do
     |> validate_must_have_at_least_one_component(components)
     |> validate_price_within_maximum(components)
     |> validate_weight_within_maximum(components)
+    |> validate_approval_state(components)
   end
 
   @doc false
   def validate_remove_component(changeset, components) do
     changeset
     |> validate_must_have_at_least_one_component(components)
+    |> validate_approval_state(components)
   end
 
   @doc false
@@ -101,6 +112,16 @@ defmodule Examples.ComputerStore.System do
 
     if system_weight <= total_component_weight do
       add_error(changeset, :business_rule, "Weight exceeds maximum")
+    else
+      changeset
+    end
+  end
+
+  def validate_approval_state(changeset, _components) do
+    approval_state = get_field(changeset, :approval_state)
+
+    if approval_state == :completed do
+      add_error(changeset, :business_rule, "System is approved; cannot add or remove a component")
     else
       changeset
     end

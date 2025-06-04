@@ -9,7 +9,7 @@ defmodule Examples.ComputerStore.Component do
     field :price, :decimal
     field :weight, :decimal
     field :electrical_requirements, Ecto.Enum, values: [:domestic, :overseas]
-    field :approval_state, Ecto.Enum, values: [:operational, :damaged, :defective]
+    field :state, Ecto.Enum, values: [:operational, :damaged, :defective]
 
     belongs_to :system, System
 
@@ -19,13 +19,13 @@ defmodule Examples.ComputerStore.Component do
   @doc false
   def changeset(component, attrs) do
     component
-    |> cast(attrs, [:system_type, :price, :weight, :electrical_requirements, :approval_state])
+    |> cast(attrs, [:system_type, :price, :weight, :electrical_requirements, :state])
     |> validate_required([
       :system_type,
       :price,
       :weight,
       :electrical_requirements,
-      :approval_state
+      :state
     ])
   end
 
@@ -34,6 +34,7 @@ defmodule Examples.ComputerStore.Component do
     system_changeset
     |> validate_system_type(component)
     |> validate_electrical_requirements(component)
+    |> validate_state(component)
   end
 
   @doc false
@@ -58,6 +59,15 @@ defmodule Examples.ComputerStore.Component do
         :business_rule,
         "Component and system have incompatible electrical requirements"
       )
+    else
+      system_changeset
+    end
+  end
+
+  @doc false
+  def validate_state(system_changeset, component) do
+    if component.state != :operational do
+      add_error(system_changeset, :business_rule, "Component must be operational")
     else
       system_changeset
     end

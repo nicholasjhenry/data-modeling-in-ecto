@@ -7,7 +7,7 @@ defmodule Examples.Repo.Migrations.CreateComputerStoreComponents do
       add :price, :decimal
       add :weight, :decimal
       add :electrical_requirements, :string
-      add :approval_state, :string
+      add :state, :string
       add :system_id, references(:computer_store_systems, on_delete: :nothing)
 
       timestamps()
