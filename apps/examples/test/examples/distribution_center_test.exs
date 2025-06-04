@@ -23,14 +23,14 @@ defmodule Examples.DistributionCenterTest do
     test "create_pallet/1 with valid data creates a pallet" do
       valid_attrs = %{
         max_weight: "120.5",
-        scheduled_to_load_at: ~N[2025-06-03 15:55:00]
+        scheduled_to_load_at: ~N[2025-06-03 15:55:00Z]
       }
 
       assert {:ok, %Pallet{} = pallet} = DistributionCenter.create_pallet(valid_attrs)
       assert pallet.type == :non_refrigerated
       assert pallet.state == :pending
       assert Decimal.equal?(pallet.max_weight, Decimal.new("120.5"))
-      assert pallet.scheduled_to_load_at == ~N[2025-06-03 15:55:00]
+      assert pallet.scheduled_to_load_at == ~U[2025-06-03 15:55:00Z]
     end
 
     test "create_pallet/1 with invalid data returns error changeset" do
@@ -116,7 +116,7 @@ defmodule Examples.DistributionCenterTest do
       assert "Case already assigned to a pallet" in errors_on(changeset).business_rule
     end
 
-    test "validate case weight does not exceed pallet capacity" do
+    test "validate case weight respects pallet capacity" do
       case = case_fixture(weight: 100)
       another_case = case_fixture(weight: 300)
       pallet = pallet_fixture(max_weight: 200)
@@ -128,6 +128,18 @@ defmodule Examples.DistributionCenterTest do
                DistributionCenter.load_case_in_pallet(pallet, another_case)
 
       assert "Case weight exceeds pallet capacity" in errors_on(changeset).business_rule
+    end
+
+    test "validate pallet service requirements meet by pallet's scheduled load time " do
+      case = case_fixture(service_type: :rush)
+      pallet = pallet_fixture(scheduled_to_load_at: ~U[2023-01-10 12:00:00Z])
+
+      assert {:error, changeset} =
+               DistributionCenter.load_case_in_pallet(pallet, case,
+                 current_date_time: ~U[2023-01-01 12:00:00Z]
+               )
+
+      assert "Pallet does not meet case's sevice requirment" in errors_on(changeset).business_rule
     end
   end
 end

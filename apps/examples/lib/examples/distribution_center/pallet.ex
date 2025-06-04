@@ -7,7 +7,7 @@ defmodule Examples.DistributionCenter.Pallet do
   schema "distribution_center_pallets" do
     field :type, Ecto.Enum, values: [:refrigerated, :non_refrigerated], default: :non_refrigerated
     field :max_weight, :decimal
-    field :scheduled_to_load_at, :naive_datetime
+    field :scheduled_to_load_at, :utc_datetime
     field :state, Ecto.Enum, values: [:pending, :loaded], default: :pending
 
     # Calculations
@@ -45,7 +45,7 @@ defmodule Examples.DistributionCenter.Pallet do
     |> put_change(:actual_weight, actual_weight)
     |> validate_put_case(cases, opts)
     |> validate_max_weight(cases)
-    |> Case.validate_put_pallet(case)
+    |> Case.validate_put_pallet(case, opts)
   end
 
   # SECTION: Calculations
