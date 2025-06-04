@@ -21,4 +21,21 @@ defmodule Examples.DistributionCenterFixtures do
 
     pallet
   end
+
+  @doc """
+  Generate a case.
+  """
+  def case_fixture(attrs \\ %{}) do
+    {:ok, case} =
+      attrs
+      |> Enum.into(%{
+        pallet_type: :refrigerated,
+        service_type: :regular,
+        state: :empty,
+        weight: "120.5"
+      })
+      |> Examples.DistributionCenter.create_case()
+
+    case
+  end
 end
