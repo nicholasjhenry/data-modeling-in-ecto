@@ -130,7 +130,7 @@ defmodule Examples.DistributionCenterTest do
       assert "Case weight exceeds pallet capacity" in errors_on(changeset).business_rule
     end
 
-    test "validate pallet service requirements meet by pallet's scheduled load time " do
+    test "validate pallet service requirements meet by pallet's scheduled load time" do
       case = case_fixture(service_type: :rush)
       pallet = pallet_fixture(scheduled_to_load_at: ~U[2023-01-10 12:00:00Z])
 
@@ -140,6 +140,17 @@ defmodule Examples.DistributionCenterTest do
                )
 
       assert "Pallet does not meet case's sevice requirment" in errors_on(changeset).business_rule
+    end
+
+    test "validate pallet state" do
+      case = case_fixture()
+      pallet = pallet_fixture()
+
+      {:ok, pallet} = DistributionCenter.load_pallet_on_truck(pallet)
+
+      assert {:error, changeset} = DistributionCenter.load_case_in_pallet(pallet, case)
+
+      assert "Pallet is already loaded" in errors_on(changeset).business_rule
     end
   end
 end

@@ -28,6 +28,13 @@ defmodule Examples.DistributionCenter.Pallet do
     |> validate_required([:type, :max_weight, :scheduled_to_load_at])
   end
 
+  @doc false
+  def load_changeset(pallet) do
+    pallet
+    |> change
+    |> put_change(:state, :loaded)
+  end
+
   # SECTION: Assoc changesets
 
   @doc false
@@ -45,6 +52,7 @@ defmodule Examples.DistributionCenter.Pallet do
     |> put_change(:actual_weight, actual_weight)
     |> validate_put_case(cases, opts)
     |> validate_max_weight(cases)
+    |> validate_state()
     |> Case.validate_put_pallet(case, opts)
   end
 
@@ -93,6 +101,16 @@ defmodule Examples.DistributionCenter.Pallet do
 
     if Decimal.compare(actual_weight, max_weight) == :gt do
       add_error(changeset, :business_rule, "Case weight exceeds pallet capacity")
+    else
+      changeset
+    end
+  end
+
+  defp validate_state(changeset) do
+    state = get_field(changeset, :state)
+
+    if state == :loaded do
+      add_error(changeset, :business_rule, "Pallet is already loaded")
     else
       changeset
     end
