@@ -74,4 +74,18 @@ defmodule Examples.DistributionCenterTest do
       assert {:error, %Ecto.Changeset{}} = DistributionCenter.create_case(@invalid_attrs)
     end
   end
+
+  describe "distribution_center_pallets and distribution_center_cases" do
+    alias Examples.DistributionCenter.Pallet
+
+    import Examples.DistributionCenterFixtures
+
+    test "load case in pallet" do
+      case = case_fixture()
+      pallet = pallet_fixture()
+
+      assert {:ok, %Pallet{} = pallet} = DistributionCenter.load_case_in_pallet(pallet, case)
+      assert List.first(pallet.cases).id == case.id
+    end
+  end
 end

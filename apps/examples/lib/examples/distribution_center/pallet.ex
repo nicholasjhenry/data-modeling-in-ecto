@@ -2,6 +2,8 @@ defmodule Examples.DistributionCenter.Pallet do
   use Ecto.Schema
   import Ecto.Changeset
 
+  alias Examples.DistributionCenter.Case
+
   schema "distribution_center_pallets" do
     field :type, Ecto.Enum, values: [:refrigerated, :non_refrigerated]
     field :max_cases, :integer
@@ -9,13 +11,26 @@ defmodule Examples.DistributionCenter.Pallet do
     field :scheduled_to_load_at, :naive_datetime
     field :state, Ecto.Enum, values: [:pending, :loaded]
 
+    has_many :cases, Case
+
     timestamps()
   end
+
+  # SECTION: Field changesets
 
   @doc false
   def changeset(pallet, attrs) do
     pallet
     |> cast(attrs, [:type, :max_cases, :max_weight, :scheduled_to_load_at, :state])
     |> validate_required([:type, :max_cases, :max_weight, :scheduled_to_load_at, :state])
+  end
+
+  # SECTION: Assoc changesets
+
+  @doc false
+  def put_case_changeset(pallet, case) do
+    pallet
+    |> Ecto.Changeset.change()
+    |> Ecto.Changeset.put_assoc(:cases, [case | pallet.cases])
   end
 end

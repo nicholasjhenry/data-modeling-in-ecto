@@ -25,4 +25,11 @@ defmodule Examples.DistributionCenter do
     |> Case.changeset(attrs)
     |> Repo.insert()
   end
+
+  def load_case_in_pallet(pallet, case) do
+    pallet
+    |> Repo.preload(:cases)
+    |> Pallet.put_case_changeset(case)
+    |> Repo.update()
+  end
 end
