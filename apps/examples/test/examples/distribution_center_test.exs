@@ -23,18 +23,16 @@ defmodule Examples.DistributionCenterTest do
 
     test "create_pallet/1 with valid data creates a pallet" do
       valid_attrs = %{
-        type: :refrigerated,
-        state: :pending,
         max_cases: 42,
         max_weight: "120.5",
         scheduled_to_load_at: ~N[2025-06-03 15:55:00]
       }
 
       assert {:ok, %Pallet{} = pallet} = DistributionCenter.create_pallet(valid_attrs)
-      assert pallet.type == :refrigerated
+      assert pallet.type == :non_refrigerated
       assert pallet.state == :pending
       assert pallet.max_cases == 42
-      assert pallet.max_weight == Decimal.new("120.5")
+      assert Decimal.equal?(pallet.max_weight, Decimal.new("120.5"))
       assert pallet.scheduled_to_load_at == ~N[2025-06-03 15:55:00]
     end
 
@@ -57,16 +55,13 @@ defmodule Examples.DistributionCenterTest do
 
     test "create_case/1 with valid data creates a case" do
       valid_attrs = %{
-        state: :empty,
-        pallet_type: :refrigerated,
-        weight: "120.5",
-        service_type: :regular
+        weight: "120.5"
       }
 
       assert {:ok, %Case{} = case} = DistributionCenter.create_case(valid_attrs)
       assert case.state == :empty
-      assert case.pallet_type == :refrigerated
-      assert case.weight == Decimal.new("120.5")
+      assert case.pallet_type == :non_refrigerated
+      assert Decimal.equal?(case.weight, Decimal.new("120.5"))
       assert case.service_type == :regular
     end
 

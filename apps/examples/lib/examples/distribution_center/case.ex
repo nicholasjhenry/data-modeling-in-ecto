@@ -3,10 +3,17 @@ defmodule Examples.DistributionCenter.Case do
   import Ecto.Changeset
 
   schema "distribution_center_cases" do
-    field :pallet_type, Ecto.Enum, values: [:refrigerated, :non_refrigerated]
+    field :pallet_type, Ecto.Enum,
+      values: [:refrigerated, :non_refrigerated],
+      default: :non_refrigerated
+
     field :weight, :decimal
-    field :service_type, Ecto.Enum, values: [:regular, :rushed]
-    field :state, Ecto.Enum, values: [:empty, :full, :damaged, :defective, :expired]
+    field :service_type, Ecto.Enum, values: [:regular, :rushed], default: :regular
+
+    field :state, Ecto.Enum,
+      values: [:empty, :full, :damaged, :defective, :expired],
+      default: :empty
+
     field :pallet_id, :id
 
     timestamps()
@@ -17,8 +24,8 @@ defmodule Examples.DistributionCenter.Case do
   @doc false
   def changeset(case, attrs) do
     case
-    |> cast(attrs, [:pallet_type, :weight, :service_type, :state])
-    |> validate_required([:pallet_type, :weight, :service_type, :state])
+    |> cast(attrs, [:pallet_type, :weight, :service_type])
+    |> validate_required([:pallet_type, :weight, :service_type])
   end
 
   # SECTION: Assoc validations
