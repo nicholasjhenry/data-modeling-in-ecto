@@ -13,7 +13,6 @@ defmodule Examples.DistributionCenterFixtures do
       |> Enum.into(%{
         max_weight: "120.5",
         scheduled_to_load_at: ~N[2025-06-03 15:55:00],
-        state: :pending,
         type: :refrigerated
       })
       |> Examples.DistributionCenter.create_pallet()
@@ -30,10 +29,18 @@ defmodule Examples.DistributionCenterFixtures do
       |> Enum.into(%{
         pallet_requirement: :refrigerated,
         service_type: :regular,
-        state: :empty,
         weight: "120.5"
       })
       |> Examples.DistributionCenter.create_case()
+
+    case
+  end
+
+  def full_case_fixture(attrs \\ %{}) do
+    {:ok, case} =
+      attrs
+      |> case_fixture()
+      |> Examples.DistributionCenter.flag_as_full()
 
     case
   end

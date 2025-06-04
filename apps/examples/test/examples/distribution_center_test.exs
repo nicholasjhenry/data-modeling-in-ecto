@@ -73,7 +73,7 @@ defmodule Examples.DistributionCenterTest do
     import Examples.DistributionCenterFixtures
 
     test "load case in pallet" do
-      case = case_fixture()
+      case = full_case_fixture()
       pallet = pallet_fixture()
 
       assert {:ok, %Pallet{} = pallet} = DistributionCenter.load_case_in_pallet(pallet, case)
@@ -89,8 +89,8 @@ defmodule Examples.DistributionCenterTest do
     end
 
     test "validate case count" do
-      case = case_fixture()
-      another_case = case_fixture()
+      case = full_case_fixture()
+      another_case = full_case_fixture()
       pallet = pallet_fixture()
 
       assert {:ok, pallet} = DistributionCenter.load_case_in_pallet(pallet, case)
@@ -102,7 +102,7 @@ defmodule Examples.DistributionCenterTest do
     end
 
     test "validate case can be placed on at most one pallet" do
-      case = case_fixture()
+      case = full_case_fixture()
       pallet = pallet_fixture()
       another_pallet = pallet_fixture()
 
@@ -117,8 +117,8 @@ defmodule Examples.DistributionCenterTest do
     end
 
     test "validate case weight respects pallet capacity" do
-      case = case_fixture(weight: 100)
-      another_case = case_fixture(weight: 300)
+      case = full_case_fixture(weight: 100)
+      another_case = full_case_fixture(weight: 300)
       pallet = pallet_fixture(max_weight: 200)
 
       assert {:ok, pallet} =
@@ -151,6 +151,15 @@ defmodule Examples.DistributionCenterTest do
       assert {:error, changeset} = DistributionCenter.load_case_in_pallet(pallet, case)
 
       assert "Pallet is already loaded" in errors_on(changeset).business_rule
+    end
+
+    test "validate case state" do
+      case = case_fixture()
+      pallet = pallet_fixture()
+
+      assert {:error, changeset} = DistributionCenter.load_case_in_pallet(pallet, case)
+
+      assert "Case must be full to load" in errors_on(changeset).business_rule
     end
   end
 end

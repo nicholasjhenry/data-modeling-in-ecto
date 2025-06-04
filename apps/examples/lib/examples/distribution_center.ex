@@ -32,6 +32,12 @@ defmodule Examples.DistributionCenter do
     |> Repo.insert()
   end
 
+  def flag_as_full(case) do
+    case
+    |> Case.full_state_changeset()
+    |> Repo.update()
+  end
+
   def load_case_in_pallet(pallet, case, opts \\ []) do
     pallet
     |> Repo.preload(:cases)

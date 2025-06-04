@@ -28,6 +28,12 @@ defmodule Examples.DistributionCenter.Case do
     |> validate_required([:pallet_requirement, :weight, :service_type])
   end
 
+  def full_state_changeset(case) do
+    case
+    |> change
+    |> put_change(:state, :full)
+  end
+
   # SECTION: Assoc validations
 
   @doc false
@@ -38,6 +44,7 @@ defmodule Examples.DistributionCenter.Case do
     |> validate_type(case)
     |> validate_cardinality(case)
     |> validate_service_type(case, current_date_time)
+    |> validate_state(case)
   end
 
   defp validate_type(pallet_changeset, case) do
@@ -70,5 +77,13 @@ defmodule Examples.DistributionCenter.Case do
 
   defp validate_service_type(pallet_changeset, _case, _current_date_time) do
     pallet_changeset
+  end
+
+  defp validate_state(pallet_changeset, case) do
+    if case.state != :full do
+      add_error(pallet_changeset, :business_rule, "Case must be full to load")
+    else
+      pallet_changeset
+    end
   end
 end
