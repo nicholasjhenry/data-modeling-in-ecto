@@ -28,9 +28,21 @@ defmodule Examples.DistributionCenter.Pallet do
   # SECTION: Assoc changesets
 
   @doc false
-  def put_case_changeset(pallet, case) do
-    pallet
-    |> Ecto.Changeset.change()
-    |> Ecto.Changeset.put_assoc(:cases, [case | pallet.cases])
+  def put_case_changeset(pallet_or_changeset, case) do
+    changeset = change(pallet_or_changeset)
+    cases = get_assoc(changeset, :cases, :struct)
+    cases = [case | cases]
+
+    changeset
+    |> put_assoc(:cases, cases)
+    |> validate_put_case(cases)
+    |> Case.validate_put_pallet(case)
+  end
+
+  # SECTION: Assoc validations
+
+  @doc false
+  def validate_put_case(changeset, _cases) do
+    changeset
   end
 end
