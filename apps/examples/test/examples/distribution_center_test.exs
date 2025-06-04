@@ -11,7 +11,7 @@ defmodule Examples.DistributionCenterTest do
     @invalid_attrs %{
       type: nil,
       state: nil,
-      max_cases: nil,
+      case_count: nil,
       max_weight: nil,
       scheduled_to_load_at: nil
     }
@@ -23,7 +23,7 @@ defmodule Examples.DistributionCenterTest do
 
     test "create_pallet/1 with valid data creates a pallet" do
       valid_attrs = %{
-        max_cases: 42,
+        case_count: 42,
         max_weight: "120.5",
         scheduled_to_load_at: ~N[2025-06-03 15:55:00]
       }
@@ -31,7 +31,7 @@ defmodule Examples.DistributionCenterTest do
       assert {:ok, %Pallet{} = pallet} = DistributionCenter.create_pallet(valid_attrs)
       assert pallet.type == :non_refrigerated
       assert pallet.state == :pending
-      assert pallet.max_cases == 42
+      assert pallet.case_count == 42
       assert Decimal.equal?(pallet.max_weight, Decimal.new("120.5"))
       assert pallet.scheduled_to_load_at == ~N[2025-06-03 15:55:00]
     end
@@ -83,7 +83,7 @@ defmodule Examples.DistributionCenterTest do
       assert List.first(pallet.cases).id == case.id
     end
 
-    test "case validates pallet type" do
+    test "validates pallet type" do
       case = case_fixture(pallet_requirement: :refrigerated)
       pallet = pallet_fixture(type: :non_refrigerated)
 

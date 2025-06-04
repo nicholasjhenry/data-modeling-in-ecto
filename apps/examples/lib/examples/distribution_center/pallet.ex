@@ -6,7 +6,7 @@ defmodule Examples.DistributionCenter.Pallet do
 
   schema "distribution_center_pallets" do
     field :type, Ecto.Enum, values: [:refrigerated, :non_refrigerated], default: :non_refrigerated
-    field :max_cases, :integer
+    field :case_count, :integer
     field :max_weight, :decimal
     field :scheduled_to_load_at, :naive_datetime
     field :state, Ecto.Enum, values: [:pending, :loaded], default: :pending
@@ -21,8 +21,8 @@ defmodule Examples.DistributionCenter.Pallet do
   @doc false
   def changeset(pallet, attrs) do
     pallet
-    |> cast(attrs, [:type, :max_cases, :max_weight, :scheduled_to_load_at])
-    |> validate_required([:type, :max_cases, :max_weight, :scheduled_to_load_at])
+    |> cast(attrs, [:type, :case_count, :max_weight, :scheduled_to_load_at])
+    |> validate_required([:type, :case_count, :max_weight, :scheduled_to_load_at])
   end
 
   # SECTION: Assoc changesets
