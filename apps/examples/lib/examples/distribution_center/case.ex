@@ -9,6 +9,7 @@ defmodule Examples.DistributionCenter.Case do
 
     field :weight, :decimal
     field :service_type, Ecto.Enum, values: [:regular, :rush], default: :regular
+    field :type, Ecto.Enum, values: [:food, :non_food], default: :non_food
 
     field :state, Ecto.Enum,
       values: [:empty, :full, :damaged, :defective, :expired],
@@ -24,8 +25,8 @@ defmodule Examples.DistributionCenter.Case do
   @doc false
   def changeset(case, attrs) do
     case
-    |> cast(attrs, [:pallet_requirement, :weight, :service_type])
-    |> validate_required([:pallet_requirement, :weight, :service_type])
+    |> cast(attrs, [:pallet_requirement, :weight, :type, :service_type])
+    |> validate_required([:pallet_requirement, :weight, :type, :service_type])
   end
 
   def full_state_changeset(case) do
@@ -45,6 +46,7 @@ defmodule Examples.DistributionCenter.Case do
     |> validate_cardinality(case)
     |> validate_service_type(case, current_date_time)
     |> validate_state(case)
+    |> validate_conflict(case)
   end
 
   defp validate_type(pallet_changeset, case) do
@@ -82,6 +84,16 @@ defmodule Examples.DistributionCenter.Case do
   defp validate_state(pallet_changeset, case) do
     if case.state != :full do
       add_error(pallet_changeset, :business_rule, "Case must be full to load")
+    else
+      pallet_changeset
+    end
+  end
+
+  defp validate_conflict(pallet_changeset, case) do
+    cases = get_assoc(pallet_changeset, :cases, :struct)
+
+    if Enum.any?(cases, &(&1.type != case.type)) do
+      add_error(pallet_changeset, :business_rule, "Incompatiable case types")
     else
       pallet_changeset
     end

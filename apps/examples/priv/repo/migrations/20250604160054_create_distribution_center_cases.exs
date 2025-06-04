@@ -7,6 +7,7 @@ defmodule Examples.Repo.Migrations.CreateDistributionCenterCases do
       add :weight, :decimal
       add :service_type, :string
       add :state, :string
+      add :type, :string
       add :pallet_id, references(:distribution_center_pallets, on_delete: :nothing)
 
       timestamps()

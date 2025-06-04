@@ -11,7 +11,7 @@ defmodule Examples.DistributionCenterFixtures do
     {:ok, pallet} =
       attrs
       |> Enum.into(%{
-        max_weight: "120.5",
+        max_weight: "100",
         scheduled_to_load_at: ~N[2025-06-03 15:55:00],
         type: :refrigerated
       })
@@ -29,7 +29,7 @@ defmodule Examples.DistributionCenterFixtures do
       |> Enum.into(%{
         pallet_requirement: :refrigerated,
         service_type: :regular,
-        weight: "120.5"
+        weight: "10"
       })
       |> Examples.DistributionCenter.create_case()
 

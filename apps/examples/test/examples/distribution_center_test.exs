@@ -161,5 +161,16 @@ defmodule Examples.DistributionCenterTest do
 
       assert "Case must be full to load" in errors_on(changeset).business_rule
     end
+
+    test "validate conflicts with cases" do
+      non_food_case = full_case_fixture(type: :non_food)
+      food_case = full_case_fixture(type: :food)
+      pallet = pallet_fixture()
+
+      assert {:ok, pallet} = DistributionCenter.load_case_in_pallet(pallet, non_food_case)
+      assert {:error, changeset} = DistributionCenter.load_case_in_pallet(pallet, food_case)
+
+      assert "Incompatiable case types" in errors_on(changeset).business_rule
+    end
   end
 end
