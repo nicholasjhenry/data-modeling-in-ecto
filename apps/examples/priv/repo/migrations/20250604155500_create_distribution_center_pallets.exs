@@ -4,7 +4,6 @@ defmodule Examples.Repo.Migrations.CreateDistributionCenterPallets do
   def change do
     create table(:distribution_center_pallets) do
       add :type, :string
-      add :case_count, :integer
       add :max_weight, :decimal
       add :scheduled_to_load_at, :naive_datetime
       add :state, :string

@@ -32,10 +32,24 @@ defmodule Examples.DistributionCenter.Case do
 
   @doc false
   def validate_put_pallet(pallet_changeset, case) do
+    pallet_changeset
+    |> validate_type(case)
+    |> validate_cardinality(case)
+  end
+
+  defp validate_type(pallet_changeset, case) do
     pallet_type = get_field(pallet_changeset, :type)
 
     if pallet_type != case.pallet_requirement do
       add_error(pallet_changeset, :business_rule, "Pallet type meet case requirements")
+    else
+      pallet_changeset
+    end
+  end
+
+  defp validate_cardinality(pallet_changeset, case) do
+    if case.pallet_id do
+      add_error(pallet_changeset, :business_rule, "Case already assigned to a pallet")
     else
       pallet_changeset
     end

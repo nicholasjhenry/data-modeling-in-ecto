@@ -26,10 +26,11 @@ defmodule Examples.DistributionCenter do
     |> Repo.insert()
   end
 
-  def load_case_in_pallet(pallet, case) do
+  def load_case_in_pallet(pallet, case, opts \\ []) do
     pallet
     |> Repo.preload(:cases)
-    |> Pallet.put_case_changeset(case)
+    |> Pallet.calculate_case_count()
+    |> Pallet.put_case_changeset(case, opts)
     |> Repo.update()
   end
 end

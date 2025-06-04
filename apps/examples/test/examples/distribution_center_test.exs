@@ -11,7 +11,6 @@ defmodule Examples.DistributionCenterTest do
     @invalid_attrs %{
       type: nil,
       state: nil,
-      case_count: nil,
       max_weight: nil,
       scheduled_to_load_at: nil
     }
@@ -23,7 +22,6 @@ defmodule Examples.DistributionCenterTest do
 
     test "create_pallet/1 with valid data creates a pallet" do
       valid_attrs = %{
-        case_count: 42,
         max_weight: "120.5",
         scheduled_to_load_at: ~N[2025-06-03 15:55:00]
       }
@@ -31,7 +29,6 @@ defmodule Examples.DistributionCenterTest do
       assert {:ok, %Pallet{} = pallet} = DistributionCenter.create_pallet(valid_attrs)
       assert pallet.type == :non_refrigerated
       assert pallet.state == :pending
-      assert pallet.case_count == 42
       assert Decimal.equal?(pallet.max_weight, Decimal.new("120.5"))
       assert pallet.scheduled_to_load_at == ~N[2025-06-03 15:55:00]
     end
@@ -89,6 +86,34 @@ defmodule Examples.DistributionCenterTest do
 
       assert {:error, changeset} = DistributionCenter.load_case_in_pallet(pallet, case)
       assert "Pallet type meet case requirements" in errors_on(changeset).business_rule
+    end
+
+    test "validate case count" do
+      case = case_fixture()
+      another_case = case_fixture()
+      pallet = pallet_fixture()
+
+      assert {:ok, pallet} = DistributionCenter.load_case_in_pallet(pallet, case)
+
+      assert {:error, changeset} =
+               DistributionCenter.load_case_in_pallet(pallet, another_case, max_case_count: 1)
+
+      assert "Pallet exceeds capacity" in errors_on(changeset).business_rule
+    end
+
+    test "validate case can be placed on at most one pallet" do
+      case = case_fixture()
+      pallet = pallet_fixture()
+      another_pallet = pallet_fixture()
+
+      assert {:ok, _pallet} = DistributionCenter.load_case_in_pallet(pallet, case)
+
+      case = DistributionCenter.get_case!(case.id)
+
+      assert {:error, changeset} =
+               DistributionCenter.load_case_in_pallet(another_pallet, case)
+
+      assert "Case already assigned to a pallet" in errors_on(changeset).business_rule
     end
   end
 end
