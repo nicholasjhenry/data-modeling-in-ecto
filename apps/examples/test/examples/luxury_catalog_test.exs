@@ -9,7 +9,8 @@ defmodule Examples.LuxuryCatalogTest do
     import Examples.LuxuryCatalogFixtures
 
     @invalid_attrs %{
-      name: nil
+      name: nil,
+      code: nil
     }
 
     test "get_category!/1 returns the category with given id" do
@@ -20,6 +21,7 @@ defmodule Examples.LuxuryCatalogTest do
     test "create_category/1 with valid data creates a category" do
       valid_attrs = %{
         name: "some name",
+        code: "some code",
         max_product_count: 42,
         permitted_colours: ["blue", "green"],
         permitted_price_range: NumRange.new(Decimal.new(2000), Decimal.new(3000)),
@@ -28,6 +30,7 @@ defmodule Examples.LuxuryCatalogTest do
 
       assert {:ok, %Category{} = category} = LuxuryCatalog.create_category(valid_attrs)
       assert category.name == "some name"
+      assert category.code == "some code"
       assert category.state == :active
       assert category.max_product_count == 42
       assert category.permitted_colours == ["blue", "green"]

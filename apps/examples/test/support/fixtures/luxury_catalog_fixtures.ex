@@ -10,13 +10,19 @@ defmodule Examples.LuxuryCatalogFixtures do
   def unique_category_name, do: "some name#{System.unique_integer([:positive])}"
 
   @doc """
+  Generate a unique category code.
+  """
+  def unique_category_code, do: "some code#{System.unique_integer([:positive])}"
+
+  @doc """
   Generate a category.
   """
   def category_fixture(attrs \\ %{}) do
     {:ok, category} =
       attrs
       |> Enum.into(%{
-        name: unique_category_name()
+        name: unique_category_name(),
+        code: unique_category_code()
       })
       |> Examples.LuxuryCatalog.create_category()
 

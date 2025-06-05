@@ -6,6 +6,7 @@ defmodule Examples.LuxuryCatalog.Category do
 
   schema "luxury_catalog_categories" do
     field :name, :string
+    field :code, :string
     field :max_product_count, :integer
     field :permitted_colours, {:array, :string}, default: []
 
@@ -23,6 +24,7 @@ defmodule Examples.LuxuryCatalog.Category do
     category
     |> cast(attrs, [
       :name,
+      :code,
       :max_product_count,
       :permitted_colours,
       :permitted_price_range,
@@ -32,5 +34,6 @@ defmodule Examples.LuxuryCatalog.Category do
       :name
     ])
     |> unique_constraint(:name)
+    |> unique_constraint(:code)
   end
 end
