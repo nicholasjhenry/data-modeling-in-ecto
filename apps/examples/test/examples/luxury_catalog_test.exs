@@ -101,5 +101,18 @@ defmodule Examples.LuxuryCatalogTest do
 
       assert List.first(category.products).id == product.id
     end
+
+    test "validate permitted categories" do
+      permitted_category = category_fixture(code: "permitted_category")
+      not_permitted_category = category_fixture(code: "not_permitted_category")
+      product = product_fixture(permitted_category_codes: [permitted_category.code])
+
+      assert {:ok, _category} = LuxuryCatalog.add_product_to_category(permitted_category, product)
+
+      assert {:error, changeset} =
+               LuxuryCatalog.add_product_to_category(not_permitted_category, product)
+
+      assert "Product is not permitted to be added to this category" in errors_on(changeset).business_rule
+    end
   end
 end

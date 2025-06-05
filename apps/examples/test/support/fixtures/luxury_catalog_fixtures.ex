@@ -45,7 +45,6 @@ defmodule Examples.LuxuryCatalogFixtures do
         max_category_count: 42,
         max_category_member_count: 42,
         name: unique_product_name(),
-        permitted_category_codes: ["option1", "option2"],
         price: "120.5",
         state: :active
       })
