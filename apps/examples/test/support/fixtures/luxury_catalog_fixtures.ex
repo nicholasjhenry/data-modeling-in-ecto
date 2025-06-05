@@ -16,12 +16,7 @@ defmodule Examples.LuxuryCatalogFixtures do
     {:ok, category} =
       attrs
       |> Enum.into(%{
-        max_product_count: 42,
-        mutually_exclusive: "some mutually_exclusive",
-        name: unique_category_name(),
-        permitted_colours: ["option1", "option2"],
-        permitted_price_range: "120.5",
-        state: :active
+        name: unique_category_name()
       })
       |> Examples.LuxuryCatalog.create_category()
 

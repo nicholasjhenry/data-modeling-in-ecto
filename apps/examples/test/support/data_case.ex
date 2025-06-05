@@ -19,6 +19,7 @@ defmodule Examples.DataCase do
   using do
     quote do
       alias Examples.Repo
+      alias PgRanges.NumRange
 
       import Ecto
       import Ecto.Changeset

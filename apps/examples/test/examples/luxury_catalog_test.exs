@@ -9,12 +9,7 @@ defmodule Examples.LuxuryCatalogTest do
     import Examples.LuxuryCatalogFixtures
 
     @invalid_attrs %{
-      name: nil,
-      state: nil,
-      max_product_count: nil,
-      permitted_colours: nil,
-      permitted_price_range: nil,
-      mutually_exclusive: nil
+      name: nil
     }
 
     test "get_category!/1 returns the category with given id" do
@@ -25,20 +20,20 @@ defmodule Examples.LuxuryCatalogTest do
     test "create_category/1 with valid data creates a category" do
       valid_attrs = %{
         name: "some name",
-        state: :active,
         max_product_count: 42,
-        permitted_colours: ["option1", "option2"],
-        permitted_price_range: "120.5",
-        mutually_exclusive: "some mutually_exclusive"
+        permitted_colours: ["blue", "green"],
+        permitted_price_range: NumRange.new(Decimal.new(2000), Decimal.new(3000)),
+        mutually_exclusive: true
       }
 
       assert {:ok, %Category{} = category} = LuxuryCatalog.create_category(valid_attrs)
       assert category.name == "some name"
       assert category.state == :active
       assert category.max_product_count == 42
-      assert category.permitted_colours == ["option1", "option2"]
-      assert category.permitted_price_range == Decimal.new("120.5")
-      assert category.mutually_exclusive == "some mutually_exclusive"
+      assert category.permitted_colours == ["blue", "green"]
+      assert Decimal.equal?(category.permitted_price_range.lower, Decimal.new(2000))
+      assert Decimal.equal?(category.permitted_price_range.upper, Decimal.new(3000))
+      assert category.mutually_exclusive == true
     end
 
     test "create_category/1 with invalid data returns error changeset" do

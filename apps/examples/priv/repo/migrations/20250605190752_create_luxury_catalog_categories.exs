@@ -3,12 +3,12 @@ defmodule Examples.Repo.Migrations.CreateLuxuryCatalogCategories do
 
   def change do
     create table(:luxury_catalog_categories) do
-      add :name, :string
-      add :max_product_count, :integer
-      add :permitted_colours, {:array, :string}
-      add :permitted_price_range, :decimal
-      add :state, :string
-      add :mutually_exclusive, :string
+      add :name, :string, null: false
+      add :max_product_count, :integer, null: true
+      add :permitted_colours, {:array, :string}, null: false
+      add :permitted_price_range, :numrange, null: true
+      add :state, :string, null: false
+      add :mutually_exclusive, :boolean, null: false
 
       timestamps()
     end
