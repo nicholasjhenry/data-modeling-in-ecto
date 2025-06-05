@@ -25,4 +25,11 @@ defmodule Examples.LuxuryCatalog do
     |> Product.changeset(attrs)
     |> Repo.insert()
   end
+
+  def add_product_to_category(category, product) do
+    category
+    |> Repo.preload([:products])
+    |> Category.add_product_changeset(product)
+    |> Repo.update()
+  end
 end

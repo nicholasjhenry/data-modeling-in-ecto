@@ -87,4 +87,19 @@ defmodule Examples.LuxuryCatalogTest do
       assert {:error, %Ecto.Changeset{}} = LuxuryCatalog.create_product(@invalid_attrs)
     end
   end
+
+  describe "luxury_catalog_categories and luxury_catalog_products" do
+    alias Examples.LuxuryCatalog.Category
+
+    import Examples.LuxuryCatalogFixtures
+
+    test "add product to category" do
+      category = category_fixture()
+      product = product_fixture()
+
+      assert {:ok, category} = LuxuryCatalog.add_product_to_category(category, product)
+
+      assert List.first(category.products).id == product.id
+    end
+  end
 end

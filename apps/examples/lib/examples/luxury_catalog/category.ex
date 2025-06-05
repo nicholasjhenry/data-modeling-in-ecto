@@ -2,6 +2,7 @@ defmodule Examples.LuxuryCatalog.Category do
   use Ecto.Schema
   import Ecto.Changeset
 
+  alias Examples.LuxuryCatalog.Product
   alias PgRanges.NumRange
 
   schema "luxury_catalog_categories" do
@@ -15,6 +16,8 @@ defmodule Examples.LuxuryCatalog.Category do
 
     field :state, Ecto.Enum, values: [:active, :discountinued, :expired], default: :active
     field :mutually_exclusive, :boolean, default: false
+
+    many_to_many :products, Product, join_through: "luxury_catalog_category_products"
 
     timestamps()
   end
@@ -35,5 +38,12 @@ defmodule Examples.LuxuryCatalog.Category do
     ])
     |> unique_constraint(:name)
     |> unique_constraint(:code)
+  end
+
+  @doc false
+  def add_product_changeset(category, product) do
+    category
+    |> change
+    |> put_assoc(:products, [product | category.products])
   end
 end
