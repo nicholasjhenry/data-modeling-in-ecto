@@ -48,7 +48,6 @@ defmodule Examples.LuxuryCatalogTest do
 
     @invalid_attrs %{
       name: nil,
-      state: nil,
       color: nil,
       permitted_category_codes: nil,
       max_category_count: nil,
@@ -64,8 +63,7 @@ defmodule Examples.LuxuryCatalogTest do
     test "create_product/1 with valid data creates a product" do
       valid_attrs = %{
         name: "some name",
-        state: :active,
-        color: "some color",
+        color: "black",
         permitted_category_codes: ["option1", "option2"],
         max_category_count: 42,
         max_category_member_count: 42,
@@ -75,7 +73,7 @@ defmodule Examples.LuxuryCatalogTest do
       assert {:ok, %Product{} = product} = LuxuryCatalog.create_product(valid_attrs)
       assert product.name == "some name"
       assert product.state == :active
-      assert product.color == "some color"
+      assert product.color == :black
       assert product.permitted_category_codes == ["option1", "option2"]
       assert product.max_category_count == 42
       assert product.max_category_member_count == 42
