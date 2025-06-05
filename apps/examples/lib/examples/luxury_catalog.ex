@@ -27,6 +27,11 @@ defmodule Examples.LuxuryCatalog do
   end
 
   def add_product_to_category(category, product) do
+    product =
+      product
+      |> Repo.preload(:categories)
+      |> Product.calculate_category_count()
+
     category
     |> Repo.preload([:products])
     |> Category.calculate_product_count()
