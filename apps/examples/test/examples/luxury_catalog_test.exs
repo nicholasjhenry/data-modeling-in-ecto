@@ -102,7 +102,7 @@ defmodule Examples.LuxuryCatalogTest do
       assert List.first(category.products).id == product.id
     end
 
-    test "validate permitted categories" do
+    test "validate permitted categories for a product" do
       permitted_category = category_fixture(code: "permitted_category")
       not_permitted_category = category_fixture(code: "not_permitted_category")
       product = product_fixture(permitted_category_codes: [permitted_category.code])
@@ -113,6 +113,19 @@ defmodule Examples.LuxuryCatalogTest do
                LuxuryCatalog.add_product_to_category(not_permitted_category, product)
 
       assert "Product is not permitted to be added to this category" in errors_on(changeset).business_rule
+    end
+
+    test "validate maximum product count for a category" do
+      category = category_fixture(max_product_count: 1)
+      product = product_fixture()
+      another_product = product_fixture()
+
+      assert {:ok, category} = LuxuryCatalog.add_product_to_category(category, product)
+
+      assert {:error, changeset} =
+               LuxuryCatalog.add_product_to_category(category, another_product)
+
+      assert "Maximum product count exceeded for this category" in errors_on(changeset).business_rule
     end
   end
 end

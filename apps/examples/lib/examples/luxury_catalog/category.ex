@@ -17,10 +17,14 @@ defmodule Examples.LuxuryCatalog.Category do
     field :state, Ecto.Enum, values: [:active, :discountinued, :expired], default: :active
     field :mutually_exclusive, :boolean, default: false
 
+    field :product_count, :integer, virtual: true
+
     many_to_many :products, Product, join_through: "luxury_catalog_category_products"
 
     timestamps()
   end
+
+  # SECTION: Field changesets
 
   @doc false
   def changeset(category, attrs) do
@@ -40,16 +44,42 @@ defmodule Examples.LuxuryCatalog.Category do
     |> unique_constraint(:code)
   end
 
+  # SECTION: Assoc changesets
+
   @doc false
   def put_product_changeset(category, product) do
-    category
-    |> change
+    changeset = change(category)
+
+    product_count = get_field(changeset, :product_count) + 1
+
+    changeset
     |> put_assoc(:products, [product | category.products])
+    |> put_change(:product_count, product_count)
     |> validate_put_product_changeset(product)
     |> Product.validate_put_category_changeset(product)
   end
 
   def validate_put_product_changeset(changeset, _product) do
-    changeset
+    validate_product_count(changeset)
+  end
+
+  # SECTION: Calculations
+
+  def calculate_product_count(category) do
+    product_count = Enum.count(category.products)
+    %{category | product_count: product_count}
+  end
+
+  # SECTION: Assoc validations
+
+  defp validate_product_count(changeset) do
+    product_count = get_field(changeset, :product_count)
+    max_product_count = get_field(changeset, :max_product_count)
+
+    if max_product_count < product_count do
+      add_error(changeset, :business_rule, "Maximum product count exceeded for this category")
+    else
+      changeset
+    end
   end
 end
