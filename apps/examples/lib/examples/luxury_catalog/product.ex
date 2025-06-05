@@ -35,4 +35,8 @@ defmodule Examples.LuxuryCatalog.Product do
     ])
     |> unique_constraint(:name)
   end
+
+  def validate_put_category_changeset(category_changeset, _product) do
+    category_changeset
+  end
 end

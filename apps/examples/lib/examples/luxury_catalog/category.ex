@@ -41,9 +41,15 @@ defmodule Examples.LuxuryCatalog.Category do
   end
 
   @doc false
-  def add_product_changeset(category, product) do
+  def put_product_changeset(category, product) do
     category
     |> change
     |> put_assoc(:products, [product | category.products])
+    |> validate_put_product_changeset(product)
+    |> Product.validate_put_category_changeset(product)
+  end
+
+  def validate_put_product_changeset(changeset, _product) do
+    changeset
   end
 end
