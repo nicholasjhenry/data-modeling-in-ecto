@@ -3,6 +3,7 @@ defmodule Examples.PublicLibrary.ResourceHold do
   import Ecto.Changeset
 
   alias Examples.PublicLibrary.Branch
+  alias Examples.PublicLibrary.Patron
   alias Examples.PublicLibrary.Resource
 
   schema "public_library_resource_holds" do
@@ -11,6 +12,7 @@ defmodule Examples.PublicLibrary.ResourceHold do
 
     belongs_to :branch, Branch
     belongs_to :resource, Resource
+    belongs_to :patron, Patron
 
     timestamps()
   end
@@ -38,6 +40,12 @@ defmodule Examples.PublicLibrary.ResourceHold do
     |> validate_put_resource(resource)
   end
 
+  def put_patron_changeset(changeset, patron) do
+    changeset
+    |> put_assoc(:patron, patron)
+    |> validate_put_patron(patron)
+  end
+
   # SECTION: Assoc validations
 
   def validate_put_branch(changeset, _branch) do
@@ -45,6 +53,10 @@ defmodule Examples.PublicLibrary.ResourceHold do
   end
 
   def validate_put_resource(changeset, _resource) do
+    changeset
+  end
+
+  def validate_put_patron(changeset, _patron) do
     changeset
   end
 end

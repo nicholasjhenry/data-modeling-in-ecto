@@ -119,10 +119,11 @@ defmodule Examples.PublicLibraryTest do
     test "create_resource_hold/1 with valid data creates a resource_hold" do
       branch = branch_fixture()
       resource = resource_fixture()
+      patron = patron_fixture()
       valid_attrs = %{type: :open_ended, permit_resource_fees: true}
 
       assert {:ok, %ResourceHold{} = resource_hold} =
-               PublicLibrary.create_resource_hold(branch, resource, valid_attrs)
+               PublicLibrary.create_resource_hold(branch, resource, patron, valid_attrs)
 
       assert resource_hold.type == :open_ended
       assert resource_hold.permit_resource_fees == true
@@ -131,9 +132,10 @@ defmodule Examples.PublicLibraryTest do
     test "create_resource_hold/1 with invalid data returns error changeset" do
       branch = branch_fixture()
       resource = resource_fixture()
+      patron = patron_fixture()
 
       assert {:error, %Ecto.Changeset{}} =
-               PublicLibrary.create_resource_hold(branch, resource, @invalid_attrs)
+               PublicLibrary.create_resource_hold(branch, resource, patron, @invalid_attrs)
     end
   end
 end

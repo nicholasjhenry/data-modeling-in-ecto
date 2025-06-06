@@ -74,6 +74,7 @@ defmodule Examples.PublicLibraryFixtures do
   def resource_hold_fixture(
         branch \\ branch_fixture(),
         resource \\ resource_fixture(),
+        patron \\ patron_fixture(),
         attrs \\ %{}
       ) do
     attrs =
@@ -82,7 +83,8 @@ defmodule Examples.PublicLibraryFixtures do
         type: :open_ended
       })
 
-    {:ok, resource_hold} = Examples.PublicLibrary.create_resource_hold(branch, resource, attrs)
+    {:ok, resource_hold} =
+      Examples.PublicLibrary.create_resource_hold(branch, resource, patron, attrs)
 
     resource_hold
   end
