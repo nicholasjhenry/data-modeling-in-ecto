@@ -10,7 +10,7 @@ defmodule Examples.LuxuryCatalog.Product do
     field :max_category_count, :integer
     field :max_category_member_count, :integer
     field :state, Ecto.Enum, values: [:active, :discontinued], default: :active
-    field :color, Ecto.Enum, values: [:black, :blue, :green, :white, :yellow]
+    field :color, Ecto.Enum, values: [:black, :red, :blue, :green]
     field :price, :decimal
 
     field :category_count, :integer, virtual: true

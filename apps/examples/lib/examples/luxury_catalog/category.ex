@@ -9,7 +9,7 @@ defmodule Examples.LuxuryCatalog.Category do
     field :name, :string
     field :code, :string
     field :max_product_count, :integer
-    field :permitted_colours, {:array, :string}, default: []
+    field :permitted_product_colors, {:array, :string}
 
     field :permitted_price_range, NumRange,
       default: NumRange.new(Decimal.new(0), Decimal.new(100))
@@ -33,7 +33,7 @@ defmodule Examples.LuxuryCatalog.Category do
       :name,
       :code,
       :max_product_count,
-      :permitted_colours,
+      :permitted_product_colors,
       :permitted_price_range,
       :mutually_exclusive
     ])
@@ -42,6 +42,13 @@ defmodule Examples.LuxuryCatalog.Category do
     ])
     |> unique_constraint(:name)
     |> unique_constraint(:code)
+  end
+
+  # SECTION: Calculations
+
+  def calculate_product_count(category) do
+    product_count = Enum.count(category.products)
+    %{category | product_count: product_count}
   end
 
   # SECTION: Assoc changesets
@@ -59,15 +66,10 @@ defmodule Examples.LuxuryCatalog.Category do
     |> Product.validate_put_category_changeset(product)
   end
 
-  def validate_put_product_changeset(changeset, _product) do
-    validate_product_count(changeset)
-  end
-
-  # SECTION: Calculations
-
-  def calculate_product_count(category) do
-    product_count = Enum.count(category.products)
-    %{category | product_count: product_count}
+  def validate_put_product_changeset(changeset, product) do
+    changeset
+    |> validate_product_count()
+    |> validate_permitted_product_colors(product)
   end
 
   # SECTION: Assoc validations
@@ -78,6 +80,17 @@ defmodule Examples.LuxuryCatalog.Category do
 
     if max_product_count < product_count do
       add_error(changeset, :business_rule, "Maximum product count exceeded for this category")
+    else
+      changeset
+    end
+  end
+
+  defp validate_permitted_product_colors(changeset, product) do
+    permitted_product_colors = get_field(changeset, :permitted_product_colors)
+
+    if is_list(permitted_product_colors) and
+         not Enum.member?(permitted_product_colors, to_string(product.color)) do
+      add_error(changeset, :business_rule, "Product color not permitted for this category")
     else
       changeset
     end

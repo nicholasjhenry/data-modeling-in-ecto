@@ -23,7 +23,7 @@ defmodule Examples.LuxuryCatalogTest do
         name: "some name",
         code: "some code",
         max_product_count: 42,
-        permitted_colours: ["blue", "green"],
+        permitted_product_colors: ["blue", "green"],
         permitted_price_range: NumRange.new(Decimal.new(2000), Decimal.new(3000)),
         mutually_exclusive: true
       }
@@ -33,7 +33,7 @@ defmodule Examples.LuxuryCatalogTest do
       assert category.code == "some code"
       assert category.state == :active
       assert category.max_product_count == 42
-      assert category.permitted_colours == ["blue", "green"]
+      assert category.permitted_product_colors == ["blue", "green"]
       assert Decimal.equal?(category.permitted_price_range.lower, Decimal.new(2000))
       assert Decimal.equal?(category.permitted_price_range.upper, Decimal.new(3000))
       assert category.mutually_exclusive == true
@@ -139,6 +139,27 @@ defmodule Examples.LuxuryCatalogTest do
                LuxuryCatalog.add_product_to_category(another_category, product)
 
       assert "Maximum category count exceeded for this product" in errors_on(changeset).business_rule
+    end
+
+    test "validate permitted product colors for a category" do
+      category = category_fixture(permitted_product_colors: ["red", "blue"])
+      product = product_fixture(color: "red")
+
+      assert {:ok, _category} = LuxuryCatalog.add_product_to_category(category, product)
+
+      another_product = product_fixture(color: "black")
+
+      assert {:error, changeset} =
+               LuxuryCatalog.add_product_to_category(category, another_product)
+
+      assert "Product color not permitted for this category" in errors_on(changeset).business_rule
+
+      another_category = category_fixture(permitted_product_colors: ["green"])
+
+      assert {:error, changeset} =
+               LuxuryCatalog.add_product_to_category(another_category, product)
+
+      assert "Product color not permitted for this category" in errors_on(changeset).business_rule
     end
   end
 end
