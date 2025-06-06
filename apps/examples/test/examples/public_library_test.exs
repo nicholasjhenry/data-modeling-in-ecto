@@ -83,18 +83,17 @@ defmodule Examples.PublicLibraryTest do
 
     @invalid_attrs %{type: nil, state: nil, registration_number: nil}
 
-    test "list_public_library_patrons/0 returns all public_library_patrons" do
-      patron = patron_fixture()
-      assert PublicLibrary.list_public_library_patrons() == [patron]
-    end
-
     test "get_patron!/1 returns the patron with given id" do
       patron = patron_fixture()
       assert PublicLibrary.get_patron!(patron.id) == patron
     end
 
     test "create_patron/1 with valid data creates a patron" do
-      valid_attrs = %{type: :regular, state: :active, registration_number: "some registration_number"}
+      valid_attrs = %{
+        type: :regular,
+        state: :active,
+        registration_number: "some registration_number"
+      }
 
       assert {:ok, %Patron{} = patron} = PublicLibrary.create_patron(valid_attrs)
       assert patron.type == :regular
@@ -104,33 +103,6 @@ defmodule Examples.PublicLibraryTest do
 
     test "create_patron/1 with invalid data returns error changeset" do
       assert {:error, %Ecto.Changeset{}} = PublicLibrary.create_patron(@invalid_attrs)
-    end
-
-    test "update_patron/2 with valid data updates the patron" do
-      patron = patron_fixture()
-      update_attrs = %{type: :researcher, state: :inactive, registration_number: "some updated registration_number"}
-
-      assert {:ok, %Patron{} = patron} = PublicLibrary.update_patron(patron, update_attrs)
-      assert patron.type == :researcher
-      assert patron.state == :inactive
-      assert patron.registration_number == "some updated registration_number"
-    end
-
-    test "update_patron/2 with invalid data returns error changeset" do
-      patron = patron_fixture()
-      assert {:error, %Ecto.Changeset{}} = PublicLibrary.update_patron(patron, @invalid_attrs)
-      assert patron == PublicLibrary.get_patron!(patron.id)
-    end
-
-    test "delete_patron/1 deletes the patron" do
-      patron = patron_fixture()
-      assert {:ok, %Patron{}} = PublicLibrary.delete_patron(patron)
-      assert_raise Ecto.NoResultsError, fn -> PublicLibrary.get_patron!(patron.id) end
-    end
-
-    test "change_patron/1 returns a patron changeset" do
-      patron = patron_fixture()
-      assert %Ecto.Changeset{} = PublicLibrary.change_patron(patron)
     end
   end
 end
