@@ -44,4 +44,10 @@ defmodule Examples.LuxuryCatalog do
     |> Category.put_product_changeset(product)
     |> Repo.update()
   end
+
+  def discontinue_product(product) do
+    product
+    |> Product.discontinue_changeset()
+    |> Repo.update()
+  end
 end

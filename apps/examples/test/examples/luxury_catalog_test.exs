@@ -198,5 +198,17 @@ defmodule Examples.LuxuryCatalogTest do
 
       assert "Category is not active" in errors_on(changeset).business_rule
     end
+
+    test "validate state for a product" do
+      category = category_fixture()
+      product = product_fixture()
+
+      {:ok, discontinued_product} = LuxuryCatalog.discontinue_product(product)
+
+      assert {:error, changeset} =
+               LuxuryCatalog.add_product_to_category(category, discontinued_product)
+
+      assert "Product is not active" in errors_on(changeset).business_rule
+    end
   end
 end

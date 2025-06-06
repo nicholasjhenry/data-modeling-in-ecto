@@ -42,6 +42,13 @@ defmodule Examples.LuxuryCatalog.Product do
     |> unique_constraint(:name)
   end
 
+  @doc false
+  def discontinue_changeset(product) do
+    product
+    |> change
+    |> put_change(:state, :discontinued)
+  end
+
   # SECTION: Calculations
 
   @doc false
@@ -60,6 +67,7 @@ defmodule Examples.LuxuryCatalog.Product do
     |> validate_permitted_categories(product)
     |> validate_max_category_count(product)
     |> validate_max_category_member_count(product)
+    |> validate_state(product)
   end
 
   defp validate_permitted_categories(
@@ -108,6 +116,14 @@ defmodule Examples.LuxuryCatalog.Product do
         :business_rule,
         "Maximum category member count exceeded for this product"
       )
+    else
+      category_changeset
+    end
+  end
+
+  defp validate_state(category_changeset, product) do
+    if product.state != :active do
+      add_error(category_changeset, :business_rule, "Product is not active")
     else
       category_changeset
     end
