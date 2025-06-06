@@ -31,4 +31,19 @@ defmodule Examples.PublicLibraryFixtures do
 
     resource
   end
+
+  @doc """
+  Generate a person.
+  """
+  def person_fixture(attrs \\ %{}) do
+    {:ok, person} =
+      attrs
+      |> Enum.into(%{
+        born_on: ~D[2025-06-05],
+        name: "some name"
+      })
+      |> Examples.PublicLibrary.create_person()
+
+    person
+  end
 end
