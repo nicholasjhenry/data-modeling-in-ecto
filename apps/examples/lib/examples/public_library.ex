@@ -42,6 +42,7 @@ defmodule Examples.PublicLibrary do
     Patron
     |> Patron.base_query()
     |> Repo.get!(id)
+    |> Patron.determine_max_resource_hold_count()
   end
 
   def create_patron(person, attrs \\ %{}) do
@@ -68,8 +69,15 @@ defmodule Examples.PublicLibrary do
         %Branch{} = branch,
         %Resource{} = resource,
         %Patron{} = patron,
-        attrs \\ %{}
+        attrs \\ %{},
+        opts \\ []
       ) do
+    patron =
+      patron
+      |> Repo.preload(:resource_holds)
+      |> Patron.determine_max_resource_hold_count(opts)
+      |> Patron.calculate_resource_hold_count()
+
     %ResourceHold{}
     |> ResourceHold.changeset(attrs)
     |> ResourceHold.put_branch_changeset(branch)
@@ -82,7 +90,8 @@ defmodule Examples.PublicLibrary do
         %Branch{} = branch,
         %Resource{} = resource,
         %Patron{} = patron,
-        attrs \\ %{}
+        attrs \\ %{},
+        opts \\ []
       ),
-      do: create_resource_hold(branch, resource, patron, attrs)
+      do: create_resource_hold(branch, resource, patron, attrs, opts)
 end

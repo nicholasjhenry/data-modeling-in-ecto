@@ -4,6 +4,7 @@ defmodule Examples.PublicLibrary.Patron do
   import Ecto.Query
 
   alias Examples.PublicLibrary.Person
+  alias Examples.PublicLibrary.ResourceHold
 
   schema "public_library_patrons" do
     field :type, Ecto.Enum, values: [:regular, :researcher]
@@ -14,10 +15,18 @@ defmodule Examples.PublicLibrary.Patron do
     field :name, :string, virtual: true
     field :born_on, :date, virtual: true
 
+    # NOTE: This is a fun pattern to discuss in the talk
+    field :max_resource_hold_count, :integer, virtual: true
+    field :resource_hold_count, :integer, virtual: true
+
     belongs_to :person, Person
+    has_many :resource_holds, ResourceHold
 
     timestamps()
   end
+
+  # NOTE: This validation and other is why different schema modules are require for different "types"
+  @regular_patron_max_resource_hold_count 5
 
   @doc false
   def base_query(query \\ __MODULE__) do
@@ -26,12 +35,32 @@ defmodule Examples.PublicLibrary.Patron do
       select: %{patron | name: person.name, born_on: person.born_on}
   end
 
+  # SECTION: Field changesets
+
   @doc false
   def changeset(patron, attrs) do
     patron
     |> cast(attrs, [:type, :registration_number, :permit_resource_fees])
     |> validate_required([:type, :registration_number])
     |> unique_constraint(:registration_number)
+  end
+
+  # SECTION: Field calculations
+
+  def calculate_resource_hold_count(patron) do
+    resource_hold_count = Enum.count(patron.resource_holds)
+    %{patron | resource_hold_count: resource_hold_count}
+  end
+
+  def determine_max_resource_hold_count(patron, opts \\ []) do
+    max_resource_hold_count =
+      Keyword.get(opts, :max_resource_hold_count, @regular_patron_max_resource_hold_count)
+
+    if patron.type == :regular do
+      %{patron | max_resource_hold_count: max_resource_hold_count}
+    else
+      patron
+    end
   end
 
   # SECTION: Assoc changesets
@@ -48,6 +77,7 @@ defmodule Examples.PublicLibrary.Patron do
   def validate_put_resource_hold(resource_hold_changeset, patron) do
     resource_hold_changeset
     |> validate_resource_hold_type(patron)
+    |> validate_resource_count(patron)
   end
 
   defp validate_resource_hold_type(resource_hold_changeset, patron) do
@@ -58,6 +88,18 @@ defmodule Examples.PublicLibrary.Patron do
         resource_hold_changeset,
         :business_rule,
         "A regular patron can only place closed-ended holds on a resource"
+      )
+    else
+      resource_hold_changeset
+    end
+  end
+
+  defp validate_resource_count(resource_hold_changeset, patron) do
+    if patron.type == :regular and patron.max_resource_hold_count < patron.resource_hold_count + 1 do
+      add_error(
+        resource_hold_changeset,
+        :business_rule,
+        "A regular patron limited to the number of holds on a resource"
       )
     else
       resource_hold_changeset

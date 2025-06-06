@@ -155,12 +155,52 @@ defmodule Examples.PublicLibraryTest do
       another_resource = resource_fixture()
       attrs = %{type: :open_ended}
 
-      {:error, changeset} =
-        PublicLibrary.placing_hold_on_resource(branch, another_resource, patron, attrs)
+      assert {:error, changeset} =
+               PublicLibrary.placing_hold_on_resource(branch, another_resource, patron, attrs)
 
       assert "A regular patron can only place closed-ended holds on a resource" in errors_on(
                changeset
              ).business_rule
+    end
+
+    test "validate resource count for a regular patron" do
+      branch = branch_fixture()
+      resource = resource_fixture()
+      person = person_fixture()
+      patron = patron_fixture(person, type: :regular)
+      attrs = %{type: :closed_ended}
+
+      {:ok, _resource_hold} =
+        PublicLibrary.placing_hold_on_resource(branch, resource, patron, attrs)
+
+      another_resource = resource_fixture()
+
+      assert {:error, changeset} =
+               PublicLibrary.placing_hold_on_resource(branch, another_resource, patron, attrs,
+                 max_resource_hold_count: 1
+               )
+
+      assert "A regular patron limited to the number of holds on a resource" in errors_on(
+               changeset
+             ).business_rule
+    end
+
+    test "validate resource count for a researcher patron" do
+      branch = branch_fixture()
+      resource = resource_fixture()
+      person = person_fixture()
+      patron = patron_fixture(person, type: :researcher)
+      attrs = %{type: :closed_ended}
+
+      {:ok, _resource_hold} =
+        PublicLibrary.placing_hold_on_resource(branch, resource, patron, attrs)
+
+      another_resource = resource_fixture()
+
+      assert {:ok, _resource_hold} =
+               PublicLibrary.placing_hold_on_resource(branch, another_resource, patron, attrs,
+                 max_resource_hold_count: 1
+               )
     end
   end
 end
