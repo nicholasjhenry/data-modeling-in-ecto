@@ -25,7 +25,7 @@ defmodule Examples.PublicLibraryFixtures do
     {:ok, resource} =
       attrs
       |> Enum.into(%{
-        has_fee: "some has_fee"
+        has_fee: true
       })
       |> Examples.PublicLibrary.create_resource()
 

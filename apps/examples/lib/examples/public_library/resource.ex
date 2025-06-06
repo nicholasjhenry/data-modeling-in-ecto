@@ -3,7 +3,7 @@ defmodule Examples.PublicLibrary.Resource do
   import Ecto.Changeset
 
   schema "public_library_resources" do
-    field :has_fee, :string
+    field :has_fee, :boolean
 
     timestamps()
   end

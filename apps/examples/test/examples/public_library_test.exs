@@ -40,10 +40,10 @@ defmodule Examples.PublicLibraryTest do
     end
 
     test "create_resource/1 with valid data creates a resource" do
-      valid_attrs = %{has_fee: "some has_fee"}
+      valid_attrs = %{has_fee: true}
 
       assert {:ok, %Resource{} = resource} = PublicLibrary.create_resource(valid_attrs)
-      assert resource.has_fee == "some has_fee"
+      assert resource.has_fee == true
     end
 
     test "create_resource/1 with invalid data returns error changeset" do

@@ -3,7 +3,7 @@ defmodule Examples.Repo.Migrations.CreatePublicLibraryResources do
 
   def change do
     create table(:public_library_resources) do
-      add :has_fee, :string
+      add :has_fee, :boolean
 
       timestamps()
     end
