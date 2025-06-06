@@ -24,7 +24,7 @@ defmodule Examples.LuxuryCatalogTest do
         code: "some code",
         max_product_count: 42,
         permitted_product_colors: ["blue", "green"],
-        permitted_price_range: NumRange.new(Decimal.new(2000), Decimal.new(3000)),
+        permitted_product_price_range: NumRange.new(Decimal.new(2000), Decimal.new(3000)),
         mutually_exclusive: true
       }
 
@@ -34,8 +34,8 @@ defmodule Examples.LuxuryCatalogTest do
       assert category.state == :active
       assert category.max_product_count == 42
       assert category.permitted_product_colors == ["blue", "green"]
-      assert Decimal.equal?(category.permitted_price_range.lower, Decimal.new(2000))
-      assert Decimal.equal?(category.permitted_price_range.upper, Decimal.new(3000))
+      assert Decimal.equal?(category.permitted_product_price_range.lower, Decimal.new(2000))
+      assert Decimal.equal?(category.permitted_product_price_range.upper, Decimal.new(3000))
       assert category.mutually_exclusive == true
     end
 
@@ -153,13 +153,24 @@ defmodule Examples.LuxuryCatalogTest do
                LuxuryCatalog.add_product_to_category(category, another_product)
 
       assert "Product color not permitted for this category" in errors_on(changeset).business_rule
+    end
 
-      another_category = category_fixture(permitted_product_colors: ["green"])
+    test "validate permitted price range for a category" do
+      category =
+        category_fixture(
+          permitted_product_price_range: NumRange.new(Decimal.new(100), Decimal.new(200))
+        )
+
+      product = product_fixture(price: Decimal.new(150))
+
+      assert {:ok, _category} = LuxuryCatalog.add_product_to_category(category, product)
+
+      another_product = product_fixture(price: Decimal.new(300))
 
       assert {:error, changeset} =
-               LuxuryCatalog.add_product_to_category(another_category, product)
+               LuxuryCatalog.add_product_to_category(category, another_product)
 
-      assert "Product color not permitted for this category" in errors_on(changeset).business_rule
+      assert "Product price not permitted for this category" in errors_on(changeset).business_rule
     end
   end
 end

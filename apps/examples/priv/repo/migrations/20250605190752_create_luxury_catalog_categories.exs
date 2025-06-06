@@ -7,7 +7,7 @@ defmodule Examples.Repo.Migrations.CreateLuxuryCatalogCategories do
       add :code, :string, null: false
       add :max_product_count, :integer, null: true
       add :permitted_product_colors, {:array, :string}
-      add :permitted_price_range, :numrange, null: true
+      add :permitted_product_price_range, :numrange
       add :state, :string, null: false
       add :mutually_exclusive, :boolean, null: false
 

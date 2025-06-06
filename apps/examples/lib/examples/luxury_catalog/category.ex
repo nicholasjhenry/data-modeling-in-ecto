@@ -11,8 +11,7 @@ defmodule Examples.LuxuryCatalog.Category do
     field :max_product_count, :integer
     field :permitted_product_colors, {:array, :string}
 
-    field :permitted_price_range, NumRange,
-      default: NumRange.new(Decimal.new(0), Decimal.new(100))
+    field :permitted_product_price_range, NumRange
 
     field :state, Ecto.Enum, values: [:active, :discountinued, :expired], default: :active
     field :mutually_exclusive, :boolean, default: false
@@ -34,11 +33,12 @@ defmodule Examples.LuxuryCatalog.Category do
       :code,
       :max_product_count,
       :permitted_product_colors,
-      :permitted_price_range,
+      :permitted_product_price_range,
       :mutually_exclusive
     ])
     |> validate_required([
-      :name
+      :name,
+      :code
     ])
     |> unique_constraint(:name)
     |> unique_constraint(:code)
@@ -70,6 +70,7 @@ defmodule Examples.LuxuryCatalog.Category do
     changeset
     |> validate_product_count()
     |> validate_permitted_product_colors(product)
+    |> validate_permitted_product_price(product)
   end
 
   # SECTION: Assoc validations
@@ -94,5 +95,21 @@ defmodule Examples.LuxuryCatalog.Category do
     else
       changeset
     end
+  end
+
+  defp validate_permitted_product_price(changeset, product) do
+    permitted_product_price_range = get_field(changeset, :permitted_product_price_range)
+
+    if not is_nil(permitted_product_price_range) and
+         not price_in_range?(permitted_product_price_range, product.price) do
+      add_error(changeset, :business_rule, "Product price not permitted for this category")
+    else
+      changeset
+    end
+  end
+
+  defp price_in_range?(permitted_product_price_range, product_price) do
+    Decimal.compare(product_price, permitted_product_price_range.lower) == :gt and
+      Decimal.compare(product_price, permitted_product_price_range.upper) == :lt
   end
 end

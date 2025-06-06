@@ -44,7 +44,7 @@ defmodule Examples.LuxuryCatalogFixtures do
         color: "black",
         max_category_member_count: 42,
         name: unique_product_name(),
-        price: "120.5",
+        price: "120",
         state: :active
       })
       |> Examples.LuxuryCatalog.create_product()
