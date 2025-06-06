@@ -6,6 +6,7 @@ defmodule Examples.Repo.Migrations.CreatePublicLibraryPatrons do
       add :type, :string
       add :state, :string
       add :registration_number, :string
+      add :permit_resource_fees, :boolean
       add :person_id, references(:public_library_people, on_delete: :nothing), null: false
 
       timestamps()

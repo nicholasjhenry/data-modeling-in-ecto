@@ -9,6 +9,7 @@ defmodule Examples.PublicLibrary.Patron do
     field :type, Ecto.Enum, values: [:regular, :researcher]
     field :state, Ecto.Enum, values: [:active, :inactive, :expired]
     field :registration_number, :string
+    field :permit_resource_fees, :boolean, default: false
 
     field :name, :string, virtual: true
     field :born_on, :date, virtual: true
@@ -28,7 +29,7 @@ defmodule Examples.PublicLibrary.Patron do
   @doc false
   def changeset(patron, attrs) do
     patron
-    |> cast(attrs, [:type, :state, :registration_number])
+    |> cast(attrs, [:type, :state, :registration_number, :permit_resource_fees])
     |> validate_required([:type, :state, :registration_number])
     |> unique_constraint(:registration_number)
   end
