@@ -17,4 +17,18 @@ defmodule Examples.PublicLibraryFixtures do
 
     branch
   end
+
+  @doc """
+  Generate a resource.
+  """
+  def resource_fixture(attrs \\ %{}) do
+    {:ok, resource} =
+      attrs
+      |> Enum.into(%{
+        has_fee: "some has_fee"
+      })
+      |> Examples.PublicLibrary.create_resource()
+
+    resource
+  end
 end
