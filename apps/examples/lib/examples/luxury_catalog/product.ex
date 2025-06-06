@@ -59,6 +59,7 @@ defmodule Examples.LuxuryCatalog.Product do
     category_changeset
     |> validate_permitted_categories(product)
     |> validate_max_category_count(product)
+    |> validate_max_category_member_count(product)
   end
 
   defp validate_permitted_categories(
@@ -92,6 +93,20 @@ defmodule Examples.LuxuryCatalog.Product do
         category_changeset,
         :business_rule,
         "Maximum category count exceeded for this product"
+      )
+    else
+      category_changeset
+    end
+  end
+
+  defp validate_max_category_member_count(category_changeset, product) do
+    product_count = get_field(category_changeset, :product_count)
+
+    if product.max_category_member_count < product_count do
+      add_error(
+        category_changeset,
+        :business_rule,
+        "Maximum category member count exceeded for this product"
       )
     else
       category_changeset

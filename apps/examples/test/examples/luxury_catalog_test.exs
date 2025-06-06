@@ -172,5 +172,20 @@ defmodule Examples.LuxuryCatalogTest do
 
       assert "Product price not permitted for this category" in errors_on(changeset).business_rule
     end
+
+    test "validate maximum category member count for a product" do
+      category = category_fixture()
+
+      product = product_fixture()
+
+      assert {:ok, _category} = LuxuryCatalog.add_product_to_category(category, product)
+
+      another_product = product_fixture(max_category_member_count: 1)
+
+      assert {:error, changeset} =
+               LuxuryCatalog.add_product_to_category(category, another_product)
+
+      assert "Maximum category member count exceeded for this product" in errors_on(changeset).business_rule
+    end
   end
 end
