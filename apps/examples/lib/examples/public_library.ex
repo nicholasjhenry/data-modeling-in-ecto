@@ -64,9 +64,10 @@ defmodule Examples.PublicLibrary do
 
   def get_resource_hold!(id), do: Repo.get!(ResourceHold, id)
 
-  def create_resource_hold(attrs \\ %{}) do
+  def create_resource_hold(branch, attrs \\ %{}) do
     %ResourceHold{}
     |> ResourceHold.changeset(attrs)
+    |> ResourceHold.put_branch_changeset(branch)
     |> Repo.insert()
   end
 end
