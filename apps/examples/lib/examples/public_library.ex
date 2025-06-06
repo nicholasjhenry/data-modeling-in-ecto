@@ -28,97 +28,107 @@ defmodule Examples.PublicLibrary do
 
   alias Examples.PublicLibrary.Person
 
-  @doc """
-  Returns the list of public_library_people.
-
-  ## Examples
-
-      iex> list_public_library_people()
-      [%Person{}, ...]
-
-  """
-  def list_public_library_people do
-    Repo.all(Person)
-  end
-
-  @doc """
-  Gets a single person.
-
-  Raises `Ecto.NoResultsError` if the Person does not exist.
-
-  ## Examples
-
-      iex> get_person!(123)
-      %Person{}
-
-      iex> get_person!(456)
-      ** (Ecto.NoResultsError)
-
-  """
   def get_person!(id), do: Repo.get!(Person, id)
 
-  @doc """
-  Creates a person.
-
-  ## Examples
-
-      iex> create_person(%{field: value})
-      {:ok, %Person{}}
-
-      iex> create_person(%{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
   def create_person(attrs \\ %{}) do
     %Person{}
     |> Person.changeset(attrs)
     |> Repo.insert()
   end
 
+  alias Examples.PublicLibrary.Patron
+
   @doc """
-  Updates a person.
+  Returns the list of public_library_patrons.
 
   ## Examples
 
-      iex> update_person(person, %{field: new_value})
-      {:ok, %Person{}}
+      iex> list_public_library_patrons()
+      [%Patron{}, ...]
 
-      iex> update_person(person, %{field: bad_value})
+  """
+  def list_public_library_patrons do
+    Repo.all(Patron)
+  end
+
+  @doc """
+  Gets a single patron.
+
+  Raises `Ecto.NoResultsError` if the Patron does not exist.
+
+  ## Examples
+
+      iex> get_patron!(123)
+      %Patron{}
+
+      iex> get_patron!(456)
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_patron!(id), do: Repo.get!(Patron, id)
+
+  @doc """
+  Creates a patron.
+
+  ## Examples
+
+      iex> create_patron(%{field: value})
+      {:ok, %Patron{}}
+
+      iex> create_patron(%{field: bad_value})
       {:error, %Ecto.Changeset{}}
 
   """
-  def update_person(%Person{} = person, attrs) do
-    person
-    |> Person.changeset(attrs)
+  def create_patron(attrs \\ %{}) do
+    %Patron{}
+    |> Patron.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  @doc """
+  Updates a patron.
+
+  ## Examples
+
+      iex> update_patron(patron, %{field: new_value})
+      {:ok, %Patron{}}
+
+      iex> update_patron(patron, %{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def update_patron(%Patron{} = patron, attrs) do
+    patron
+    |> Patron.changeset(attrs)
     |> Repo.update()
   end
 
   @doc """
-  Deletes a person.
+  Deletes a patron.
 
   ## Examples
 
-      iex> delete_person(person)
-      {:ok, %Person{}}
+      iex> delete_patron(patron)
+      {:ok, %Patron{}}
 
-      iex> delete_person(person)
+      iex> delete_patron(patron)
       {:error, %Ecto.Changeset{}}
 
   """
-  def delete_person(%Person{} = person) do
-    Repo.delete(person)
+  def delete_patron(%Patron{} = patron) do
+    Repo.delete(patron)
   end
 
   @doc """
-  Returns an `%Ecto.Changeset{}` for tracking person changes.
+  Returns an `%Ecto.Changeset{}` for tracking patron changes.
 
   ## Examples
 
-      iex> change_person(person)
-      %Ecto.Changeset{data: %Person{}}
+      iex> change_patron(patron)
+      %Ecto.Changeset{data: %Patron{}}
 
   """
-  def change_person(%Person{} = person, attrs \\ %{}) do
-    Person.changeset(person, attrs)
+  def change_patron(%Patron{} = patron, attrs \\ %{}) do
+    Patron.changeset(patron, attrs)
   end
 end

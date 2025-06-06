@@ -58,11 +58,6 @@ defmodule Examples.PublicLibraryTest do
 
     @invalid_attrs %{name: nil, born_on: nil}
 
-    test "list_public_library_people/0 returns all public_library_people" do
-      person = person_fixture()
-      assert PublicLibrary.list_public_library_people() == [person]
-    end
-
     test "get_person!/1 returns the person with given id" do
       person = person_fixture()
       assert PublicLibrary.get_person!(person.id) == person
@@ -79,31 +74,63 @@ defmodule Examples.PublicLibraryTest do
     test "create_person/1 with invalid data returns error changeset" do
       assert {:error, %Ecto.Changeset{}} = PublicLibrary.create_person(@invalid_attrs)
     end
+  end
 
-    test "update_person/2 with valid data updates the person" do
-      person = person_fixture()
-      update_attrs = %{name: "some updated name", born_on: ~D[2025-06-06]}
+  describe "public_library_patrons" do
+    alias Examples.PublicLibrary.Patron
 
-      assert {:ok, %Person{} = person} = PublicLibrary.update_person(person, update_attrs)
-      assert person.name == "some updated name"
-      assert person.born_on == ~D[2025-06-06]
+    import Examples.PublicLibraryFixtures
+
+    @invalid_attrs %{type: nil, state: nil, registration_number: nil}
+
+    test "list_public_library_patrons/0 returns all public_library_patrons" do
+      patron = patron_fixture()
+      assert PublicLibrary.list_public_library_patrons() == [patron]
     end
 
-    test "update_person/2 with invalid data returns error changeset" do
-      person = person_fixture()
-      assert {:error, %Ecto.Changeset{}} = PublicLibrary.update_person(person, @invalid_attrs)
-      assert person == PublicLibrary.get_person!(person.id)
+    test "get_patron!/1 returns the patron with given id" do
+      patron = patron_fixture()
+      assert PublicLibrary.get_patron!(patron.id) == patron
     end
 
-    test "delete_person/1 deletes the person" do
-      person = person_fixture()
-      assert {:ok, %Person{}} = PublicLibrary.delete_person(person)
-      assert_raise Ecto.NoResultsError, fn -> PublicLibrary.get_person!(person.id) end
+    test "create_patron/1 with valid data creates a patron" do
+      valid_attrs = %{type: :regular, state: :active, registration_number: "some registration_number"}
+
+      assert {:ok, %Patron{} = patron} = PublicLibrary.create_patron(valid_attrs)
+      assert patron.type == :regular
+      assert patron.state == :active
+      assert patron.registration_number == "some registration_number"
     end
 
-    test "change_person/1 returns a person changeset" do
-      person = person_fixture()
-      assert %Ecto.Changeset{} = PublicLibrary.change_person(person)
+    test "create_patron/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = PublicLibrary.create_patron(@invalid_attrs)
+    end
+
+    test "update_patron/2 with valid data updates the patron" do
+      patron = patron_fixture()
+      update_attrs = %{type: :researcher, state: :inactive, registration_number: "some updated registration_number"}
+
+      assert {:ok, %Patron{} = patron} = PublicLibrary.update_patron(patron, update_attrs)
+      assert patron.type == :researcher
+      assert patron.state == :inactive
+      assert patron.registration_number == "some updated registration_number"
+    end
+
+    test "update_patron/2 with invalid data returns error changeset" do
+      patron = patron_fixture()
+      assert {:error, %Ecto.Changeset{}} = PublicLibrary.update_patron(patron, @invalid_attrs)
+      assert patron == PublicLibrary.get_patron!(patron.id)
+    end
+
+    test "delete_patron/1 deletes the patron" do
+      patron = patron_fixture()
+      assert {:ok, %Patron{}} = PublicLibrary.delete_patron(patron)
+      assert_raise Ecto.NoResultsError, fn -> PublicLibrary.get_patron!(patron.id) end
+    end
+
+    test "change_patron/1 returns a patron changeset" do
+      patron = patron_fixture()
+      assert %Ecto.Changeset{} = PublicLibrary.change_patron(patron)
     end
   end
 end
