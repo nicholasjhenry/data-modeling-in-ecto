@@ -2,6 +2,7 @@ defmodule Examples.LuxuryCatalog.Category do
   use Ecto.Schema
   import Ecto.Changeset
 
+  alias __MODULE__, as: Category
   alias Examples.LuxuryCatalog.Product
   alias PgRanges.NumRange
 
@@ -19,6 +20,10 @@ defmodule Examples.LuxuryCatalog.Category do
     field :product_count, :integer, virtual: true
 
     many_to_many :products, Product, join_through: "luxury_catalog_category_products"
+
+    many_to_many :category_conflicts, Category,
+      join_through: "luxury_catalog_category_conflicts",
+      join_keys: [category_id: :id, conflicted_category_id: :id]
 
     timestamps()
   end
@@ -74,15 +79,23 @@ defmodule Examples.LuxuryCatalog.Category do
     |> Product.validate_put_category_changeset(product)
   end
 
+  @doc false
+  def put_conflict_changeset(category1, category2) do
+    category1
+    |> change()
+    |> put_assoc(:category_conflicts, [category2 | category1.category_conflicts])
+  end
+
+  # SECTION: Assoc validations
+
   def validate_put_product_changeset(changeset, product) do
     changeset
     |> validate_product_count()
     |> validate_permitted_product_colors(product)
     |> validate_permitted_product_price(product)
     |> validate_state()
+    |> validate_compatibility(product)
   end
-
-  # SECTION: Assoc validations
 
   defp validate_product_count(changeset) do
     product_count = get_field(changeset, :product_count)
@@ -99,18 +112,22 @@ defmodule Examples.LuxuryCatalog.Category do
     permitted_product_colors = get_field(changeset, :permitted_product_colors)
 
     if is_list(permitted_product_colors) and
-         not Enum.member?(permitted_product_colors, to_string(product.color)) do
+         color_permitted?(permitted_product_colors, product.color) do
       add_error(changeset, :business_rule, "Product color not permitted for this category")
     else
       changeset
     end
   end
 
+  defp color_permitted?(permitted_product_colors, product_color) do
+    !Enum.member?(permitted_product_colors, to_string(product_color))
+  end
+
   defp validate_permitted_product_price(changeset, product) do
     permitted_product_price_range = get_field(changeset, :permitted_product_price_range)
 
-    if not is_nil(permitted_product_price_range) and
-         not price_in_range?(permitted_product_price_range, product.price) do
+    if !is_nil(permitted_product_price_range) and
+         !price_in_range?(permitted_product_price_range, product.price) do
       add_error(changeset, :business_rule, "Product price not permitted for this category")
     else
       changeset
@@ -130,5 +147,31 @@ defmodule Examples.LuxuryCatalog.Category do
     else
       changeset
     end
+  end
+
+  defp validate_compatibility(changeset, product) do
+    category_conflicts = get_assoc(changeset, :category_conflicts, :struct)
+
+    if categories_compatible?(product.categories, category_conflicts) do
+      add_error(changeset, :business_rule, "Category has a conflict")
+    else
+      changeset
+    end
+  end
+
+  defp categories_compatible?(categories_1, categories_2) do
+    category_id_set_1 =
+      categories_1
+      |> Enum.map(& &1.id)
+      |> MapSet.new()
+
+    category_id_set_2 =
+      categories_2
+      |> Enum.map(& &1.id)
+      |> MapSet.new()
+
+    conflicted_id_set = MapSet.intersection(category_id_set_1, category_id_set_2)
+
+    MapSet.size(conflicted_id_set) > 0
   end
 end

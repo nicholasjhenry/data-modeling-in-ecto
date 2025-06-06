@@ -22,6 +22,13 @@ defmodule Examples.LuxuryCatalog do
     |> Repo.update()
   end
 
+  def add_category_conflict(category1, category2) do
+    category1
+    |> Repo.preload([:category_conflicts])
+    |> Category.put_conflict_changeset(category2)
+    |> Repo.update()
+  end
+
   alias Examples.LuxuryCatalog.Product
 
   def get_product!(id), do: Repo.get!(Product, id)
@@ -35,11 +42,11 @@ defmodule Examples.LuxuryCatalog do
   def add_product_to_category(category, product) do
     product =
       product
-      |> Repo.preload(:categories)
+      |> Repo.preload([:categories])
       |> Product.calculate_category_count()
 
     category
-    |> Repo.preload([:products])
+    |> Repo.preload([:products, :category_conflicts])
     |> Category.calculate_product_count()
     |> Category.put_product_changeset(product)
     |> Repo.update()

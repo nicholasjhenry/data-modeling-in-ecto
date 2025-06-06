@@ -210,5 +210,17 @@ defmodule Examples.LuxuryCatalogTest do
 
       assert "Product is not active" in errors_on(changeset).business_rule
     end
+
+    test "validate category conflicts" do
+      his_category = category_fixture(code: "his")
+      her_category = category_fixture(code: "her")
+      product = product_fixture()
+
+      {:ok, her_category} = LuxuryCatalog.add_category_conflict(her_category, his_category)
+      {:ok, _his_categeory} = LuxuryCatalog.add_product_to_category(his_category, product)
+
+      assert {:error, changeset} = LuxuryCatalog.add_product_to_category(her_category, product)
+      assert "Category has a conflict" in errors_on(changeset).business_rule
+    end
   end
 end
