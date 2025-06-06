@@ -45,7 +45,22 @@ defmodule Examples.PublicLibrary.Patron do
   # SECTION: Assoc validations
 
   @doc false
-  def validate_put_resource_hold(resource_hold_changeset, _resource) do
+  def validate_put_resource_hold(resource_hold_changeset, patron) do
     resource_hold_changeset
+    |> validate_resource_hold_type(patron)
+  end
+
+  defp validate_resource_hold_type(resource_hold_changeset, patron) do
+    resource_hold_type = get_field(resource_hold_changeset, :type)
+
+    if patron.type == :regular and resource_hold_type == :open_ended do
+      add_error(
+        resource_hold_changeset,
+        :business_rule,
+        "A regular patron can only place closed-ended holds on a resource"
+      )
+    else
+      resource_hold_changeset
+    end
   end
 end

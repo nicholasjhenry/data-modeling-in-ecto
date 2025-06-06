@@ -11,5 +11,7 @@ defmodule Examples.Repo.Migrations.CreatePublicLibraryResourceHolds do
 
       timestamps()
     end
+
+    create unique_index(:public_library_resource_holds, [:patron_id, :resource_id, :branch_id])
   end
 end

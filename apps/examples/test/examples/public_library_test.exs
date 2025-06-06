@@ -120,12 +120,12 @@ defmodule Examples.PublicLibraryTest do
       branch = branch_fixture()
       resource = resource_fixture()
       patron = patron_fixture()
-      valid_attrs = %{type: :open_ended, permit_resource_fees: true}
+      valid_attrs = %{type: :closed_ended, permit_resource_fees: true}
 
       assert {:ok, %ResourceHold{} = resource_hold} =
                PublicLibrary.create_resource_hold(branch, resource, patron, valid_attrs)
 
-      assert resource_hold.type == :open_ended
+      assert resource_hold.type == :closed_ended
       assert resource_hold.permit_resource_fees == true
     end
 
@@ -136,6 +136,31 @@ defmodule Examples.PublicLibraryTest do
 
       assert {:error, %Ecto.Changeset{}} =
                PublicLibrary.create_resource_hold(branch, resource, patron, @invalid_attrs)
+    end
+  end
+
+  describe "placing a hold on a resource" do
+    import Examples.PublicLibraryFixtures
+
+    test "validates resource hold type for a regular patron" do
+      branch = branch_fixture()
+      resource = resource_fixture()
+      person = person_fixture()
+      patron = patron_fixture(person, type: :regular)
+      attrs = %{type: :closed_ended}
+
+      {:ok, _resource_hold} =
+        PublicLibrary.placing_hold_on_resource(branch, resource, patron, attrs)
+
+      another_resource = resource_fixture()
+      attrs = %{type: :open_ended}
+
+      {:error, changeset} =
+        PublicLibrary.placing_hold_on_resource(branch, another_resource, patron, attrs)
+
+      assert "A regular patron can only place closed-ended holds on a resource" in errors_on(
+               changeset
+             ).business_rule
     end
   end
 end

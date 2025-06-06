@@ -77,4 +77,12 @@ defmodule Examples.PublicLibrary do
     |> ResourceHold.put_patron_changeset(patron)
     |> Repo.insert()
   end
+
+  def placing_hold_on_resource(
+        %Branch{} = branch,
+        %Resource{} = resource,
+        %Patron{} = patron,
+        attrs \\ %{}
+      ),
+      do: create_resource_hold(branch, resource, patron, attrs)
 end
