@@ -44,8 +44,16 @@ defmodule Examples.LuxuryCatalog.Category do
     |> unique_constraint(:code)
   end
 
+  @doc false
+  def discontinue_changeset(category) do
+    category
+    |> change
+    |> put_change(:state, :discountinued)
+  end
+
   # SECTION: Calculations
 
+  @doc false
   def calculate_product_count(category) do
     product_count = Enum.count(category.products)
     %{category | product_count: product_count}
@@ -71,6 +79,7 @@ defmodule Examples.LuxuryCatalog.Category do
     |> validate_product_count()
     |> validate_permitted_product_colors(product)
     |> validate_permitted_product_price(product)
+    |> validate_state()
   end
 
   # SECTION: Assoc validations
@@ -111,5 +120,15 @@ defmodule Examples.LuxuryCatalog.Category do
   defp price_in_range?(permitted_product_price_range, product_price) do
     Decimal.compare(product_price, permitted_product_price_range.lower) == :gt and
       Decimal.compare(product_price, permitted_product_price_range.upper) == :lt
+  end
+
+  defp validate_state(changeset) do
+    state = get_field(changeset, :state)
+
+    if state != :active do
+      add_error(changeset, :business_rule, "Category is not active")
+    else
+      changeset
+    end
   end
 end

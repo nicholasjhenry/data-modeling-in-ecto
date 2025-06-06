@@ -16,6 +16,12 @@ defmodule Examples.LuxuryCatalog do
     |> Repo.insert()
   end
 
+  def discontinue_category(category) do
+    category
+    |> Category.discontinue_changeset()
+    |> Repo.update()
+  end
+
   alias Examples.LuxuryCatalog.Product
 
   def get_product!(id), do: Repo.get!(Product, id)
