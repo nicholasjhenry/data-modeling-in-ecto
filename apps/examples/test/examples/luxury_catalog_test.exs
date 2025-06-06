@@ -1,0 +1,241 @@
+defmodule Examples.LuxuryCatalogTest do
+  use Examples.DataCase
+
+  alias Examples.LuxuryCatalog
+
+  describe "luxury_catalog_categories" do
+    alias Examples.LuxuryCatalog.Category
+
+    import Examples.LuxuryCatalogFixtures
+
+    @invalid_attrs %{
+      name: nil,
+      code: nil
+    }
+
+    test "get_category!/1 returns the category with given id" do
+      category = category_fixture()
+      assert LuxuryCatalog.get_category!(category.id) == category
+    end
+
+    test "create_category/1 with valid data creates a category" do
+      valid_attrs = %{
+        name: "some name",
+        code: "some code",
+        max_product_count: 42,
+        permitted_product_colors: ["blue", "green"],
+        permitted_product_price_range: NumRange.new(Decimal.new(2000), Decimal.new(3000)),
+        mutually_exclusive: true
+      }
+
+      assert {:ok, %Category{} = category} = LuxuryCatalog.create_category(valid_attrs)
+      assert category.name == "some name"
+      assert category.code == "some code"
+      assert category.state == :active
+      assert category.max_product_count == 42
+      assert category.permitted_product_colors == ["blue", "green"]
+      assert Decimal.equal?(category.permitted_product_price_range.lower, Decimal.new(2000))
+      assert Decimal.equal?(category.permitted_product_price_range.upper, Decimal.new(3000))
+      assert category.mutually_exclusive == true
+    end
+
+    test "create_category/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = LuxuryCatalog.create_category(@invalid_attrs)
+    end
+  end
+
+  describe "luxury_catalog_products" do
+    alias Examples.LuxuryCatalog.Product
+
+    import Examples.LuxuryCatalogFixtures
+
+    @invalid_attrs %{
+      name: nil,
+      color: nil,
+      permitted_category_codes: nil,
+      max_category_count: nil,
+      max_category_member_count: nil,
+      price: nil
+    }
+
+    test "get_product!/1 returns the product with given id" do
+      product = product_fixture()
+      assert LuxuryCatalog.get_product!(product.id) == product
+    end
+
+    test "create_product/1 with valid data creates a product" do
+      valid_attrs = %{
+        name: "some name",
+        brand_code: "some brand code",
+        color: "black",
+        permitted_category_codes: ["option1", "option2"],
+        max_category_count: 42,
+        max_category_member_count: 42,
+        price: "120.5"
+      }
+
+      assert {:ok, %Product{} = product} = LuxuryCatalog.create_product(valid_attrs)
+      assert product.name == "some name"
+      assert product.brand_code == "some brand code"
+      assert product.state == :active
+      assert product.color == :black
+      assert product.permitted_category_codes == ["option1", "option2"]
+      assert product.max_category_count == 42
+      assert product.max_category_member_count == 42
+      assert product.price == Decimal.new("120.5")
+    end
+
+    test "create_product/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = LuxuryCatalog.create_product(@invalid_attrs)
+    end
+  end
+
+  describe "luxury_catalog_categories and luxury_catalog_products" do
+    alias Examples.LuxuryCatalog.Category
+
+    import Examples.LuxuryCatalogFixtures
+
+    test "add product to category" do
+      category = category_fixture()
+      product = product_fixture()
+
+      assert {:ok, category} = LuxuryCatalog.add_product_to_category(category, product)
+
+      assert List.first(category.products).id == product.id
+    end
+
+    test "validate permitted categories for a product" do
+      permitted_category = category_fixture(code: "permitted_category")
+      not_permitted_category = category_fixture(code: "not_permitted_category")
+      product = product_fixture(permitted_category_codes: [permitted_category.code])
+
+      assert {:ok, _category} = LuxuryCatalog.add_product_to_category(permitted_category, product)
+
+      assert {:error, changeset} =
+               LuxuryCatalog.add_product_to_category(not_permitted_category, product)
+
+      assert "Product is not permitted to be added to this category" in errors_on(changeset).business_rule
+    end
+
+    test "validate maximum product count for a category" do
+      category = category_fixture(max_product_count: 1)
+      product = product_fixture()
+      another_product = product_fixture()
+
+      assert {:ok, category} = LuxuryCatalog.add_product_to_category(category, product)
+
+      assert {:error, changeset} =
+               LuxuryCatalog.add_product_to_category(category, another_product)
+
+      assert "Maximum product count exceeded for this category" in errors_on(changeset).business_rule
+    end
+
+    test "validate maximum category count for a product" do
+      category = category_fixture()
+      another_category = category_fixture()
+      product = product_fixture(max_category_count: 1)
+
+      assert {:ok, _category} = LuxuryCatalog.add_product_to_category(category, product)
+
+      assert {:error, changeset} =
+               LuxuryCatalog.add_product_to_category(another_category, product)
+
+      assert "Maximum category count exceeded for this product" in errors_on(changeset).business_rule
+    end
+
+    test "validate permitted product colors for a category" do
+      category = category_fixture(permitted_product_colors: ["red", "blue"])
+      product = product_fixture(color: "red")
+
+      assert {:ok, _category} = LuxuryCatalog.add_product_to_category(category, product)
+
+      another_product = product_fixture(color: "black")
+
+      assert {:error, changeset} =
+               LuxuryCatalog.add_product_to_category(category, another_product)
+
+      assert "Product color not permitted for this category" in errors_on(changeset).business_rule
+    end
+
+    test "validate permitted price range for a category" do
+      category =
+        category_fixture(
+          permitted_product_price_range: NumRange.new(Decimal.new(100), Decimal.new(200))
+        )
+
+      product = product_fixture(price: Decimal.new(150))
+
+      assert {:ok, _category} = LuxuryCatalog.add_product_to_category(category, product)
+
+      another_product = product_fixture(price: Decimal.new(300))
+
+      assert {:error, changeset} =
+               LuxuryCatalog.add_product_to_category(category, another_product)
+
+      assert "Product price not permitted for this category" in errors_on(changeset).business_rule
+    end
+
+    test "validate maximum category member count for a product" do
+      category = category_fixture()
+      product = product_fixture()
+
+      assert {:ok, _category} = LuxuryCatalog.add_product_to_category(category, product)
+
+      another_product = product_fixture(max_category_member_count: 1)
+
+      assert {:error, changeset} =
+               LuxuryCatalog.add_product_to_category(category, another_product)
+
+      assert "Maximum category member count exceeded for this product" in errors_on(changeset).business_rule
+    end
+
+    test "validate state for a category" do
+      category = category_fixture()
+      product = product_fixture()
+
+      {:ok, discontinued_category} = LuxuryCatalog.discontinue_category(category)
+
+      assert {:error, changeset} =
+               LuxuryCatalog.add_product_to_category(discontinued_category, product)
+
+      assert "Category is not active" in errors_on(changeset).business_rule
+    end
+
+    test "validate state for a product" do
+      category = category_fixture()
+      product = product_fixture()
+
+      {:ok, discontinued_product} = LuxuryCatalog.discontinue_product(product)
+
+      assert {:error, changeset} =
+               LuxuryCatalog.add_product_to_category(category, discontinued_product)
+
+      assert "Product is not active" in errors_on(changeset).business_rule
+    end
+
+    test "validate category conflicts" do
+      his_category = category_fixture(code: "his")
+      her_category = category_fixture(code: "her")
+      product = product_fixture()
+
+      {:ok, her_category} = LuxuryCatalog.add_category_conflict(her_category, his_category)
+      {:ok, _his_categeory} = LuxuryCatalog.add_product_to_category(his_category, product)
+
+      assert {:error, changeset} = LuxuryCatalog.add_product_to_category(her_category, product)
+      assert "Category has a conflict" in errors_on(changeset).business_rule
+    end
+
+    test "validate product conflicts" do
+      category = category_fixture()
+      product = product_fixture(brand_code: "acme")
+      conflicted_product = product_fixture(competitor_brand_codes: ["acme"])
+
+      {:ok, category} = LuxuryCatalog.add_product_to_category(category, product)
+
+      assert {:error, changeset} =
+               LuxuryCatalog.add_product_to_category(category, conflicted_product)
+
+      assert "Product has a conflict" in errors_on(changeset).business_rule
+    end
+  end
+end
