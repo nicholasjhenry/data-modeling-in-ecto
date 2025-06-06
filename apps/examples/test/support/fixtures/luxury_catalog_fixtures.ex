@@ -41,6 +41,7 @@ defmodule Examples.LuxuryCatalogFixtures do
     {:ok, product} =
       attrs
       |> Enum.into(%{
+        brand_code: "some brand code",
         color: "black",
         max_category_member_count: 42,
         name: unique_product_name(),

@@ -6,7 +6,9 @@ defmodule Examples.LuxuryCatalog.Product do
 
   schema "luxury_catalog_products" do
     field :name, :string
+    field :brand_code, :string
     field :permitted_category_codes, {:array, :string}
+    field :competitor_brand_codes, {:array, :string}, default: []
     field :max_category_count, :integer
     field :max_category_member_count, :integer
     field :state, Ecto.Enum, values: [:active, :discontinued], default: :active
@@ -27,7 +29,9 @@ defmodule Examples.LuxuryCatalog.Product do
     product
     |> cast(attrs, [
       :name,
+      :brand_code,
       :permitted_category_codes,
+      :competitor_brand_codes,
       :max_category_count,
       :max_category_member_count,
       :color,
@@ -35,6 +39,8 @@ defmodule Examples.LuxuryCatalog.Product do
     ])
     |> validate_required([
       :name,
+      :brand_code,
+      :competitor_brand_codes,
       :max_category_member_count,
       :color,
       :price
@@ -68,6 +74,7 @@ defmodule Examples.LuxuryCatalog.Product do
     |> validate_max_category_count(product)
     |> validate_max_category_member_count(product)
     |> validate_state(product)
+    |> validate_competitor_brand_conflict(product)
   end
 
   defp validate_permitted_categories(
@@ -127,5 +134,29 @@ defmodule Examples.LuxuryCatalog.Product do
     else
       category_changeset
     end
+  end
+
+  defp validate_competitor_brand_conflict(category_changeset, product) do
+    category_products = get_assoc(category_changeset, :products, :struct)
+
+    if brands_compatible?(product, category_products) do
+      add_error(category_changeset, :business_rule, "Product has a conflict")
+    else
+      category_changeset
+    end
+  end
+
+  defp brands_compatible?(product, category_products) do
+    category_product_brand_codes_set =
+      category_products
+      |> Enum.map(& &1.brand_code)
+      |> MapSet.new()
+
+    product_competitor_brand_codes_set = MapSet.new(product.competitor_brand_codes)
+
+    conflicted_brand_code_set =
+      MapSet.intersection(product_competitor_brand_codes_set, category_product_brand_codes_set)
+
+    MapSet.size(conflicted_brand_code_set) > 0
   end
 end

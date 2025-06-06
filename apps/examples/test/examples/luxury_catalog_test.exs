@@ -66,6 +66,7 @@ defmodule Examples.LuxuryCatalogTest do
     test "create_product/1 with valid data creates a product" do
       valid_attrs = %{
         name: "some name",
+        brand_code: "some brand code",
         color: "black",
         permitted_category_codes: ["option1", "option2"],
         max_category_count: 42,
@@ -75,6 +76,7 @@ defmodule Examples.LuxuryCatalogTest do
 
       assert {:ok, %Product{} = product} = LuxuryCatalog.create_product(valid_attrs)
       assert product.name == "some name"
+      assert product.brand_code == "some brand code"
       assert product.state == :active
       assert product.color == :black
       assert product.permitted_category_codes == ["option1", "option2"]
@@ -221,6 +223,19 @@ defmodule Examples.LuxuryCatalogTest do
 
       assert {:error, changeset} = LuxuryCatalog.add_product_to_category(her_category, product)
       assert "Category has a conflict" in errors_on(changeset).business_rule
+    end
+
+    test "validate product conflicts" do
+      category = category_fixture()
+      product = product_fixture(brand_code: "acme")
+      conflicted_product = product_fixture(competitor_brand_codes: ["acme"])
+
+      {:ok, category} = LuxuryCatalog.add_product_to_category(category, product)
+
+      assert {:error, changeset} =
+               LuxuryCatalog.add_product_to_category(category, conflicted_product)
+
+      assert "Product has a conflict" in errors_on(changeset).business_rule
     end
   end
 end

@@ -4,6 +4,8 @@ defmodule Examples.Repo.Migrations.CreateLuxuryCatalogProducts do
   def change do
     create table(:luxury_catalog_products) do
       add :name, :string, null: false
+      add :brand_code, :string, null: false
+      add :competitor_brand_codes, {:array, :string}
       add :permitted_category_codes, {:array, :string}
       add :max_category_count, :integer
       add :max_category_member_count, :integer
