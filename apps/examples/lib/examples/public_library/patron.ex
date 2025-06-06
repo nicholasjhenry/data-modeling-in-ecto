@@ -36,8 +36,16 @@ defmodule Examples.PublicLibrary.Patron do
 
   # SECTION: Assoc changesets
 
+  @doc false
   def put_person_changeset(patron, person) do
     patron
     |> put_assoc(:person, person)
+  end
+
+  # SECTION: Assoc validations
+
+  @doc false
+  def validate_put_resource_hold(resource_hold_changeset, _resource) do
+    resource_hold_changeset
   end
 end

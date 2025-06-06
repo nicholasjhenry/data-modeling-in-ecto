@@ -32,18 +32,21 @@ defmodule Examples.PublicLibrary.ResourceHold do
     changeset
     |> put_assoc(:branch, branch)
     |> validate_put_branch(branch)
+    |> Branch.validate_put_resource_hold(branch)
   end
 
   def put_resource_changeset(changeset, resource) do
     changeset
     |> put_assoc(:resource, resource)
     |> validate_put_resource(resource)
+    |> Resource.validate_put_resource_hold(resource)
   end
 
   def put_patron_changeset(changeset, patron) do
     changeset
     |> put_assoc(:patron, patron)
     |> validate_put_patron(patron)
+    |> Patron.validate_put_resource_hold(patron)
   end
 
   # SECTION: Assoc validations
