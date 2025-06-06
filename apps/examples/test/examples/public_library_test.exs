@@ -94,7 +94,6 @@ defmodule Examples.PublicLibraryTest do
 
       valid_attrs = %{
         type: :regular,
-        state: :active,
         registration_number: "some registration_number"
       }
 

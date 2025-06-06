@@ -60,7 +60,6 @@ defmodule Examples.PublicLibraryFixtures do
     attrs =
       Enum.into(attrs, %{
         registration_number: unique_patron_registration_number(),
-        state: :active,
         type: :regular
       })
 
