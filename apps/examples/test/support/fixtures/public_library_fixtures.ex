@@ -71,14 +71,18 @@ defmodule Examples.PublicLibraryFixtures do
   @doc """
   Generate a resource_hold.
   """
-  def resource_hold_fixture(attrs \\ %{}) do
-    {:ok, resource_hold} =
-      attrs
-      |> Enum.into(%{
+  def resource_hold_fixture(
+        branch \\ branch_fixture(),
+        resource \\ resource_fixture(),
+        attrs \\ %{}
+      ) do
+    attrs =
+      Enum.into(attrs, %{
         permit_resource_fees: true,
         type: :open_ended
       })
-      |> Examples.PublicLibrary.create_resource_hold()
+
+    {:ok, resource_hold} = Examples.PublicLibrary.create_resource_hold(branch, resource, attrs)
 
     resource_hold
   end
