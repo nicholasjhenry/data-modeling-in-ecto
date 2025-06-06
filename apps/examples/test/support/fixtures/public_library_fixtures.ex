@@ -39,7 +39,7 @@ defmodule Examples.PublicLibraryFixtures do
     {:ok, person} =
       attrs
       |> Enum.into(%{
-        born_on: ~D[2025-06-05],
+        born_on: ~D[1970-01-01],
         name: "some name"
       })
       |> Examples.PublicLibrary.create_person()

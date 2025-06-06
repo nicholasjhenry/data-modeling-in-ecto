@@ -18,6 +18,7 @@ defmodule Examples.PublicLibrary.Patron do
     # NOTE: This is a fun pattern to discuss in the talk
     field :max_resource_hold_count, :integer, virtual: true
     field :resource_hold_count, :integer, virtual: true
+    field :age_group, Ecto.Enum, values: [:child, :adult], virtual: true
 
     belongs_to :person, Person
     has_many :resource_holds, ResourceHold
@@ -47,11 +48,13 @@ defmodule Examples.PublicLibrary.Patron do
 
   # SECTION: Field calculations
 
+  @doc false
   def calculate_resource_hold_count(patron) do
     resource_hold_count = Enum.count(patron.resource_holds)
     %{patron | resource_hold_count: resource_hold_count}
   end
 
+  @doc false
   def determine_max_resource_hold_count(patron, opts \\ []) do
     max_resource_hold_count =
       Keyword.get(opts, :max_resource_hold_count, @regular_patron_max_resource_hold_count)
@@ -61,6 +64,23 @@ defmodule Examples.PublicLibrary.Patron do
     else
       patron
     end
+  end
+
+  @years_in_days_18 18 * 365
+
+  @doc false
+  def determine_age_group(patron, opts \\ []) do
+    current_date_time = Keyword.get(opts, :current_date_time, DateTime.utc_now())
+    current_date = DateTime.to_date(current_date_time)
+
+    age_group =
+      if @years_in_days_18 < Date.diff(current_date, patron.born_on) do
+        :adult
+      else
+        :child
+      end
+
+    %{patron | age_group: age_group}
   end
 
   # SECTION: Assoc changesets
@@ -78,6 +98,7 @@ defmodule Examples.PublicLibrary.Patron do
     resource_hold_changeset
     |> validate_resource_hold_type(patron)
     |> validate_resource_count(patron)
+    |> validate_age_group(patron)
   end
 
   defp validate_resource_hold_type(resource_hold_changeset, patron) do
@@ -101,6 +122,14 @@ defmodule Examples.PublicLibrary.Patron do
         :business_rule,
         "A regular patron limited to the number of holds on a resource"
       )
+    else
+      resource_hold_changeset
+    end
+  end
+
+  defp validate_age_group(resource_hold_changeset, patron) do
+    if patron.age_group != :adult do
+      add_error(resource_hold_changeset, :business_rule, "Patron must be an adult")
     else
       resource_hold_changeset
     end

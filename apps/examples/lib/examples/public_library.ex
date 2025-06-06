@@ -77,6 +77,7 @@ defmodule Examples.PublicLibrary do
       |> Repo.preload(:resource_holds)
       |> Patron.determine_max_resource_hold_count(opts)
       |> Patron.calculate_resource_hold_count()
+      |> Patron.determine_age_group(opts)
 
     %ResourceHold{}
     |> ResourceHold.changeset(attrs)
