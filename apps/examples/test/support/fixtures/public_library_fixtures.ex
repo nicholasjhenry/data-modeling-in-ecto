@@ -50,20 +50,21 @@ defmodule Examples.PublicLibraryFixtures do
   @doc """
   Generate a unique patron registration_number.
   """
-  def unique_patron_registration_number, do: "some registration_number#{System.unique_integer([:positive])}"
+  def unique_patron_registration_number,
+    do: "some registration_number#{System.unique_integer([:positive])}"
 
   @doc """
   Generate a patron.
   """
-  def patron_fixture(attrs \\ %{}) do
-    {:ok, patron} =
-      attrs
-      |> Enum.into(%{
+  def patron_fixture(person \\ person_fixture(), attrs \\ %{}) do
+    attrs =
+      Enum.into(attrs, %{
         registration_number: unique_patron_registration_number(),
         state: :active,
         type: :regular
       })
-      |> Examples.PublicLibrary.create_patron()
+
+    {:ok, patron} = Examples.PublicLibrary.create_patron(person, attrs)
 
     patron
   end

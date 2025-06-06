@@ -85,24 +85,28 @@ defmodule Examples.PublicLibraryTest do
 
     test "get_patron!/1 returns the patron with given id" do
       patron = patron_fixture()
-      assert PublicLibrary.get_patron!(patron.id) == patron
+      fetched_patron = PublicLibrary.get_patron!(patron.id)
+      assert PublicLibrary.patron_equal?(patron, fetched_patron)
     end
 
     test "create_patron/1 with valid data creates a patron" do
+      person = person_fixture()
+
       valid_attrs = %{
         type: :regular,
         state: :active,
         registration_number: "some registration_number"
       }
 
-      assert {:ok, %Patron{} = patron} = PublicLibrary.create_patron(valid_attrs)
+      assert {:ok, %Patron{} = patron} = PublicLibrary.create_patron(person, valid_attrs)
       assert patron.type == :regular
       assert patron.state == :active
       assert patron.registration_number == "some registration_number"
     end
 
     test "create_patron/1 with invalid data returns error changeset" do
-      assert {:error, %Ecto.Changeset{}} = PublicLibrary.create_patron(@invalid_attrs)
+      person = person_fixture()
+      assert {:error, %Ecto.Changeset{}} = PublicLibrary.create_patron(person, @invalid_attrs)
     end
   end
 end

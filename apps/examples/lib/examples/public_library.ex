@@ -38,11 +38,25 @@ defmodule Examples.PublicLibrary do
 
   alias Examples.PublicLibrary.Patron
 
-  def get_patron!(id), do: Repo.get!(Patron, id)
+  def get_patron!(id) do
+    Patron
+    |> Patron.base_query()
+    |> Repo.get!(id)
+  end
 
-  def create_patron(attrs \\ %{}) do
-    %Patron{}
-    |> Patron.changeset(attrs)
-    |> Repo.insert()
+  def create_patron(person, attrs \\ %{}) do
+    with {:ok, %{id: id}} <-
+           %Patron{}
+           |> Patron.changeset(attrs)
+           |> Patron.put_person_changeset(person)
+           |> Repo.insert(returning: [:id]) do
+      {:ok, get_patron!(id)}
+    end
+  end
+
+  def patron_equal?(patron1, patron2) do
+    patron1.id == patron2.id and
+      patron1.name == patron2.name and
+      Date.compare(patron1.born_on, patron2.born_on) == :eq
   end
 end
