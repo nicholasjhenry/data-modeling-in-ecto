@@ -109,4 +109,60 @@ defmodule Examples.PublicLibraryTest do
       assert {:error, %Ecto.Changeset{}} = PublicLibrary.create_patron(person, @invalid_attrs)
     end
   end
+
+  describe "public_library_resource_holds" do
+    alias Examples.PublicLibrary.ResourceHold
+
+    import Examples.PublicLibraryFixtures
+
+    @invalid_attrs %{type: nil, permit_resource_fees: nil}
+
+    test "list_public_library_resource_holds/0 returns all public_library_resource_holds" do
+      resource_hold = resource_hold_fixture()
+      assert PublicLibrary.list_public_library_resource_holds() == [resource_hold]
+    end
+
+    test "get_resource_hold!/1 returns the resource_hold with given id" do
+      resource_hold = resource_hold_fixture()
+      assert PublicLibrary.get_resource_hold!(resource_hold.id) == resource_hold
+    end
+
+    test "create_resource_hold/1 with valid data creates a resource_hold" do
+      valid_attrs = %{type: :open_ended, permit_resource_fees: true}
+
+      assert {:ok, %ResourceHold{} = resource_hold} = PublicLibrary.create_resource_hold(valid_attrs)
+      assert resource_hold.type == :open_ended
+      assert resource_hold.permit_resource_fees == true
+    end
+
+    test "create_resource_hold/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = PublicLibrary.create_resource_hold(@invalid_attrs)
+    end
+
+    test "update_resource_hold/2 with valid data updates the resource_hold" do
+      resource_hold = resource_hold_fixture()
+      update_attrs = %{type: :closed_ended, permit_resource_fees: false}
+
+      assert {:ok, %ResourceHold{} = resource_hold} = PublicLibrary.update_resource_hold(resource_hold, update_attrs)
+      assert resource_hold.type == :closed_ended
+      assert resource_hold.permit_resource_fees == false
+    end
+
+    test "update_resource_hold/2 with invalid data returns error changeset" do
+      resource_hold = resource_hold_fixture()
+      assert {:error, %Ecto.Changeset{}} = PublicLibrary.update_resource_hold(resource_hold, @invalid_attrs)
+      assert resource_hold == PublicLibrary.get_resource_hold!(resource_hold.id)
+    end
+
+    test "delete_resource_hold/1 deletes the resource_hold" do
+      resource_hold = resource_hold_fixture()
+      assert {:ok, %ResourceHold{}} = PublicLibrary.delete_resource_hold(resource_hold)
+      assert_raise Ecto.NoResultsError, fn -> PublicLibrary.get_resource_hold!(resource_hold.id) end
+    end
+
+    test "change_resource_hold/1 returns a resource_hold changeset" do
+      resource_hold = resource_hold_fixture()
+      assert %Ecto.Changeset{} = PublicLibrary.change_resource_hold(resource_hold)
+    end
+  end
 end
