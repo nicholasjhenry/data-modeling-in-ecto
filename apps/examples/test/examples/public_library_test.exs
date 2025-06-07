@@ -245,7 +245,7 @@ defmodule Examples.PublicLibraryTest do
       assert "A patron must be active" in errors_on(changeset).business_rule
     end
 
-    test "validate resource conflict for a patron" do
+    test "validate resource fee conflict for a patron" do
       branch = branch_fixture()
       resource = resource_fixture(has_fee: true)
       person = person_fixture()
@@ -256,6 +256,17 @@ defmodule Examples.PublicLibraryTest do
                PublicLibrary.placing_hold_on_resource(branch, resource, patron, attrs)
 
       assert "A resource fee is not permited by the patron" in errors_on(changeset).business_rule
+    end
+
+    test "validate override resource fee conflict for a patron" do
+      branch = branch_fixture()
+      resource = resource_fixture(has_fee: true)
+      person = person_fixture()
+      patron = patron_fixture(person, permit_resource_fees: false)
+      attrs = %{type: :closed_ended, permit_resource_fees: true}
+
+      assert {:ok, _resource_hold} =
+               PublicLibrary.placing_hold_on_resource(branch, resource, patron, attrs)
     end
   end
 end

@@ -106,7 +106,7 @@ defmodule Examples.PublicLibrary.Patron do
     |> validate_age_group(patron)
     |> validate_registration_number(patron)
     |> validate_state(patron)
-    |> validate_resource_conflict(patron)
+    |> validate_resource_fee_conflict(patron)
   end
 
   defp validate_resource_hold_type(resource_hold_changeset, patron) do
@@ -163,10 +163,12 @@ defmodule Examples.PublicLibrary.Patron do
     end
   end
 
-  defp validate_resource_conflict(resource_hold_changeset, patron) do
+  defp validate_resource_fee_conflict(resource_hold_changeset, patron) do
     resource = get_assoc(resource_hold_changeset, :resource, :struct)
+    override_permit_resource_fee? = get_field(resource_hold_changeset, :permit_resource_fees)
 
-    if resource.has_fee and not patron.permit_resource_fees do
+    if not override_permit_resource_fee? and
+         (resource.has_fee and not patron.permit_resource_fees) do
       add_error(
         resource_hold_changeset,
         :business_rule,
