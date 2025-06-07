@@ -158,10 +158,7 @@ defmodule Nomify.Teams.TeamMember do
   @doc false
   def privileges_changeset(team_member, attrs) do
     privileges = Privileges.parse(attrs)
-
-    team_member
-    |> change
-    |> put_change(:privileges, privileges)
+    change(team_member, %{privileges: privileges})
   end
 
   @doc false

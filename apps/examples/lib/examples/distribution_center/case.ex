@@ -30,9 +30,7 @@ defmodule Examples.DistributionCenter.Case do
   end
 
   def full_state_changeset(case) do
-    case
-    |> change
-    |> put_change(:state, :full)
+    change(case, %{state: :full})
   end
 
   # SECTION: Assoc validations

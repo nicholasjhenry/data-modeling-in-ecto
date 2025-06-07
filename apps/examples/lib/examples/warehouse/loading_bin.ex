@@ -26,9 +26,7 @@ defmodule Examples.Warehouse.LoadingBin do
   end
 
   def load_changeset(loading_bin) do
-    loading_bin
-    |> change
-    |> put_change(:state, :loaded)
+    change(loading_bin, %{state: :loaded})
   end
 
   # SECTION: Assoc Action Changesets

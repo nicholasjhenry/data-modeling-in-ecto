@@ -24,9 +24,7 @@ defmodule Examples.Warehouse.LoadingArea do
 
   @doc false
   def receive_changeset(loading_area) do
-    loading_area
-    |> change
-    |> put_change(:state, :receiving)
+    change(loading_area, %{state: :receiving})
   end
 
   # SECTION: Assoc Action Changesets

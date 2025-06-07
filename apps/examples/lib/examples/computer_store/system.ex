@@ -26,10 +26,8 @@ defmodule Examples.ComputerStore.System do
   end
 
   @doc false
-  def approve_changeset(system) do
-    system
-    |> change
-    |> put_change(:approval_state, :completed)
+  def approval_completed_changeset(system) do
+    change(system, %{approval_state: :completed})
   end
 
   # SECTION: Assoc changesets
