@@ -230,5 +230,19 @@ defmodule Examples.PublicLibraryTest do
 
       assert "A valid registration number is required for a patron" in errors_on(changeset).business_rule
     end
+
+    test "validate state for a patron" do
+      branch = branch_fixture()
+      resource = resource_fixture()
+      patron = patron_fixture()
+      attrs = %{type: :closed_ended}
+
+      {:ok, inactive_patron} = PublicLibrary.deactivate_patron(patron)
+
+      assert {:error, changeset} =
+               PublicLibrary.placing_hold_on_resource(branch, resource, inactive_patron, attrs)
+
+      assert "A patron must be active" in errors_on(changeset).business_rule
+    end
   end
 end

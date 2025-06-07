@@ -55,6 +55,12 @@ defmodule Examples.PublicLibrary do
     end
   end
 
+  def deactivate_patron(patron) do
+    patron
+    |> Patron.deactivate_changeset()
+    |> Repo.update()
+  end
+
   def patron_equal?(patron1, patron2) do
     patron1.id == patron2.id and
       patron1.name == patron2.name and

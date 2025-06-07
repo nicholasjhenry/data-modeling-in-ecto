@@ -46,6 +46,11 @@ defmodule Examples.PublicLibrary.Patron do
     |> unique_constraint(:registration_number)
   end
 
+  @doc false
+  def deactivate_changeset(patron) do
+    change(patron, %{state: :inactive})
+  end
+
   # SECTION: Field calculations
 
   @doc false
@@ -100,6 +105,7 @@ defmodule Examples.PublicLibrary.Patron do
     |> validate_resource_count(patron)
     |> validate_age_group(patron)
     |> validate_registration_number(patron)
+    |> validate_state(patron)
   end
 
   defp validate_resource_hold_type(resource_hold_changeset, patron) do
@@ -143,6 +149,14 @@ defmodule Examples.PublicLibrary.Patron do
         :business_rule,
         "A valid registration number is required for a patron"
       )
+    else
+      resource_hold_changeset
+    end
+  end
+
+  defp validate_state(resource_hold_changeset, patron) do
+    if patron.state != :active do
+      add_error(resource_hold_changeset, :business_rule, "A patron must be active")
     else
       resource_hold_changeset
     end
