@@ -106,6 +106,7 @@ defmodule Examples.PublicLibrary.Patron do
     |> validate_age_group(patron)
     |> validate_registration_number(patron)
     |> validate_state(patron)
+    |> validate_resource_conflict(patron)
   end
 
   defp validate_resource_hold_type(resource_hold_changeset, patron) do
@@ -157,6 +158,20 @@ defmodule Examples.PublicLibrary.Patron do
   defp validate_state(resource_hold_changeset, patron) do
     if patron.state != :active do
       add_error(resource_hold_changeset, :business_rule, "A patron must be active")
+    else
+      resource_hold_changeset
+    end
+  end
+
+  defp validate_resource_conflict(resource_hold_changeset, patron) do
+    resource = get_assoc(resource_hold_changeset, :resource, :struct)
+
+    if resource.has_fee and not patron.permit_resource_fees do
+      add_error(
+        resource_hold_changeset,
+        :business_rule,
+        "A resource fee is not permited by the patron"
+      )
     else
       resource_hold_changeset
     end
