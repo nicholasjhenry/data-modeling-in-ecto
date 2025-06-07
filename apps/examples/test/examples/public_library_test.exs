@@ -217,5 +217,18 @@ defmodule Examples.PublicLibraryTest do
 
       assert "Patron must be an adult" in errors_on(changeset).business_rule
     end
+
+    test "validate registration number for a patron" do
+      branch = branch_fixture()
+      resource = resource_fixture()
+      person = person_fixture()
+      patron = patron_fixture(person, registration_number: nil)
+      attrs = %{type: :closed_ended}
+
+      assert {:error, changeset} =
+               PublicLibrary.placing_hold_on_resource(branch, resource, patron, attrs)
+
+      assert "A valid registration number is required for a patron" in errors_on(changeset).business_rule
+    end
   end
 end

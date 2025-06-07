@@ -42,7 +42,7 @@ defmodule Examples.PublicLibrary.Patron do
   def changeset(patron, attrs) do
     patron
     |> cast(attrs, [:type, :registration_number, :permit_resource_fees])
-    |> validate_required([:type, :registration_number])
+    |> validate_required([:type])
     |> unique_constraint(:registration_number)
   end
 
@@ -99,6 +99,7 @@ defmodule Examples.PublicLibrary.Patron do
     |> validate_resource_hold_type(patron)
     |> validate_resource_count(patron)
     |> validate_age_group(patron)
+    |> validate_registration_number(patron)
   end
 
   defp validate_resource_hold_type(resource_hold_changeset, patron) do
@@ -130,6 +131,18 @@ defmodule Examples.PublicLibrary.Patron do
   defp validate_age_group(resource_hold_changeset, patron) do
     if patron.age_group != :adult do
       add_error(resource_hold_changeset, :business_rule, "Patron must be an adult")
+    else
+      resource_hold_changeset
+    end
+  end
+
+  defp validate_registration_number(resource_hold_changeset, patron) do
+    if is_nil(patron.registration_number) do
+      add_error(
+        resource_hold_changeset,
+        :business_rule,
+        "A valid registration number is required for a patron"
+      )
     else
       resource_hold_changeset
     end
