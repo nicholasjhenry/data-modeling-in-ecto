@@ -14,7 +14,7 @@ defmodule Examples.LuxuryCatalog.Category do
 
     field :permitted_product_price_range, NumRange
 
-    field :state, Ecto.Enum, values: [:active, :discountinued, :expired], default: :active
+    field :state, Ecto.Enum, values: [:active, :discontinued, :expired], default: :active
     field :mutually_exclusive, :boolean, default: false
 
     field :product_count, :integer, virtual: true
@@ -51,9 +51,7 @@ defmodule Examples.LuxuryCatalog.Category do
 
   @doc false
   def discontinue_changeset(category) do
-    category
-    |> change
-    |> put_change(:state, :discountinued)
+    change(category, %{state: :discontinued})
   end
 
   # SECTION: Calculations

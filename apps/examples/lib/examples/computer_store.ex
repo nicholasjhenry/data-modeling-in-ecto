@@ -29,7 +29,7 @@ defmodule Examples.ComputerStore do
 
   def approve_system(%System{} = system) do
     system
-    |> System.approve_changeset()
+    |> System.approval_completed_changeset()
     |> Repo.update()
   end
 

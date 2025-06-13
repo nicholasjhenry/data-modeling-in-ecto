@@ -50,9 +50,7 @@ defmodule Examples.LuxuryCatalog.Product do
 
   @doc false
   def discontinue_changeset(product) do
-    product
-    |> change
-    |> put_change(:state, :discontinued)
+    change(product, %{state: :discontinued})
   end
 
   # SECTION: Calculations

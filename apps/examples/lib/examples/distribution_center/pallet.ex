@@ -30,9 +30,7 @@ defmodule Examples.DistributionCenter.Pallet do
 
   @doc false
   def load_changeset(pallet) do
-    pallet
-    |> change
-    |> put_change(:state, :loaded)
+    change(pallet, %{state: :loaded})
   end
 
   # SECTION: Assoc changesets
@@ -40,16 +38,20 @@ defmodule Examples.DistributionCenter.Pallet do
   @doc false
   def put_case_changeset(pallet_or_changeset, case, opts \\ []) do
     changeset = change(pallet_or_changeset)
-    cases = get_assoc(changeset, :cases, :struct)
-    cases = [case | cases]
 
     case_count = get_field(changeset, :case_count) + 1
     actual_weight = Decimal.add(get_field(changeset, :actual_weight), case.weight)
 
+    changeset =
+      changeset
+      |> put_change(:case_count, case_count)
+      |> put_change(:actual_weight, actual_weight)
+
+    cases = get_assoc(changeset, :cases, :struct)
+    cases = [case | cases]
+
     changeset
     |> put_assoc(:cases, cases)
-    |> put_change(:case_count, case_count)
-    |> put_change(:actual_weight, actual_weight)
     |> validate_put_case(cases, opts)
     |> validate_max_weight(cases)
     |> validate_state()
