@@ -80,7 +80,8 @@ defmodule Examples.PublicLibraryFixtures do
     attrs =
       Enum.into(attrs, %{
         permit_resource_fees: false,
-        type: :open_ended
+        type: :open_ended,
+        pickup_day: "Monday"
       })
 
     {:ok, resource_hold} =

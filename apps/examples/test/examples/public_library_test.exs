@@ -114,13 +114,13 @@ defmodule Examples.PublicLibraryTest do
 
     import Examples.PublicLibraryFixtures
 
-    @invalid_attrs %{type: nil, permit_resource_fees: nil}
+    @invalid_attrs %{type: nil}
 
     test "create_resource_hold/1 with valid data creates a resource_hold" do
       branch = branch_fixture()
       resource = resource_fixture()
       patron = patron_fixture()
-      valid_attrs = %{type: :closed_ended, permit_resource_fees: true}
+      valid_attrs = %{type: :closed_ended, permit_resource_fees: true, pickup_day: "Monday"}
 
       assert {:ok, %ResourceHold{} = resource_hold} =
                PublicLibrary.create_resource_hold(branch, resource, patron, valid_attrs)
@@ -139,7 +139,7 @@ defmodule Examples.PublicLibraryTest do
     end
   end
 
-  describe "placing a hold on a resource" do
+  describe "placing a hold on a resource for a patron" do
     import Examples.PublicLibraryFixtures
 
     test "validates resource hold type for a regular patron" do
@@ -147,7 +147,7 @@ defmodule Examples.PublicLibraryTest do
       resource = resource_fixture()
       person = person_fixture()
       patron = patron_fixture(person, type: :regular)
-      attrs = %{type: :closed_ended}
+      attrs = %{type: :closed_ended, pickup_day: "Monday"}
 
       {:ok, _resource_hold} =
         PublicLibrary.placing_hold_on_resource(branch, resource, patron, attrs)
@@ -168,7 +168,7 @@ defmodule Examples.PublicLibraryTest do
       resource = resource_fixture()
       person = person_fixture()
       patron = patron_fixture(person, type: :regular)
-      attrs = %{type: :closed_ended}
+      attrs = %{type: :closed_ended, pickup_day: "Monday"}
 
       {:ok, _resource_hold} =
         PublicLibrary.placing_hold_on_resource(branch, resource, patron, attrs)
@@ -190,7 +190,7 @@ defmodule Examples.PublicLibraryTest do
       resource = resource_fixture()
       person = person_fixture()
       patron = patron_fixture(person, type: :researcher)
-      attrs = %{type: :closed_ended}
+      attrs = %{type: :closed_ended, pickup_day: "Monday"}
 
       {:ok, _resource_hold} =
         PublicLibrary.placing_hold_on_resource(branch, resource, patron, attrs)
@@ -263,10 +263,108 @@ defmodule Examples.PublicLibraryTest do
       resource = resource_fixture(has_fee: true)
       person = person_fixture()
       patron = patron_fixture(person, permit_resource_fees: false)
-      attrs = %{type: :closed_ended, permit_resource_fees: true}
+      attrs = %{type: :closed_ended, permit_resource_fees: true, pickup_day: "Monday"}
 
       assert {:ok, _resource_hold} =
                PublicLibrary.placing_hold_on_resource(branch, resource, patron, attrs)
+    end
+  end
+
+  describe "placing a hold on a resource at a branch" do
+    import Examples.PublicLibraryFixtures
+
+    test "branch validates resource hold type" do
+      branch = branch_fixture(permitted_resource_holds_types: ["closed_ended"])
+      resource = resource_fixture()
+      person = person_fixture()
+      patron = patron_fixture(person, type: :researcher)
+      attrs = %{type: :closed_ended, pickup_day: "Monday"}
+
+      {:ok, _resource_hold} =
+        PublicLibrary.placing_hold_on_resource(branch, resource, patron, attrs)
+
+      another_resource = resource_fixture()
+      attrs = %{type: :open_ended, pickup_day: "Monday"}
+
+      assert {:error, changeset} =
+               PublicLibrary.placing_hold_on_resource(branch, another_resource, patron, attrs)
+
+      assert "This branch does not permit open-ended holds" in errors_on(changeset).business_rule
+    end
+
+    test "branch validates resource hold pickup day" do
+      branch =
+        branch_fixture(business_days: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"])
+
+      resource = resource_fixture()
+      person = person_fixture()
+      patron = patron_fixture(person)
+      attrs = %{type: :closed_ended, pickup_day: "Monday"}
+
+      {:ok, _resource_hold} =
+        PublicLibrary.placing_hold_on_resource(branch, resource, patron, attrs)
+
+      another_resource = resource_fixture()
+      attrs = %{type: :closed_ended, pickup_day: "Sunday"}
+
+      assert {:error, changeset} =
+               PublicLibrary.placing_hold_on_resource(branch, another_resource, patron, attrs)
+
+      assert "This branch does not permit pickup on the selected day" in errors_on(changeset).business_rule
+    end
+
+    test "branch validates state" do
+      branch = branch_fixture(state: :normal)
+      resource = resource_fixture()
+      person = person_fixture()
+      patron = patron_fixture(person)
+      attrs = %{type: :closed_ended, pickup_day: "Monday"}
+
+      {:ok, _resource_hold} =
+        PublicLibrary.placing_hold_on_resource(branch, resource, patron, attrs)
+
+      another_branch = branch_fixture(state: :reviewing_inventory)
+      another_resource = resource_fixture()
+      attrs = %{type: :closed_ended, pickup_day: "Monday"}
+
+      assert {:error, changeset} =
+               PublicLibrary.placing_hold_on_resource(
+                 another_branch,
+                 another_resource,
+                 patron,
+                 attrs
+               )
+
+      assert "This branch does not permit resource holds during inventory review" in errors_on(
+               changeset
+             ).business_rule
+    end
+
+    test "branch validates patron role" do
+      branch = branch_fixture()
+      resource = resource_fixture()
+      person = person_fixture()
+      patron = patron_fixture(person)
+      attrs = %{type: :closed_ended, pickup_day: "Monday"}
+
+      {:ok, _resource_hold} =
+        PublicLibrary.placing_hold_on_resource(branch, resource, patron, attrs)
+
+      another_branch = branch_fixture(permitted_patron_types_for_resource_holds: ["researcher"])
+      another_resource = resource_fixture()
+      attrs = %{type: :closed_ended, pickup_day: "Monday"}
+
+      assert {:error, changeset} =
+               PublicLibrary.placing_hold_on_resource(
+                 another_branch,
+                 another_resource,
+                 patron,
+                 attrs
+               )
+
+      assert "This branch permits resource holds for researcher patrons only" in errors_on(
+               changeset
+             ).business_rule
     end
   end
 end
