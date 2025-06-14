@@ -6,7 +6,7 @@ defmodule Nomify.Repo.Migrations.AddResourceHoldRelatedFieldsToBranches do
       add :permitted_resource_holds_types, {:array, :string}, null: false
       add :business_days, {:array, :string}, null: false
       add :state, :string, null: false
-      add :permitted_patron_roles_for_resource_holds, {:array, :string}, null: false
+      add :permitted_patron_types_for_resource_holds, {:array, :string}, null: false
     end
   end
 end

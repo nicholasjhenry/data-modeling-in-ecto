@@ -13,7 +13,7 @@ defmodule Examples.PublicLibrary.Branch do
 
     field :state, Ecto.Enum, values: [:normal, :reviewing_inventory], default: :normal
 
-    field :permitted_patron_roles_for_resource_holds, {:array, :string},
+    field :permitted_patron_types_for_resource_holds, {:array, :string},
       default: ["regular", "researcher"]
 
     timestamps()
@@ -29,7 +29,7 @@ defmodule Examples.PublicLibrary.Branch do
       :permitted_resource_holds_types,
       :business_days,
       :state,
-      :permitted_patron_roles_for_resource_holds
+      :permitted_patron_types_for_resource_holds
     ])
     |> validate_required([:name])
   end
@@ -42,6 +42,7 @@ defmodule Examples.PublicLibrary.Branch do
     |> validate_resource_hold_type_permitted(branch)
     |> validate_resource_hold_pickup_day(branch)
     |> validate_branch_state(branch)
+    |> validate_patron_type(branch)
   end
 
   defp validate_resource_hold_type_permitted(resource_hold_changeset, branch) do
@@ -78,6 +79,20 @@ defmodule Examples.PublicLibrary.Branch do
         resource_hold_changeset,
         :business_rule,
         "This branch does not permit resource holds during inventory review"
+      )
+    else
+      resource_hold_changeset
+    end
+  end
+
+  defp validate_patron_type(resource_hold_changeset, branch) do
+    patron = get_assoc(resource_hold_changeset, :patron, :struct)
+
+    if to_string(patron.type) not in branch.permitted_patron_types_for_resource_holds do
+      add_error(
+        resource_hold_changeset,
+        :business_rule,
+        "This branch permits resource holds for researcher patrons only"
       )
     else
       resource_hold_changeset

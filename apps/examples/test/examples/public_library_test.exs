@@ -339,5 +339,32 @@ defmodule Examples.PublicLibraryTest do
                changeset
              ).business_rule
     end
+
+    test "branch validates patron role" do
+      branch = branch_fixture()
+      resource = resource_fixture()
+      person = person_fixture()
+      patron = patron_fixture(person)
+      attrs = %{type: :closed_ended, pickup_day: "Monday"}
+
+      {:ok, _resource_hold} =
+        PublicLibrary.placing_hold_on_resource(branch, resource, patron, attrs)
+
+      another_branch = branch_fixture(permitted_patron_types_for_resource_holds: ["researcher"])
+      another_resource = resource_fixture()
+      attrs = %{type: :closed_ended, pickup_day: "Monday"}
+
+      assert {:error, changeset} =
+               PublicLibrary.placing_hold_on_resource(
+                 another_branch,
+                 another_resource,
+                 patron,
+                 attrs
+               )
+
+      assert "This branch permits resource holds for researcher patrons only" in errors_on(
+               changeset
+             ).business_rule
+    end
   end
 end
