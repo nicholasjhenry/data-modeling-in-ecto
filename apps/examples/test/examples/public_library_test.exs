@@ -312,5 +312,32 @@ defmodule Examples.PublicLibraryTest do
 
       assert "This branch does not permit pickup on the selected day" in errors_on(changeset).business_rule
     end
+
+    test "branch validates state" do
+      branch = branch_fixture(state: :normal)
+      resource = resource_fixture()
+      person = person_fixture()
+      patron = patron_fixture(person)
+      attrs = %{type: :closed_ended, pickup_day: "Monday"}
+
+      {:ok, _resource_hold} =
+        PublicLibrary.placing_hold_on_resource(branch, resource, patron, attrs)
+
+      another_branch = branch_fixture(state: :reviewing_inventory)
+      another_resource = resource_fixture()
+      attrs = %{type: :closed_ended, pickup_day: "Monday"}
+
+      assert {:error, changeset} =
+               PublicLibrary.placing_hold_on_resource(
+                 another_branch,
+                 another_resource,
+                 patron,
+                 attrs
+               )
+
+      assert "This branch does not permit resource holds during inventory review" in errors_on(
+               changeset
+             ).business_rule
+    end
   end
 end
