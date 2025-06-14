@@ -4,7 +4,9 @@ defmodule Examples.PublicLibrary.Branch do
 
   schema "public_library_branches" do
     field :name, :string
-    field :permitted_resource_holds, {:array, :string}, default: ["open", "closed"]
+
+    field :permitted_resource_holds_types, {:array, :string},
+      default: ["open_ended", "closed_ended"]
 
     field :business_days, {:array, :string},
       default: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
@@ -24,7 +26,7 @@ defmodule Examples.PublicLibrary.Branch do
     branch
     |> cast(attrs, [
       :name,
-      :permitted_resource_holds,
+      :permitted_resource_holds_types,
       :business_days,
       :state,
       :permitted_patron_roles_for_resource_holds
@@ -35,7 +37,21 @@ defmodule Examples.PublicLibrary.Branch do
   # SECTION: Assoc validations
 
   @doc false
-  def validate_put_resource_hold(resource_hold_changeset, _branch) do
-    resource_hold_changeset
+  def validate_put_resource_hold(resource_hold_changeset, branch) do
+    validate_resource_hold_type_permitted(resource_hold_changeset, branch)
+  end
+
+  defp validate_resource_hold_type_permitted(resource_hold_changeset, branch) do
+    resource_hold_type = get_field(resource_hold_changeset, :type)
+
+    if to_string(resource_hold_type) not in branch.permitted_resource_holds_types do
+      add_error(
+        resource_hold_changeset,
+        :business_rule,
+        "This branch does not permit open-ended holds"
+      )
+    else
+      resource_hold_changeset
+    end
   end
 end
