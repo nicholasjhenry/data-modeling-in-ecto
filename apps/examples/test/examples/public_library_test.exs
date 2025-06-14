@@ -273,7 +273,7 @@ defmodule Examples.PublicLibraryTest do
   describe "placing a hold on a resource at a branch" do
     import Examples.PublicLibraryFixtures
 
-    test "validates resource hold type a branch permits" do
+    test "branch validates resource hold type" do
       branch = branch_fixture(permitted_resource_holds_types: ["closed_ended"])
       resource = resource_fixture()
       person = person_fixture()
@@ -290,6 +290,27 @@ defmodule Examples.PublicLibraryTest do
                PublicLibrary.placing_hold_on_resource(branch, another_resource, patron, attrs)
 
       assert "This branch does not permit open-ended holds" in errors_on(changeset).business_rule
+    end
+
+    test "branch validates resource hold pickup day" do
+      branch =
+        branch_fixture(business_days: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"])
+
+      resource = resource_fixture()
+      person = person_fixture()
+      patron = patron_fixture(person)
+      attrs = %{type: :closed_ended, pickup_day: "Monday"}
+
+      {:ok, _resource_hold} =
+        PublicLibrary.placing_hold_on_resource(branch, resource, patron, attrs)
+
+      another_resource = resource_fixture()
+      attrs = %{type: :closed_ended, pickup_day: "Sunday"}
+
+      assert {:error, changeset} =
+               PublicLibrary.placing_hold_on_resource(branch, another_resource, patron, attrs)
+
+      assert "This branch does not permit pickup on the selected day" in errors_on(changeset).business_rule
     end
   end
 end

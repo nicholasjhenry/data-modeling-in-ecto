@@ -38,7 +38,9 @@ defmodule Examples.PublicLibrary.Branch do
 
   @doc false
   def validate_put_resource_hold(resource_hold_changeset, branch) do
-    validate_resource_hold_type_permitted(resource_hold_changeset, branch)
+    resource_hold_changeset
+    |> validate_resource_hold_type_permitted(branch)
+    |> validate_resource_hold_pickup_day(branch)
   end
 
   defp validate_resource_hold_type_permitted(resource_hold_changeset, branch) do
@@ -49,6 +51,20 @@ defmodule Examples.PublicLibrary.Branch do
         resource_hold_changeset,
         :business_rule,
         "This branch does not permit open-ended holds"
+      )
+    else
+      resource_hold_changeset
+    end
+  end
+
+  defp validate_resource_hold_pickup_day(resource_hold_changeset, branch) do
+    resource_hold_pickup_day = get_field(resource_hold_changeset, :pickup_day)
+
+    if resource_hold_pickup_day not in branch.business_days do
+      add_error(
+        resource_hold_changeset,
+        :business_rule,
+        "This branch does not permit pickup on the selected day"
       )
     else
       resource_hold_changeset
