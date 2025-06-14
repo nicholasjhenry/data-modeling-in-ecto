@@ -22,7 +22,13 @@ defmodule Examples.PublicLibrary.Branch do
   @doc false
   def changeset(branch, attrs) do
     branch
-    |> cast(attrs, [:name])
+    |> cast(attrs, [
+      :name,
+      :permitted_resource_holds,
+      :business_days,
+      :state,
+      :permitted_patron_roles_for_resource_holds
+    ])
     |> validate_required([:name])
   end
 

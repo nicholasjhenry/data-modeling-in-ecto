@@ -9,6 +9,7 @@ defmodule Examples.PublicLibrary.ResourceHold do
   schema "public_library_resource_holds" do
     field :type, Ecto.Enum, values: [:open_ended, :closed_ended]
     field :permit_resource_fees, :boolean, default: false
+    field :pickup_day, :string
 
     belongs_to :branch, Branch
     belongs_to :resource, Resource
@@ -22,8 +23,8 @@ defmodule Examples.PublicLibrary.ResourceHold do
   @doc false
   def changeset(resource_hold, attrs) do
     resource_hold
-    |> cast(attrs, [:type, :permit_resource_fees])
-    |> validate_required([:type, :permit_resource_fees])
+    |> cast(attrs, [:type, :permit_resource_fees, :pickup_day])
+    |> validate_required([:type, :pickup_day])
   end
 
   # SECTION: Assoc changesets

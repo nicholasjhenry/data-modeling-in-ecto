@@ -114,13 +114,13 @@ defmodule Examples.PublicLibraryTest do
 
     import Examples.PublicLibraryFixtures
 
-    @invalid_attrs %{type: nil, permit_resource_fees: nil}
+    @invalid_attrs %{type: nil}
 
     test "create_resource_hold/1 with valid data creates a resource_hold" do
       branch = branch_fixture()
       resource = resource_fixture()
       patron = patron_fixture()
-      valid_attrs = %{type: :closed_ended, permit_resource_fees: true}
+      valid_attrs = %{type: :closed_ended, permit_resource_fees: true, pickup_day: "Monday"}
 
       assert {:ok, %ResourceHold{} = resource_hold} =
                PublicLibrary.create_resource_hold(branch, resource, patron, valid_attrs)
@@ -147,7 +147,7 @@ defmodule Examples.PublicLibraryTest do
       resource = resource_fixture()
       person = person_fixture()
       patron = patron_fixture(person, type: :regular)
-      attrs = %{type: :closed_ended}
+      attrs = %{type: :closed_ended, pickup_day: "Monday"}
 
       {:ok, _resource_hold} =
         PublicLibrary.placing_hold_on_resource(branch, resource, patron, attrs)
@@ -168,7 +168,7 @@ defmodule Examples.PublicLibraryTest do
       resource = resource_fixture()
       person = person_fixture()
       patron = patron_fixture(person, type: :regular)
-      attrs = %{type: :closed_ended}
+      attrs = %{type: :closed_ended, pickup_day: "Monday"}
 
       {:ok, _resource_hold} =
         PublicLibrary.placing_hold_on_resource(branch, resource, patron, attrs)
@@ -190,7 +190,7 @@ defmodule Examples.PublicLibraryTest do
       resource = resource_fixture()
       person = person_fixture()
       patron = patron_fixture(person, type: :researcher)
-      attrs = %{type: :closed_ended}
+      attrs = %{type: :closed_ended, pickup_day: "Monday"}
 
       {:ok, _resource_hold} =
         PublicLibrary.placing_hold_on_resource(branch, resource, patron, attrs)
@@ -263,7 +263,7 @@ defmodule Examples.PublicLibraryTest do
       resource = resource_fixture(has_fee: true)
       person = person_fixture()
       patron = patron_fixture(person, permit_resource_fees: false)
-      attrs = %{type: :closed_ended, permit_resource_fees: true}
+      attrs = %{type: :closed_ended, permit_resource_fees: true, pickup_day: "Monday"}
 
       assert {:ok, _resource_hold} =
                PublicLibrary.placing_hold_on_resource(branch, resource, patron, attrs)
