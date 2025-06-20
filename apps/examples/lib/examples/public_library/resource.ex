@@ -32,13 +32,33 @@ defmodule Examples.PublicLibrary.Resource do
 
   @doc false
   def validate_put_resource_hold(resource_hold_changeset, resource) do
-    resource_hold_type = get_field(resource_hold_changeset, :type) |> dbg
+    resource_hold_changeset
+    |> validate_resource_hold_type(resource)
+    |> validate_resource_hold_payment(resource)
+  end
+
+  defp validate_resource_hold_type(resource_hold_changeset, resource) do
+    resource_hold_type = get_field(resource_hold_changeset, :type)
 
     if to_string(resource_hold_type) not in resource.permitted_resource_hold_types do
       add_error(
         resource_hold_changeset,
         :business_rule,
         "This resource does not permit the resource hold type"
+      )
+    else
+      resource_hold_changeset
+    end
+  end
+
+  defp validate_resource_hold_payment(resource_hold_changeset, resource) do
+    resource_hold_payment = get_field(resource_hold_changeset, :payment)
+
+    if Decimal.compare(resource_hold_payment, resource.retrieval_fee) not in [:eq, :gt] do
+      add_error(
+        resource_hold_changeset,
+        :business_rule,
+        "This resource hold does not have adequate payment"
       )
     else
       resource_hold_changeset

@@ -156,10 +156,28 @@ defmodule Examples.PublicLibraryTest do
       attrs = %{type: :open_ended, pickup_day: "Monday"}
 
       assert {:error, changeset} =
-               PublicLibrary.placing_hold_on_resource(branch, another_resource, patron, attrs),
-             "fail"
+               PublicLibrary.placing_hold_on_resource(branch, another_resource, patron, attrs)
 
       assert "This resource does not permit the resource hold type" in errors_on(changeset).business_rule
+    end
+
+    test "validates resource hold retrieval fee" do
+      branch = branch_fixture()
+      resource = resource_fixture(retrieval_fee: Decimal.new(20))
+      person = person_fixture()
+      patron = patron_fixture(person, permit_resource_fees: true)
+      attrs = %{type: :closed_ended, pickup_day: "Monday", payment: Decimal.new(20)}
+
+      {:ok, _resource_hold} =
+        PublicLibrary.placing_hold_on_resource(branch, resource, patron, attrs)
+
+      another_resource = resource_fixture(retrieval_fee: Decimal.new(20))
+      attrs = %{type: :closed_ended, pickup_day: "Monday", payment: Decimal.new(10)}
+
+      assert {:error, changeset} =
+               PublicLibrary.placing_hold_on_resource(branch, another_resource, patron, attrs)
+
+      assert "This resource hold does not have adequate payment" in errors_on(changeset).business_rule
     end
   end
 
@@ -287,7 +305,13 @@ defmodule Examples.PublicLibraryTest do
       resource = resource_fixture(retrieval_fee: Decimal.new(100))
       person = person_fixture()
       patron = patron_fixture(person, permit_resource_fees: false)
-      attrs = %{type: :closed_ended, permit_resource_fees: true, pickup_day: "Monday"}
+
+      attrs = %{
+        type: :closed_ended,
+        permit_resource_fees: true,
+        payment: Decimal.new(100),
+        pickup_day: "Monday"
+      }
 
       assert {:ok, _resource_hold} =
                PublicLibrary.placing_hold_on_resource(branch, resource, patron, attrs)
