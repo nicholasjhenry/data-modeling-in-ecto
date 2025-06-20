@@ -4,6 +4,7 @@ defmodule Examples.PublicLibrary.Patron do
   import Ecto.Query
 
   alias Examples.PublicLibrary.Person
+  alias Examples.PublicLibrary.Resource
   alias Examples.PublicLibrary.ResourceHold
 
   schema "public_library_patrons" do
@@ -168,7 +169,7 @@ defmodule Examples.PublicLibrary.Patron do
     override_permit_resource_fee? = get_field(resource_hold_changeset, :permit_resource_fees)
 
     if not override_permit_resource_fee? and
-         (resource.has_fee and not patron.permit_resource_fees) do
+         (Resource.has_fee?(resource) and not patron.permit_resource_fees) do
       add_error(
         resource_hold_changeset,
         :business_rule,

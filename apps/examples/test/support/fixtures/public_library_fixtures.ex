@@ -24,9 +24,7 @@ defmodule Examples.PublicLibraryFixtures do
   def resource_fixture(attrs \\ %{}) do
     {:ok, resource} =
       attrs
-      |> Enum.into(%{
-        has_fee: false
-      })
+      |> Enum.into(%{type: :normal})
       |> Examples.PublicLibrary.create_resource()
 
     resource

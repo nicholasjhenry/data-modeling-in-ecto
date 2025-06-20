@@ -32,7 +32,7 @@ defmodule Examples.PublicLibraryTest do
 
     import Examples.PublicLibraryFixtures
 
-    @invalid_attrs %{has_fee: nil}
+    @invalid_attrs %{type: nil}
 
     test "get_resource!/1 returns the resource with given id" do
       resource = resource_fixture()
@@ -40,10 +40,10 @@ defmodule Examples.PublicLibraryTest do
     end
 
     test "create_resource/1 with valid data creates a resource" do
-      valid_attrs = %{has_fee: true}
+      valid_attrs = %{type: :normal}
 
       assert {:ok, %Resource{} = resource} = PublicLibrary.create_resource(valid_attrs)
-      assert resource.has_fee == true
+      assert resource.type == :normal
     end
 
     test "create_resource/1 with invalid data returns error changeset" do
@@ -247,7 +247,7 @@ defmodule Examples.PublicLibraryTest do
 
     test "validate resource fee conflict for a patron" do
       branch = branch_fixture()
-      resource = resource_fixture(has_fee: true)
+      resource = resource_fixture(retrieval_fee: Decimal.new(100))
       person = person_fixture()
       patron = patron_fixture(person, permit_resource_fees: false)
       attrs = %{type: :closed_ended}
@@ -260,7 +260,7 @@ defmodule Examples.PublicLibraryTest do
 
     test "validate override resource fee conflict for a patron" do
       branch = branch_fixture()
-      resource = resource_fixture(has_fee: true)
+      resource = resource_fixture(retrieval_fee: Decimal.new(100))
       person = person_fixture()
       patron = patron_fixture(person, permit_resource_fees: false)
       attrs = %{type: :closed_ended, permit_resource_fees: true, pickup_day: "Monday"}
