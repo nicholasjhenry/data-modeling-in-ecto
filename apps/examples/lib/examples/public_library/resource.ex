@@ -31,7 +31,17 @@ defmodule Examples.PublicLibrary.Resource do
   # SECTION: Assoc validations
 
   @doc false
-  def validate_put_resource_hold(resource_hold_changeset, _resource) do
-    resource_hold_changeset
+  def validate_put_resource_hold(resource_hold_changeset, resource) do
+    resource_hold_type = get_field(resource_hold_changeset, :type) |> dbg
+
+    if to_string(resource_hold_type) not in resource.permitted_resource_hold_types do
+      add_error(
+        resource_hold_changeset,
+        :business_rule,
+        "This resource does not permit the resource hold type"
+      )
+    else
+      resource_hold_changeset
+    end
   end
 end
