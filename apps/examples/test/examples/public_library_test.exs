@@ -177,7 +177,26 @@ defmodule Examples.PublicLibraryTest do
       assert {:error, changeset} =
                PublicLibrary.placing_hold_on_resource(branch, another_resource, patron, attrs)
 
-      assert "This resource hold does not have adequate payment" in errors_on(changeset).business_rule
+      assert "This resource hold does not have an adequate payment" in errors_on(changeset).business_rule
+    end
+
+    test "validates resource state" do
+      branch = branch_fixture()
+      resource = resource_fixture(state: :available)
+      person = person_fixture()
+      patron = patron_fixture(person)
+      attrs = %{type: :closed_ended, pickup_day: "Monday"}
+
+      {:ok, _resource_hold} =
+        PublicLibrary.placing_hold_on_resource(branch, resource, patron, attrs)
+
+      another_resource = resource_fixture(state: :damaged)
+      attrs = %{type: :closed_ended, pickup_day: "Monday"}
+
+      assert {:error, changeset} =
+               PublicLibrary.placing_hold_on_resource(branch, another_resource, patron, attrs)
+
+      assert "This resource is not available" in errors_on(changeset).business_rule
     end
   end
 

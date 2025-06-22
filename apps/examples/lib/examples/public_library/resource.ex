@@ -35,6 +35,7 @@ defmodule Examples.PublicLibrary.Resource do
     resource_hold_changeset
     |> validate_resource_hold_type(resource)
     |> validate_resource_hold_payment(resource)
+    |> validate_state_for_resource_hold(resource)
   end
 
   defp validate_resource_hold_type(resource_hold_changeset, resource) do
@@ -58,7 +59,19 @@ defmodule Examples.PublicLibrary.Resource do
       add_error(
         resource_hold_changeset,
         :business_rule,
-        "This resource hold does not have adequate payment"
+        "This resource hold does not have an adequate payment"
+      )
+    else
+      resource_hold_changeset
+    end
+  end
+
+  defp validate_state_for_resource_hold(resource_hold_changeset, resource) do
+    if resource.state != :available do
+      add_error(
+        resource_hold_changeset,
+        :business_rule,
+        "This resource is not available"
       )
     else
       resource_hold_changeset
