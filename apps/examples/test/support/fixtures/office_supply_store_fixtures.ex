@@ -98,4 +98,19 @@ defmodule Examples.OfficeSupplyStoreFixtures do
 
     product
   end
+
+  @doc """
+  Generate a order_line_item.
+  """
+  def order_line_item_fixture(attrs \\ %{}) do
+    {:ok, order_line_item} =
+      attrs
+      |> Enum.into(%{
+        price: "120.5",
+        quantity: 42
+      })
+      |> Examples.OfficeSupplyStore.create_order_line_item()
+
+    order_line_item
+  end
 end

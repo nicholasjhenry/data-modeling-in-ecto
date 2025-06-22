@@ -117,4 +117,100 @@ defmodule Examples.OfficeSupplyStore do
     |> Product.changeset(attrs)
     |> Repo.insert()
   end
+
+  alias Examples.OfficeSupplyStore.OrderLineItem
+
+  @doc """
+  Returns the list of office_supply_store_order_line_items.
+
+  ## Examples
+
+      iex> list_office_supply_store_order_line_items()
+      [%OrderLineItem{}, ...]
+
+  """
+  def list_office_supply_store_order_line_items do
+    Repo.all(OrderLineItem)
+  end
+
+  @doc """
+  Gets a single order_line_item.
+
+  Raises `Ecto.NoResultsError` if the Order line item does not exist.
+
+  ## Examples
+
+      iex> get_order_line_item!(123)
+      %OrderLineItem{}
+
+      iex> get_order_line_item!(456)
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_order_line_item!(id), do: Repo.get!(OrderLineItem, id)
+
+  @doc """
+  Creates a order_line_item.
+
+  ## Examples
+
+      iex> create_order_line_item(%{field: value})
+      {:ok, %OrderLineItem{}}
+
+      iex> create_order_line_item(%{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def create_order_line_item(attrs \\ %{}) do
+    %OrderLineItem{}
+    |> OrderLineItem.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  @doc """
+  Updates a order_line_item.
+
+  ## Examples
+
+      iex> update_order_line_item(order_line_item, %{field: new_value})
+      {:ok, %OrderLineItem{}}
+
+      iex> update_order_line_item(order_line_item, %{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def update_order_line_item(%OrderLineItem{} = order_line_item, attrs) do
+    order_line_item
+    |> OrderLineItem.changeset(attrs)
+    |> Repo.update()
+  end
+
+  @doc """
+  Deletes a order_line_item.
+
+  ## Examples
+
+      iex> delete_order_line_item(order_line_item)
+      {:ok, %OrderLineItem{}}
+
+      iex> delete_order_line_item(order_line_item)
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def delete_order_line_item(%OrderLineItem{} = order_line_item) do
+    Repo.delete(order_line_item)
+  end
+
+  @doc """
+  Returns an `%Ecto.Changeset{}` for tracking order_line_item changes.
+
+  ## Examples
+
+      iex> change_order_line_item(order_line_item)
+      %Ecto.Changeset{data: %OrderLineItem{}}
+
+  """
+  def change_order_line_item(%OrderLineItem{} = order_line_item, attrs \\ %{}) do
+    OrderLineItem.changeset(order_line_item, attrs)
+  end
 end
