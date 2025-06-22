@@ -38,22 +38,6 @@ defmodule Examples.OfficeSupplyStore do
     |> Repo.update()
   end
 
-  alias Examples.OfficeSupplyStore.Order
-
-  def get_order!(id), do: Repo.get!(Order, id)
-
-  def create_order(attrs \\ %{}) do
-    %Order{}
-    |> Order.changeset(attrs)
-    |> Repo.insert()
-  end
-
-  def update_order(%Order{} = order, attrs) do
-    order
-    |> Order.changeset(attrs)
-    |> Repo.update()
-  end
-
   alias Examples.OfficeSupplyStore.GovernmentCustomer
 
   def get_government_customer!(id), do: Repo.get!(GovernmentCustomer, id)
@@ -116,6 +100,27 @@ defmodule Examples.OfficeSupplyStore do
     %Product{}
     |> Product.changeset(attrs)
     |> Repo.insert()
+  end
+
+  alias Examples.OfficeSupplyStore.Order
+
+  def get_order!(id) do
+    Order
+    |> Repo.get!(id)
+    |> Repo.preload(:line_items)
+  end
+
+  def create_order(attrs \\ %{}) do
+    # TODO
+    %Order{line_items: []}
+    |> Order.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  def update_order(%Order{} = order, attrs) do
+    order
+    |> Order.changeset(attrs)
+    |> Repo.update()
   end
 
   alias Examples.OfficeSupplyStore.OrderLineItem
