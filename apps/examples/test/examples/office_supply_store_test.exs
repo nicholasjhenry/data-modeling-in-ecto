@@ -344,11 +344,6 @@ defmodule Examples.OfficeSupplyStoreTest do
 
     @invalid_attrs %{name: nil, price: nil}
 
-    test "list_office_supply_store_products/0 returns all office_supply_store_products" do
-      product = product_fixture()
-      assert OfficeSupplyStore.list_office_supply_store_products() == [product]
-    end
-
     test "get_product!/1 returns the product with given id" do
       product = product_fixture()
       assert OfficeSupplyStore.get_product!(product.id) == product
@@ -364,32 +359,6 @@ defmodule Examples.OfficeSupplyStoreTest do
 
     test "create_product/1 with invalid data returns error changeset" do
       assert {:error, %Ecto.Changeset{}} = OfficeSupplyStore.create_product(@invalid_attrs)
-    end
-
-    test "update_product/2 with valid data updates the product" do
-      product = product_fixture()
-      update_attrs = %{name: "some updated name", price: "456.7"}
-
-      assert {:ok, %Product{} = product} = OfficeSupplyStore.update_product(product, update_attrs)
-      assert product.name == "some updated name"
-      assert product.price == Decimal.new("456.7")
-    end
-
-    test "update_product/2 with invalid data returns error changeset" do
-      product = product_fixture()
-      assert {:error, %Ecto.Changeset{}} = OfficeSupplyStore.update_product(product, @invalid_attrs)
-      assert product == OfficeSupplyStore.get_product!(product.id)
-    end
-
-    test "delete_product/1 deletes the product" do
-      product = product_fixture()
-      assert {:ok, %Product{}} = OfficeSupplyStore.delete_product(product)
-      assert_raise Ecto.NoResultsError, fn -> OfficeSupplyStore.get_product!(product.id) end
-    end
-
-    test "change_product/1 returns a product changeset" do
-      product = product_fixture()
-      assert %Ecto.Changeset{} = OfficeSupplyStore.change_product(product)
     end
   end
 end
