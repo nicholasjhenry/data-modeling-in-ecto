@@ -72,8 +72,8 @@ defmodule Examples.PublicLibrary do
   def get_resource_hold!(id), do: Repo.get!(ResourceHold, id)
 
   def create_resource_hold(
-        %Branch{} = branch,
         %Resource{} = resource,
+        %Branch{} = branch,
         %Patron{} = patron,
         attrs \\ %{},
         opts \\ []
@@ -88,17 +88,17 @@ defmodule Examples.PublicLibrary do
     %ResourceHold{}
     |> ResourceHold.changeset(attrs)
     |> ResourceHold.put_resource_changeset(resource)
-    |> ResourceHold.put_patron_changeset(patron)
     |> ResourceHold.put_branch_changeset(branch)
+    |> ResourceHold.put_patron_changeset(patron)
     |> Repo.insert()
   end
 
-  def placing_hold_on_resource(
-        %Branch{} = branch,
+  def place_hold_on_resource(
         %Resource{} = resource,
+        %Branch{} = branch,
         %Patron{} = patron,
         attrs \\ %{},
         opts \\ []
       ),
-      do: create_resource_hold(branch, resource, patron, attrs, opts)
+      do: create_resource_hold(resource, branch, patron, attrs, opts)
 end

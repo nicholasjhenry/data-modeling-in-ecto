@@ -24,9 +24,7 @@ defmodule Examples.PublicLibraryFixtures do
   def resource_fixture(attrs \\ %{}) do
     {:ok, resource} =
       attrs
-      |> Enum.into(%{
-        has_fee: false
-      })
+      |> Enum.into(%{type: :normal})
       |> Examples.PublicLibrary.create_resource()
 
     resource
@@ -72,8 +70,8 @@ defmodule Examples.PublicLibraryFixtures do
   Generate a resource_hold.
   """
   def resource_hold_fixture(
-        branch \\ branch_fixture(),
         resource \\ resource_fixture(),
+        branch \\ branch_fixture(),
         patron \\ patron_fixture(),
         attrs \\ %{}
       ) do
@@ -85,7 +83,7 @@ defmodule Examples.PublicLibraryFixtures do
       })
 
     {:ok, resource_hold} =
-      Examples.PublicLibrary.create_resource_hold(branch, resource, patron, attrs)
+      Examples.PublicLibrary.create_resource_hold(resource, branch, patron, attrs)
 
     resource_hold
   end

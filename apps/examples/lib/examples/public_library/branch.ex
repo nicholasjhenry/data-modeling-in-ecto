@@ -42,7 +42,6 @@ defmodule Examples.PublicLibrary.Branch do
     |> validate_resource_hold_type_permitted(branch)
     |> validate_resource_hold_pickup_day(branch)
     |> validate_branch_state(branch)
-    |> validate_patron_type(branch)
   end
 
   defp validate_resource_hold_type_permitted(resource_hold_changeset, branch) do
@@ -85,9 +84,19 @@ defmodule Examples.PublicLibrary.Branch do
     end
   end
 
-  defp validate_patron_type(resource_hold_changeset, branch) do
+  @doc false
+  def validate_put_resource_hold_conflict(resource_hold_changeset) do
+    branch = get_assoc(resource_hold_changeset, :branch, :struct)
     patron = get_assoc(resource_hold_changeset, :patron, :struct)
 
+    if patron != nil and branch != nil do
+      validate_patron_type(resource_hold_changeset, branch, patron)
+    else
+      resource_hold_changeset
+    end
+  end
+
+  defp validate_patron_type(resource_hold_changeset, branch, patron) do
     if to_string(patron.type) not in branch.permitted_patron_types_for_resource_holds do
       add_error(
         resource_hold_changeset,
