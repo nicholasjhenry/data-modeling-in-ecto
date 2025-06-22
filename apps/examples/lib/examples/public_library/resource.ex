@@ -35,7 +35,7 @@ defmodule Examples.PublicLibrary.Resource do
     resource_hold_changeset
     |> validate_resource_hold_type(resource)
     |> validate_resource_hold_payment(resource)
-    |> validate_state_for_resource_hold(resource)
+    |> validate_resource_state_for_resource_hold(resource)
   end
 
   defp validate_resource_hold_type(resource_hold_changeset, resource) do
@@ -66,12 +66,44 @@ defmodule Examples.PublicLibrary.Resource do
     end
   end
 
-  defp validate_state_for_resource_hold(resource_hold_changeset, resource) do
+  defp validate_resource_state_for_resource_hold(resource_hold_changeset, resource) do
     if resource.state != :available do
       add_error(
         resource_hold_changeset,
         :business_rule,
         "This resource is not available"
+      )
+    else
+      resource_hold_changeset
+    end
+  end
+
+  @doc false
+  def validate_put_resource_hold_conflict(resource_hold_changeset) do
+    resource = get_assoc(resource_hold_changeset, :resource, :struct)
+    patron = get_assoc(resource_hold_changeset, :patron, :struct)
+
+    if resource != nil and patron != nil do
+      validate_resource_type_and_patron_type_for_resource_hold(
+        resource_hold_changeset,
+        resource,
+        patron
+      )
+    else
+      resource_hold_changeset
+    end
+  end
+
+  defp validate_resource_type_and_patron_type_for_resource_hold(
+         resource_hold_changeset,
+         resource,
+         patron
+       ) do
+    if resource.type == :restricted and patron.type != :researcher do
+      add_error(
+        resource_hold_changeset,
+        :business_rule,
+        "This resource is restricted"
       )
     else
       resource_hold_changeset

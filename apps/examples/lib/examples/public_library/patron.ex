@@ -107,7 +107,6 @@ defmodule Examples.PublicLibrary.Patron do
     |> validate_age_group(patron)
     |> validate_registration_number(patron)
     |> validate_state(patron)
-    |> validate_resource_fee_conflict(patron)
   end
 
   defp validate_resource_hold_type(resource_hold_changeset, patron) do
@@ -164,8 +163,19 @@ defmodule Examples.PublicLibrary.Patron do
     end
   end
 
-  defp validate_resource_fee_conflict(resource_hold_changeset, patron) do
+  @doc false
+  def validate_put_resource_hold_conflict(resource_hold_changeset) do
+    patron = get_assoc(resource_hold_changeset, :patron, :struct)
     resource = get_assoc(resource_hold_changeset, :resource, :struct)
+
+    if patron != nil and resource != nil do
+      validate_resource_fee_conflict(resource_hold_changeset, patron, resource)
+    else
+      resource_hold_changeset
+    end
+  end
+
+  defp validate_resource_fee_conflict(resource_hold_changeset, patron, resource) do
     override_permit_resource_fee? = get_field(resource_hold_changeset, :permit_resource_fees)
 
     if not override_permit_resource_fee? and

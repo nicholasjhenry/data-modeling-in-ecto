@@ -88,8 +88,8 @@ defmodule Examples.PublicLibrary do
     %ResourceHold{}
     |> ResourceHold.changeset(attrs)
     |> ResourceHold.put_resource_changeset(resource)
-    |> ResourceHold.put_patron_changeset(patron)
     |> ResourceHold.put_branch_changeset(branch)
+    |> ResourceHold.put_patron_changeset(patron)
     |> Repo.insert()
   end
 
