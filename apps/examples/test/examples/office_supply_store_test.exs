@@ -337,14 +337,21 @@ defmodule Examples.OfficeSupplyStoreTest do
     end
 
     test "create_order/1 with valid data creates a order" do
-      valid_attrs = %{state: :payment_pending, line_items: [%{price: "120.5", quantity: 42}]}
+      valid_attrs = %{state: :payment_pending}
+      line_item_attrs = %{price: "120.5", quantity: 42}
 
-      assert {:ok, %Order{} = order} = OfficeSupplyStore.create_order(valid_attrs)
+      assert {:ok, %Order{} = order} =
+               OfficeSupplyStore.create_order(valid_attrs, line_item_attrs)
+
+      assert Enum.count(order.line_items) == 1
       assert order.state == :payment_pending
     end
 
     test "create_order/1 with invalid data returns error changeset" do
-      assert {:error, %Ecto.Changeset{}} = OfficeSupplyStore.create_order(@invalid_attrs)
+      line_item_attrs = %{quantity: 42, price: "120.5"}
+
+      assert {:error, %Ecto.Changeset{}} =
+               OfficeSupplyStore.create_order(@invalid_attrs, line_item_attrs)
     end
 
     test "update_order/2 with valid data updates the order" do
@@ -379,9 +386,9 @@ defmodule Examples.OfficeSupplyStoreTest do
       valid_attrs = %{price: "120.5", quantity: 42}
 
       assert {:ok, %Order{} = order} =
-               OfficeSupplyStore.create_order_line_item(order, %{line_items: [valid_attrs]})
+               OfficeSupplyStore.create_order_line_item(order, valid_attrs)
 
-      assert [order_line_item] = order.line_items
+      assert [order_line_item, _another_line_item] = order.line_items
       assert order_line_item.price == Decimal.new("120.5")
       assert order_line_item.quantity == 42
     end
@@ -390,7 +397,7 @@ defmodule Examples.OfficeSupplyStoreTest do
       order = order_fixture()
 
       assert {:error, %Ecto.Changeset{}} =
-               OfficeSupplyStore.create_order_line_item(order, %{line_items: [@invalid_attrs]})
+               OfficeSupplyStore.create_order_line_item(order, @invalid_attrs)
     end
   end
 end

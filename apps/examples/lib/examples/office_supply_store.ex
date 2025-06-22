@@ -110,10 +110,11 @@ defmodule Examples.OfficeSupplyStore do
     |> Repo.preload(:line_items)
   end
 
-  def create_order(attrs \\ %{}) do
-    # TODO
-    %Order{line_items: []}
+  def create_order(attrs, line_item_attrs) do
+    %Order{}
+    |> Repo.preload(:line_items)
     |> Order.changeset(attrs)
+    |> Order.put_line_item_changeset(line_item_attrs)
     |> Repo.insert()
   end
 

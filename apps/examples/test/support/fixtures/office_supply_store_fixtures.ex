@@ -47,7 +47,7 @@ defmodule Examples.OfficeSupplyStoreFixtures do
       |> Enum.into(%{
         state: :payment_pending
       })
-      |> Examples.OfficeSupplyStore.create_order()
+      |> Examples.OfficeSupplyStore.create_order(%{price: "120.5", quantity: 42})
 
     order
   end
