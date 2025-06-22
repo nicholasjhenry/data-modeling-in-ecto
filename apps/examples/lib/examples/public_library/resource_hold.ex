@@ -38,8 +38,10 @@ defmodule Examples.PublicLibrary.ResourceHold do
   end
 
   def put_resource_changeset(changeset, resource) do
+    resource_changeset = Resource.on_hold_state_changeset(resource)
+
     changeset
-    |> put_assoc(:resource, resource)
+    |> put_assoc(:resource, resource_changeset)
     |> validate_put_resource()
     |> Resource.validate_put_resource_hold(resource)
   end

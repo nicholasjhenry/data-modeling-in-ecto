@@ -4,7 +4,11 @@ defmodule Examples.PublicLibrary.Resource do
 
   schema "public_library_resources" do
     field :type, Ecto.Enum, values: [:normal, :restricted], default: :normal
-    field :state, Ecto.Enum, values: [:available, :damaged, :defective], default: :available
+
+    field :state, Ecto.Enum,
+      values: [:available, :on_hold, :damaged, :defective],
+      default: :available
+
     field :retrieval_fee, :decimal, default: Decimal.new(0)
 
     field :permitted_resource_hold_types, {:array, :string},
@@ -26,6 +30,11 @@ defmodule Examples.PublicLibrary.Resource do
     resource
     |> cast(attrs, [:type, :state, :retrieval_fee, :permitted_resource_hold_types])
     |> validate_required([:type, :state, :retrieval_fee, :permitted_resource_hold_types])
+  end
+
+  @doc false
+  def on_hold_state_changeset(resource) do
+    change(resource, state: :on_hold)
   end
 
   # SECTION: Assoc validations

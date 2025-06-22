@@ -221,6 +221,30 @@ defmodule Examples.PublicLibraryTest do
 
       assert "This resource is restricted" in errors_on(changeset).business_rule
     end
+
+    test "validates resource already on hold" do
+      branch = branch_fixture()
+      resource = resource_fixture()
+      person = person_fixture()
+      patron = patron_fixture(person)
+      attrs = %{type: :closed_ended, pickup_day: "Monday"}
+
+      {:ok, resource_hold} =
+        PublicLibrary.placing_hold_on_resource(branch, resource, patron, attrs)
+
+      person = person_fixture()
+      another_patron = patron_fixture(person)
+
+      assert {:error, changeset} =
+               PublicLibrary.placing_hold_on_resource(
+                 branch,
+                 resource_hold.resource,
+                 another_patron,
+                 attrs
+               )
+
+      assert "This resource is not available" in errors_on(changeset).business_rule
+    end
   end
 
   describe "placing a hold on a resource for a patron" do
