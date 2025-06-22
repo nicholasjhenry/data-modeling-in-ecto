@@ -83,4 +83,19 @@ defmodule Examples.OfficeSupplyStoreFixtures do
 
     business_customer
   end
+
+  @doc """
+  Generate a product.
+  """
+  def product_fixture(attrs \\ %{}) do
+    {:ok, product} =
+      attrs
+      |> Enum.into(%{
+        name: "some name",
+        price: "120.5"
+      })
+      |> Examples.OfficeSupplyStore.create_product()
+
+    product
+  end
 end
