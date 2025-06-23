@@ -38,22 +38,6 @@ defmodule Examples.OfficeSupplyStore do
     |> Repo.update()
   end
 
-  alias Examples.OfficeSupplyStore.Order
-
-  def get_order!(id), do: Repo.get!(Order, id)
-
-  def create_order(attrs \\ %{}) do
-    %Order{}
-    |> Order.changeset(attrs)
-    |> Repo.insert()
-  end
-
-  def update_order(%Order{} = order, attrs) do
-    order
-    |> Order.changeset(attrs)
-    |> Repo.update()
-  end
-
   alias Examples.OfficeSupplyStore.GovernmentCustomer
 
   def get_government_customer!(id), do: Repo.get!(GovernmentCustomer, id)
@@ -106,5 +90,55 @@ defmodule Examples.OfficeSupplyStore do
       ) do
     business_customer.id == other.id &&
       Date.compare(business_customer.registered_on, other.registered_on) == :eq
+  end
+
+  alias Examples.OfficeSupplyStore.Product
+
+  def get_product!(id), do: Repo.get!(Product, id)
+
+  def create_product(attrs \\ %{}) do
+    %Product{}
+    |> Product.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  alias Examples.OfficeSupplyStore.Order
+
+  def get_order!(id) do
+    Order
+    |> Repo.get!(id)
+    |> Repo.preload(:line_items)
+  end
+
+  def create_order(attrs, line_item_attrs) do
+    %Order{}
+    |> Repo.preload(:line_items)
+    |> Order.changeset(attrs)
+    |> Order.put_line_item_changeset(line_item_attrs)
+    |> Repo.insert()
+  end
+
+  def update_order(%Order{} = order, attrs) do
+    order
+    |> Order.changeset(attrs)
+    |> Repo.update()
+  end
+
+  alias Examples.OfficeSupplyStore.OrderLineItem
+
+  def get_order_line_item!(id), do: Repo.get!(OrderLineItem, id)
+
+  def create_order_line_item(order, attrs \\ %{}) do
+    order
+    |> Repo.preload(:line_items)
+    |> Order.put_line_item_changeset(attrs)
+    |> Repo.update()
+  end
+
+  def delete_order_line_item(order, order_line_item) do
+    order
+    |> Repo.preload(:line_items)
+    |> Order.delete_line_item_changeset(order_line_item)
+    |> Repo.update()
   end
 end

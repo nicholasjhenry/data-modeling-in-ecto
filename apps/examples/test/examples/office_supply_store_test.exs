@@ -120,44 +120,6 @@ defmodule Examples.OfficeSupplyStoreTest do
     end
   end
 
-  describe "office_supply_store_orders" do
-    alias Examples.OfficeSupplyStore.Order
-
-    import Examples.OfficeSupplyStoreFixtures
-
-    @invalid_attrs %{state: nil}
-
-    test "get_order!/1 returns the order with given id" do
-      order = order_fixture()
-      assert OfficeSupplyStore.get_order!(order.id) == order
-    end
-
-    test "create_order/1 with valid data creates a order" do
-      valid_attrs = %{state: :payment_pending}
-
-      assert {:ok, %Order{} = order} = OfficeSupplyStore.create_order(valid_attrs)
-      assert order.state == :payment_pending
-    end
-
-    test "create_order/1 with invalid data returns error changeset" do
-      assert {:error, %Ecto.Changeset{}} = OfficeSupplyStore.create_order(@invalid_attrs)
-    end
-
-    test "update_order/2 with valid data updates the order" do
-      order = order_fixture()
-      update_attrs = %{state: :delivery_pending}
-
-      assert {:ok, %Order{} = order} = OfficeSupplyStore.update_order(order, update_attrs)
-      assert order.state == :delivery_pending
-    end
-
-    test "update_order/2 with invalid data returns error changeset" do
-      order = order_fixture()
-      assert {:error, %Ecto.Changeset{}} = OfficeSupplyStore.update_order(order, @invalid_attrs)
-      assert order == OfficeSupplyStore.get_order!(order.id)
-    end
-  end
-
   describe "office_supply_store_government_customers" do
     alias Examples.OfficeSupplyStore.GovernmentCustomer
 
@@ -334,6 +296,118 @@ defmodule Examples.OfficeSupplyStoreTest do
                business_customer,
                OfficeSupplyStore.get_business_customer!(business_customer.id)
              )
+    end
+  end
+
+  describe "office_supply_store_products" do
+    alias Examples.OfficeSupplyStore.Product
+
+    import Examples.OfficeSupplyStoreFixtures
+
+    @invalid_attrs %{name: nil, price: nil}
+
+    test "get_product!/1 returns the product with given id" do
+      product = product_fixture()
+      assert OfficeSupplyStore.get_product!(product.id) == product
+    end
+
+    test "create_product/1 with valid data creates a product" do
+      valid_attrs = %{name: "some name", price: "120.5"}
+
+      assert {:ok, %Product{} = product} = OfficeSupplyStore.create_product(valid_attrs)
+      assert product.name == "some name"
+      assert product.price == Decimal.new("120.5")
+    end
+
+    test "create_product/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = OfficeSupplyStore.create_product(@invalid_attrs)
+    end
+  end
+
+  describe "office_supply_store_orders" do
+    alias Examples.OfficeSupplyStore.Order
+
+    import Examples.OfficeSupplyStoreFixtures
+
+    @invalid_attrs %{state: nil}
+
+    test "get_order!/1 returns the order with given id" do
+      order = order_fixture()
+      assert OfficeSupplyStore.get_order!(order.id) == order
+    end
+
+    test "create_order/1 with valid data creates a order" do
+      valid_attrs = %{state: :payment_pending}
+      line_item_attrs = %{price: "120.5", quantity: 42}
+
+      assert {:ok, %Order{} = order} =
+               OfficeSupplyStore.create_order(valid_attrs, line_item_attrs)
+
+      assert Enum.count(order.line_items) == 1
+      assert order.state == :payment_pending
+    end
+
+    test "create_order/1 with invalid data returns error changeset" do
+      line_item_attrs = %{quantity: 42, price: "120.5"}
+
+      assert {:error, %Ecto.Changeset{}} =
+               OfficeSupplyStore.create_order(@invalid_attrs, line_item_attrs)
+    end
+
+    test "update_order/2 with valid data updates the order" do
+      order = order_fixture()
+      update_attrs = %{state: :delivery_pending}
+
+      assert {:ok, %Order{} = order} = OfficeSupplyStore.update_order(order, update_attrs)
+      assert order.state == :delivery_pending
+    end
+
+    test "update_order/2 with invalid data returns error changeset" do
+      order = order_fixture()
+      assert {:error, %Ecto.Changeset{}} = OfficeSupplyStore.update_order(order, @invalid_attrs)
+      assert order == OfficeSupplyStore.get_order!(order.id)
+    end
+  end
+
+  describe "office_supply_store_order_line_items" do
+    alias Examples.OfficeSupplyStore.Order
+
+    import Examples.OfficeSupplyStoreFixtures
+
+    @invalid_attrs %{price: nil, quantity: nil}
+
+    # test "get_order_line_item!/1 returns the order_line_item with given id" do
+    #   order_line_item = order_line_item_fixture()
+    #   assert OfficeSupplyStore.get_order_line_item!(order_line_item.id) == order_line_item
+    # end
+
+    test "create_order_line_item/1 with valid data creates a order_line_item" do
+      order = order_fixture()
+      valid_attrs = %{price: "120.5", quantity: 42}
+
+      assert {:ok, %Order{} = order} =
+               OfficeSupplyStore.create_order_line_item(order, valid_attrs)
+
+      assert [order_line_item, _another_line_item] = order.line_items
+      assert order_line_item.price == Decimal.new("120.5")
+      assert order_line_item.quantity == 42
+    end
+
+    test "create_order_line_item/1 with invalid data returns error changeset" do
+      order = order_fixture()
+
+      assert {:error, %Ecto.Changeset{}} =
+               OfficeSupplyStore.create_order_line_item(order, @invalid_attrs)
+    end
+
+    test "delete_order_line_item/1 with order in a valid state deletes a order_line_item" do
+      order = order_fixture()
+      [order_line_item] = order.line_items
+
+      assert {:error, changeset} =
+               OfficeSupplyStore.delete_order_line_item(order, order_line_item)
+
+      assert "An order requires at least one line item" in errors_on(changeset).business_rule
     end
   end
 end

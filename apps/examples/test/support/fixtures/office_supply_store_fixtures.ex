@@ -47,7 +47,7 @@ defmodule Examples.OfficeSupplyStoreFixtures do
       |> Enum.into(%{
         state: :payment_pending
       })
-      |> Examples.OfficeSupplyStore.create_order()
+      |> Examples.OfficeSupplyStore.create_order(%{price: "120.5", quantity: 42})
 
     order
   end
@@ -82,5 +82,35 @@ defmodule Examples.OfficeSupplyStoreFixtures do
       Examples.OfficeSupplyStore.create_business_customer(organization, attrs)
 
     business_customer
+  end
+
+  @doc """
+  Generate a product.
+  """
+  def product_fixture(attrs \\ %{}) do
+    {:ok, product} =
+      attrs
+      |> Enum.into(%{
+        name: "some name",
+        price: "120.5"
+      })
+      |> Examples.OfficeSupplyStore.create_product()
+
+    product
+  end
+
+  @doc """
+  Generate a order_line_item.
+  """
+  def order_line_item_fixture(attrs \\ %{}) do
+    {:ok, order_line_item} =
+      attrs
+      |> Enum.into(%{
+        price: "120.5",
+        quantity: 42
+      })
+      |> Examples.OfficeSupplyStore.create_order_line_item()
+
+    order_line_item
   end
 end
