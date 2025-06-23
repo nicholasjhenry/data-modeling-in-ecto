@@ -1,6 +1,7 @@
 defmodule Examples.OfficeSupplyStore.Order do
   use Ecto.Schema
   import Ecto.Changeset
+  import EssentialEcto
 
   alias Examples.OfficeSupplyStore.OrderLineItem
 
@@ -22,15 +23,21 @@ defmodule Examples.OfficeSupplyStore.Order do
     changeset = change(order)
 
     line_item_changeset = OrderLineItem.changeset(%OrderLineItem{}, line_item_attrs)
-    line_items = [line_item_changeset | changeset.data.line_items]
 
     changeset
-    |> put_assoc(:line_items, line_items)
+    |> put_assoc(:line_items, [line_item_changeset | changeset.data.line_items])
+    |> validate_line_items
+  end
+
+  def delete_line_item_changeset(order, line_item) do
+    order
+    |> change
+    |> delete_assoc(:line_items, line_item)
     |> validate_line_items
   end
 
   defp validate_line_items(order_changeset) do
-    line_item_changesets = get_assoc(order_changeset, :line_items)
+    line_item_changesets = get_all_assocs(order_changeset, :line_items, :insert_or_update)
 
     if Enum.count(line_item_changesets) == 0 do
       add_error(order_changeset, :business_rule, "An order requires at least one line item")

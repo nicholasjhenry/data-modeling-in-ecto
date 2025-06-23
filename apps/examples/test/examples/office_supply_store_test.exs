@@ -399,5 +399,15 @@ defmodule Examples.OfficeSupplyStoreTest do
       assert {:error, %Ecto.Changeset{}} =
                OfficeSupplyStore.create_order_line_item(order, @invalid_attrs)
     end
+
+    test "delete_order_line_item/1 with order in a valid state deletes a order_line_item" do
+      order = order_fixture()
+      [order_line_item] = order.line_items
+
+      assert {:error, changeset} =
+               OfficeSupplyStore.delete_order_line_item(order, order_line_item)
+
+      assert "An order requires at least one line item" in errors_on(changeset).business_rule
+    end
   end
 end

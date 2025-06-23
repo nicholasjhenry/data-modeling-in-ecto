@@ -134,4 +134,11 @@ defmodule Examples.OfficeSupplyStore do
     |> Order.put_line_item_changeset(attrs)
     |> Repo.update()
   end
+
+  def delete_order_line_item(order, order_line_item) do
+    order
+    |> Repo.preload(:line_items)
+    |> Order.delete_line_item_changeset(order_line_item)
+    |> Repo.update()
+  end
 end
