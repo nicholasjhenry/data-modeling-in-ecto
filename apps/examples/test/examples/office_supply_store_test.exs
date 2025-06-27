@@ -337,21 +337,23 @@ defmodule Examples.OfficeSupplyStoreTest do
     end
 
     test "create_order/1 with valid data creates a order" do
+      product = product_fixture()
       valid_attrs = %{state: :payment_pending}
       line_item_attrs = %{price: "120.5", quantity: 42}
 
       assert {:ok, %Order{} = order} =
-               OfficeSupplyStore.create_order(valid_attrs, line_item_attrs)
+               OfficeSupplyStore.create_order(valid_attrs, product, line_item_attrs)
 
       assert Enum.count(order.line_items) == 1
       assert order.state == :payment_pending
     end
 
     test "create_order/1 with invalid data returns error changeset" do
+      product = product_fixture()
       line_item_attrs = %{quantity: 42, price: "120.5"}
 
       assert {:error, %Ecto.Changeset{}} =
-               OfficeSupplyStore.create_order(@invalid_attrs, line_item_attrs)
+               OfficeSupplyStore.create_order(@invalid_attrs, product, line_item_attrs)
     end
 
     test "update_order/2 with valid data updates the order" do
@@ -376,17 +378,13 @@ defmodule Examples.OfficeSupplyStoreTest do
 
     @invalid_attrs %{price: nil, quantity: nil}
 
-    # test "get_order_line_item!/1 returns the order_line_item with given id" do
-    #   order_line_item = order_line_item_fixture()
-    #   assert OfficeSupplyStore.get_order_line_item!(order_line_item.id) == order_line_item
-    # end
-
     test "create_order_line_item/1 with valid data creates a order_line_item" do
       order = order_fixture()
+      product = product_fixture()
       valid_attrs = %{price: "120.5", quantity: 42}
 
       assert {:ok, %Order{} = order} =
-               OfficeSupplyStore.create_order_line_item(order, valid_attrs)
+               OfficeSupplyStore.create_order_line_item(order, product, valid_attrs)
 
       assert [order_line_item, _another_line_item] = order.line_items
       assert order_line_item.price == Decimal.new("120.5")
@@ -395,9 +393,10 @@ defmodule Examples.OfficeSupplyStoreTest do
 
     test "create_order_line_item/1 with invalid data returns error changeset" do
       order = order_fixture()
+      product = product_fixture()
 
       assert {:error, %Ecto.Changeset{}} =
-               OfficeSupplyStore.create_order_line_item(order, @invalid_attrs)
+               OfficeSupplyStore.create_order_line_item(order, product, @invalid_attrs)
     end
 
     test "delete_order_line_item/1 with order in a valid state deletes a order_line_item" do

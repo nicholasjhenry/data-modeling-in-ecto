@@ -19,6 +19,19 @@ defmodule Examples.OfficeSupplyStore.Order do
     |> validate_required([:state])
   end
 
+  def put_line_item_changeset(order, product, line_item_attrs) do
+    changeset = change(order)
+
+    line_item_changeset =
+      %OrderLineItem{}
+      |> OrderLineItem.changeset(line_item_attrs)
+      |> OrderLineItem.put_product_changeset(product)
+
+    changeset
+    |> put_assoc(:line_items, [line_item_changeset | changeset.data.line_items])
+    |> validate_line_items
+  end
+
   def put_line_item_changeset(order, line_item_attrs) do
     changeset = change(order)
 

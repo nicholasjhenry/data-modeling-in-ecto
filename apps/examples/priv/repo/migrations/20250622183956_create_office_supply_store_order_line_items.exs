@@ -6,10 +6,11 @@ defmodule Examples.Repo.Migrations.CreateOfficeSupplyStoreOrderLineItems do
       add :quantity, :integer
       add :price, :decimal
       add :order_id, references(:office_supply_store_orders, on_delete: :nothing), null: false
+      add :product_id, references(:office_supply_store_products, on_delete: :nothing), null: false
 
       timestamps()
     end
 
-    create index(:office_supply_store_order_line_items, [:order_id])
+    create index(:office_supply_store_order_line_items, [:order_id, :product_id])
   end
 end
