@@ -128,6 +128,9 @@ defmodule Examples.OfficeSupplyStore do
 
   def get_order_line_item!(id), do: Repo.get!(OrderLineItem, id)
 
+  def add_product_to_order(order, product, attrs \\ %{}),
+    do: create_order_line_item(order, product, attrs)
+
   def create_order_line_item(order, product, attrs \\ %{}) do
     order
     |> Repo.preload(:line_items)

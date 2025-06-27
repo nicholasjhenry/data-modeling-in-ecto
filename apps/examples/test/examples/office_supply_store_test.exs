@@ -423,7 +423,7 @@ defmodule Examples.OfficeSupplyStoreTest do
       another_product = product_fixture(permitted_order_type: :delivery)
 
       assert {:error, changeset} =
-               OfficeSupplyStore.create_order_line_item(order, another_product, valid_attrs)
+               OfficeSupplyStore.add_product_to_order(order, another_product, valid_attrs)
 
       assert "Product cannot be added to this order type" in errors_on(changeset).business_rule
     end
