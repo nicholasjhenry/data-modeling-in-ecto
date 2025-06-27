@@ -4,9 +4,15 @@ defmodule Examples.OfficeSupplyStore.Order do
   import EssentialEcto
 
   alias Examples.OfficeSupplyStore.OrderLineItem
+  alias Examples.OfficeSupplyStore.Product
 
   schema "office_supply_store_orders" do
-    field :state, Ecto.Enum, values: [:payment_pending, :delivery_pending, :completed]
+    field :state, Ecto.Enum,
+      values: [:payment_pending, :delivery_pending, :completed],
+      default: :payment_pending
+
+    field :type, Ecto.Enum, values: [:delivery, :pickup], default: :delivery
+
     has_many :line_items, OrderLineItem
 
     timestamps()
@@ -15,8 +21,8 @@ defmodule Examples.OfficeSupplyStore.Order do
   @doc false
   def changeset(order, attrs) do
     order
-    |> cast(attrs, [:state])
-    |> validate_required([:state])
+    |> cast(attrs, [:state, :type])
+    |> validate_required([:state, :type])
   end
 
   def put_line_item_changeset(order, product, line_item_attrs) do
@@ -30,16 +36,7 @@ defmodule Examples.OfficeSupplyStore.Order do
     changeset
     |> put_assoc(:line_items, [line_item_changeset | changeset.data.line_items])
     |> validate_line_items
-  end
-
-  def put_line_item_changeset(order, line_item_attrs) do
-    changeset = change(order)
-
-    line_item_changeset = OrderLineItem.changeset(%OrderLineItem{}, line_item_attrs)
-
-    changeset
-    |> put_assoc(:line_items, [line_item_changeset | changeset.data.line_items])
-    |> validate_line_items
+    |> Product.validate_put_order(product)
   end
 
   def delete_line_item_changeset(order, line_item) do

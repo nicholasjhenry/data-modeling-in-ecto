@@ -5,6 +5,7 @@ defmodule Examples.Repo.Migrations.CreateOfficeSupplyStoreProducts do
     create table(:office_supply_store_products) do
       add :name, :string
       add :price, :decimal
+      add :permitted_order_type, :string
 
       timestamps()
     end

@@ -409,4 +409,23 @@ defmodule Examples.OfficeSupplyStoreTest do
       assert "An order requires at least one line item" in errors_on(changeset).business_rule
     end
   end
+
+  describe "adding a product to an order" do
+    alias Examples.OfficeSupplyStore.Order
+
+    import Examples.OfficeSupplyStoreFixtures
+
+    test "validate permitted product order type" do
+      product = product_fixture(permitted_order_type: :pickup)
+      order = order_fixture(product, type: :pickup)
+      valid_attrs = %{price: "120.5", quantity: 42}
+
+      another_product = product_fixture(permitted_order_type: :delivery)
+
+      assert {:error, changeset} =
+               OfficeSupplyStore.create_order_line_item(order, another_product, valid_attrs)
+
+      assert "Product cannot be added to this order type" in errors_on(changeset).business_rule
+    end
+  end
 end

@@ -41,9 +41,7 @@ defmodule Examples.OfficeSupplyStoreFixtures do
   @doc """
   Generate a order.
   """
-  def order_fixture(attrs \\ %{}) do
-    product = product_fixture()
-
+  def order_fixture(product \\ product_fixture(), attrs \\ %{}) do
     {:ok, order} =
       attrs
       |> Enum.into(%{
