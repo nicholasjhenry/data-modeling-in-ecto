@@ -98,4 +98,18 @@ defmodule Examples.OfficeSupplyStoreFixtures do
 
     product
   end
+
+  @doc """
+  Generate a branch.
+  """
+  def branch_fixture(attrs \\ %{}) do
+    {:ok, branch} =
+      attrs
+      |> Enum.into(%{
+        name: "some name"
+      })
+      |> Examples.OfficeSupplyStore.create_branch()
+
+    branch
+  end
 end

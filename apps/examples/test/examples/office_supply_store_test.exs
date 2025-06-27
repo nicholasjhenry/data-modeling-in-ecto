@@ -428,4 +428,58 @@ defmodule Examples.OfficeSupplyStoreTest do
       assert "Product cannot be added to this order type" in errors_on(changeset).business_rule
     end
   end
+
+  describe "office_supply_store_branches" do
+    alias Examples.OfficeSupplyStore.Branch
+
+    import Examples.OfficeSupplyStoreFixtures
+
+    @invalid_attrs %{name: nil}
+
+    test "list_office_supply_store_branches/0 returns all office_supply_store_branches" do
+      branch = branch_fixture()
+      assert OfficeSupplyStore.list_office_supply_store_branches() == [branch]
+    end
+
+    test "get_branch!/1 returns the branch with given id" do
+      branch = branch_fixture()
+      assert OfficeSupplyStore.get_branch!(branch.id) == branch
+    end
+
+    test "create_branch/1 with valid data creates a branch" do
+      valid_attrs = %{name: "some name"}
+
+      assert {:ok, %Branch{} = branch} = OfficeSupplyStore.create_branch(valid_attrs)
+      assert branch.name == "some name"
+    end
+
+    test "create_branch/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = OfficeSupplyStore.create_branch(@invalid_attrs)
+    end
+
+    test "update_branch/2 with valid data updates the branch" do
+      branch = branch_fixture()
+      update_attrs = %{name: "some updated name"}
+
+      assert {:ok, %Branch{} = branch} = OfficeSupplyStore.update_branch(branch, update_attrs)
+      assert branch.name == "some updated name"
+    end
+
+    test "update_branch/2 with invalid data returns error changeset" do
+      branch = branch_fixture()
+      assert {:error, %Ecto.Changeset{}} = OfficeSupplyStore.update_branch(branch, @invalid_attrs)
+      assert branch == OfficeSupplyStore.get_branch!(branch.id)
+    end
+
+    test "delete_branch/1 deletes the branch" do
+      branch = branch_fixture()
+      assert {:ok, %Branch{}} = OfficeSupplyStore.delete_branch(branch)
+      assert_raise Ecto.NoResultsError, fn -> OfficeSupplyStore.get_branch!(branch.id) end
+    end
+
+    test "change_branch/1 returns a branch changeset" do
+      branch = branch_fixture()
+      assert %Ecto.Changeset{} = OfficeSupplyStore.change_branch(branch)
+    end
+  end
 end
