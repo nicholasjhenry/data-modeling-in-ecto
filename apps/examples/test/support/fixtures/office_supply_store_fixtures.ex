@@ -42,12 +42,14 @@ defmodule Examples.OfficeSupplyStoreFixtures do
   Generate a order.
   """
   def order_fixture(product \\ product_fixture(), attrs \\ %{}) do
+    branch = branch_fixture()
+    attrs = Enum.into(attrs, %{state: :payment_pending})
+
     {:ok, order} =
-      attrs
-      |> Enum.into(%{
-        state: :payment_pending
+      Examples.OfficeSupplyStore.create_order(branch, product, attrs, %{
+        price: "120.5",
+        quantity: 42
       })
-      |> Examples.OfficeSupplyStore.create_order(product, %{price: "120.5", quantity: 42})
 
     order
   end

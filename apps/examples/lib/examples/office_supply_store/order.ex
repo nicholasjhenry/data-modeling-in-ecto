@@ -3,6 +3,7 @@ defmodule Examples.OfficeSupplyStore.Order do
   import Ecto.Changeset
   import EssentialEcto
 
+  alias Examples.OfficeSupplyStore.Branch
   alias Examples.OfficeSupplyStore.OrderLineItem
   alias Examples.OfficeSupplyStore.Product
 
@@ -14,9 +15,12 @@ defmodule Examples.OfficeSupplyStore.Order do
     field :type, Ecto.Enum, values: [:delivery, :pickup], default: :delivery
 
     has_many :line_items, OrderLineItem
+    belongs_to :branch, Branch
 
     timestamps()
   end
+
+  # SECTION: field changesets
 
   @doc false
   def changeset(order, attrs) do
@@ -24,6 +28,8 @@ defmodule Examples.OfficeSupplyStore.Order do
     |> cast(attrs, [:state, :type])
     |> validate_required([:state, :type])
   end
+
+  # SECTION: assoc changesets
 
   def put_line_item_changeset(order, product, line_item_attrs) do
     changeset = change(order)
@@ -45,6 +51,14 @@ defmodule Examples.OfficeSupplyStore.Order do
     |> delete_assoc(:line_items, line_item)
     |> validate_line_items
   end
+
+  def put_branch_changeset(order, branch) do
+    order
+    |> change
+    |> put_assoc(:branch, branch)
+  end
+
+  # SECTION: assoc validations
 
   defp validate_line_items(order_changeset) do
     line_item_changesets = get_all_assocs(order_changeset, :line_items, :insert_or_update)

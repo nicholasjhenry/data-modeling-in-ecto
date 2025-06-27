@@ -356,23 +356,25 @@ defmodule Examples.OfficeSupplyStoreTest do
     end
 
     test "create_order/1 with valid data creates a order" do
+      branch = branch_fixture()
       product = product_fixture()
       valid_attrs = %{state: :payment_pending}
       line_item_attrs = %{price: "120.5", quantity: 42}
 
       assert {:ok, %Order{} = order} =
-               OfficeSupplyStore.create_order(valid_attrs, product, line_item_attrs)
+               OfficeSupplyStore.create_order(branch, product, valid_attrs, line_item_attrs)
 
       assert Enum.count(order.line_items) == 1
       assert order.state == :payment_pending
     end
 
     test "create_order/1 with invalid data returns error changeset" do
+      branch = branch_fixture()
       product = product_fixture()
       line_item_attrs = %{quantity: 42, price: "120.5"}
 
       assert {:error, %Ecto.Changeset{}} =
-               OfficeSupplyStore.create_order(@invalid_attrs, product, line_item_attrs)
+               OfficeSupplyStore.create_order(branch, product, @invalid_attrs, line_item_attrs)
     end
 
     test "update_order/2 with valid data updates the order" do
