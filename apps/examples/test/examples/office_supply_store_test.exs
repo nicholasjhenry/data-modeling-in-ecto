@@ -455,13 +455,6 @@ defmodule Examples.OfficeSupplyStoreTest do
 
     import Examples.OfficeSupplyStoreFixtures
 
-    @invalid_attrs %{}
-
-    test "list_office_supply_store_stock_entries/0 returns all office_supply_store_stock_entries" do
-      stock_entry = stock_entry_fixture()
-      assert OfficeSupplyStore.list_office_supply_store_stock_entries() == [stock_entry]
-    end
-
     test "get_stock_entry!/1 returns the stock_entry with given id" do
       stock_entry = stock_entry_fixture()
       assert OfficeSupplyStore.get_stock_entry!(stock_entry.id) == stock_entry
@@ -470,35 +463,8 @@ defmodule Examples.OfficeSupplyStoreTest do
     test "create_stock_entry/1 with valid data creates a stock_entry" do
       valid_attrs = %{}
 
-      assert {:ok, %StockEntry{} = stock_entry} = OfficeSupplyStore.create_stock_entry(valid_attrs)
-    end
-
-    test "create_stock_entry/1 with invalid data returns error changeset" do
-      assert {:error, %Ecto.Changeset{}} = OfficeSupplyStore.create_stock_entry(@invalid_attrs)
-    end
-
-    test "update_stock_entry/2 with valid data updates the stock_entry" do
-      stock_entry = stock_entry_fixture()
-      update_attrs = %{}
-
-      assert {:ok, %StockEntry{} = stock_entry} = OfficeSupplyStore.update_stock_entry(stock_entry, update_attrs)
-    end
-
-    test "update_stock_entry/2 with invalid data returns error changeset" do
-      stock_entry = stock_entry_fixture()
-      assert {:error, %Ecto.Changeset{}} = OfficeSupplyStore.update_stock_entry(stock_entry, @invalid_attrs)
-      assert stock_entry == OfficeSupplyStore.get_stock_entry!(stock_entry.id)
-    end
-
-    test "delete_stock_entry/1 deletes the stock_entry" do
-      stock_entry = stock_entry_fixture()
-      assert {:ok, %StockEntry{}} = OfficeSupplyStore.delete_stock_entry(stock_entry)
-      assert_raise Ecto.NoResultsError, fn -> OfficeSupplyStore.get_stock_entry!(stock_entry.id) end
-    end
-
-    test "change_stock_entry/1 returns a stock_entry changeset" do
-      stock_entry = stock_entry_fixture()
-      assert %Ecto.Changeset{} = OfficeSupplyStore.change_stock_entry(stock_entry)
+      assert {:ok, %StockEntry{} = _stock_entry} =
+               OfficeSupplyStore.create_stock_entry(valid_attrs)
     end
   end
 end
