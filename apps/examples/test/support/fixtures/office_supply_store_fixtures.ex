@@ -114,4 +114,18 @@ defmodule Examples.OfficeSupplyStoreFixtures do
 
     branch
   end
+
+  @doc """
+  Generate a stock_entry.
+  """
+  def stock_entry_fixture(attrs \\ %{}) do
+    {:ok, stock_entry} =
+      attrs
+      |> Enum.into(%{
+
+      })
+      |> Examples.OfficeSupplyStore.create_stock_entry()
+
+    stock_entry
+  end
 end

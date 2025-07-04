@@ -149,4 +149,100 @@ defmodule Examples.OfficeSupplyStore do
     |> Order.delete_line_item_changeset(order_line_item)
     |> Repo.update()
   end
+
+  alias Examples.OfficeSupplyStore.StockEntry
+
+  @doc """
+  Returns the list of office_supply_store_stock_entries.
+
+  ## Examples
+
+      iex> list_office_supply_store_stock_entries()
+      [%StockEntry{}, ...]
+
+  """
+  def list_office_supply_store_stock_entries do
+    Repo.all(StockEntry)
+  end
+
+  @doc """
+  Gets a single stock_entry.
+
+  Raises `Ecto.NoResultsError` if the Stock entry does not exist.
+
+  ## Examples
+
+      iex> get_stock_entry!(123)
+      %StockEntry{}
+
+      iex> get_stock_entry!(456)
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_stock_entry!(id), do: Repo.get!(StockEntry, id)
+
+  @doc """
+  Creates a stock_entry.
+
+  ## Examples
+
+      iex> create_stock_entry(%{field: value})
+      {:ok, %StockEntry{}}
+
+      iex> create_stock_entry(%{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def create_stock_entry(attrs \\ %{}) do
+    %StockEntry{}
+    |> StockEntry.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  @doc """
+  Updates a stock_entry.
+
+  ## Examples
+
+      iex> update_stock_entry(stock_entry, %{field: new_value})
+      {:ok, %StockEntry{}}
+
+      iex> update_stock_entry(stock_entry, %{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def update_stock_entry(%StockEntry{} = stock_entry, attrs) do
+    stock_entry
+    |> StockEntry.changeset(attrs)
+    |> Repo.update()
+  end
+
+  @doc """
+  Deletes a stock_entry.
+
+  ## Examples
+
+      iex> delete_stock_entry(stock_entry)
+      {:ok, %StockEntry{}}
+
+      iex> delete_stock_entry(stock_entry)
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def delete_stock_entry(%StockEntry{} = stock_entry) do
+    Repo.delete(stock_entry)
+  end
+
+  @doc """
+  Returns an `%Ecto.Changeset{}` for tracking stock_entry changes.
+
+  ## Examples
+
+      iex> change_stock_entry(stock_entry)
+      %Ecto.Changeset{data: %StockEntry{}}
+
+  """
+  def change_stock_entry(%StockEntry{} = stock_entry, attrs \\ %{}) do
+    StockEntry.changeset(stock_entry, attrs)
+  end
 end
