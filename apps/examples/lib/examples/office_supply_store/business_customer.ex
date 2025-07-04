@@ -6,6 +6,7 @@ defmodule Examples.OfficeSupplyStore.BusinessCustomer do
 
   schema "office_supply_store_business_customers" do
     field :registered_on, :date
+    field :status, Ecto.Enum, values: [:standard, :preferred], default: :standard
 
     belongs_to :organization, Organization
 
@@ -15,8 +16,8 @@ defmodule Examples.OfficeSupplyStore.BusinessCustomer do
   @doc false
   def changeset(business_customer, attrs) do
     business_customer
-    |> cast(attrs, [:registered_on])
-    |> validate_required([:registered_on])
+    |> cast(attrs, [:registered_on, :status])
+    |> validate_required([:registered_on, :status])
   end
 
   @doc false
