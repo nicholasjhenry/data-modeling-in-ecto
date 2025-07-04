@@ -3,6 +3,25 @@ defmodule Examples.OfficeSupplyStoreTest do
 
   alias Examples.OfficeSupplyStore
 
+  describe "office_supply_store_branches" do
+    alias Examples.OfficeSupplyStore.Branch
+
+    import Examples.OfficeSupplyStoreFixtures
+
+    @invalid_attrs %{name: nil}
+
+    test "create_branch/1 with valid data creates a branch" do
+      valid_attrs = %{name: "some name"}
+
+      assert {:ok, %Branch{} = branch} = OfficeSupplyStore.create_branch(valid_attrs)
+      assert branch.name == "some name"
+    end
+
+    test "create_branch/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = OfficeSupplyStore.create_branch(@invalid_attrs)
+    end
+  end
+
   describe "office_supply__store_people" do
     alias Examples.OfficeSupplyStore.Person
 
@@ -336,22 +355,42 @@ defmodule Examples.OfficeSupplyStoreTest do
       assert OfficeSupplyStore.get_order!(order.id) == order
     end
 
+    @tag :wip
     test "create_order/1 with valid data creates a order" do
+      customer = business_customer_fixture()
+      branch = branch_fixture()
+      product = product_fixture()
+      _stock_entry = stock_entry_fixture(branch, product)
       valid_attrs = %{state: :payment_pending}
       line_item_attrs = %{price: "120.5", quantity: 42}
 
       assert {:ok, %Order{} = order} =
-               OfficeSupplyStore.create_order(valid_attrs, line_item_attrs)
+               OfficeSupplyStore.create_order(
+                 customer,
+                 branch,
+                 product,
+                 valid_attrs,
+                 line_item_attrs
+               )
 
       assert Enum.count(order.line_items) == 1
       assert order.state == :payment_pending
     end
 
     test "create_order/1 with invalid data returns error changeset" do
+      customer = business_customer_fixture()
+      branch = branch_fixture()
+      product = product_fixture()
       line_item_attrs = %{quantity: 42, price: "120.5"}
 
       assert {:error, %Ecto.Changeset{}} =
-               OfficeSupplyStore.create_order(@invalid_attrs, line_item_attrs)
+               OfficeSupplyStore.create_order(
+                 customer,
+                 branch,
+                 product,
+                 @invalid_attrs,
+                 line_item_attrs
+               )
     end
 
     test "update_order/2 with valid data updates the order" do
@@ -376,17 +415,17 @@ defmodule Examples.OfficeSupplyStoreTest do
 
     @invalid_attrs %{price: nil, quantity: nil}
 
-    # test "get_order_line_item!/1 returns the order_line_item with given id" do
-    #   order_line_item = order_line_item_fixture()
-    #   assert OfficeSupplyStore.get_order_line_item!(order_line_item.id) == order_line_item
-    # end
-
     test "create_order_line_item/1 with valid data creates a order_line_item" do
-      order = order_fixture()
+      customer = business_customer_fixture()
+      branch = branch_fixture()
+      product = product_fixture()
+      _stock_entry = stock_entry_fixture(branch, product)
+      order = order_fixture(customer, branch)
+
       valid_attrs = %{price: "120.5", quantity: 42}
 
       assert {:ok, %Order{} = order} =
-               OfficeSupplyStore.create_order_line_item(order, valid_attrs)
+               OfficeSupplyStore.create_order_line_item(order, product, valid_attrs)
 
       assert [order_line_item, _another_line_item] = order.line_items
       assert order_line_item.price == Decimal.new("120.5")
@@ -395,9 +434,10 @@ defmodule Examples.OfficeSupplyStoreTest do
 
     test "create_order_line_item/1 with invalid data returns error changeset" do
       order = order_fixture()
+      product = product_fixture()
 
       assert {:error, %Ecto.Changeset{}} =
-               OfficeSupplyStore.create_order_line_item(order, @invalid_attrs)
+               OfficeSupplyStore.create_order_line_item(order, product, @invalid_attrs)
     end
 
     test "delete_order_line_item/1 with order in a valid state deletes a order_line_item" do
@@ -408,6 +448,91 @@ defmodule Examples.OfficeSupplyStoreTest do
                OfficeSupplyStore.delete_order_line_item(order, order_line_item)
 
       assert "An order requires at least one line item" in errors_on(changeset).business_rule
+    end
+  end
+
+  describe "adding a product to an order" do
+    alias Examples.OfficeSupplyStore.Order
+
+    import Examples.OfficeSupplyStoreFixtures
+
+    test "validate permitted product order type" do
+      customer = business_customer_fixture()
+      branch = branch_fixture()
+      product = product_fixture(permitted_order_type: :pickup)
+      order = order_fixture(customer, branch, product, type: :pickup)
+
+      valid_attrs = %{price: "120.5", quantity: 42}
+
+      another_product = product_fixture(permitted_order_type: :delivery)
+      # _stock_entry = stock_entry_fixture(branch, another_product)
+
+      assert {:error, changeset} =
+               OfficeSupplyStore.add_product_to_order(order, another_product, valid_attrs)
+
+      assert "Product cannot be added to this order type" in errors_on(changeset).business_rule
+    end
+
+    test "validate product is stocked by branch" do
+      customer = business_customer_fixture()
+      branch = branch_fixture()
+      product = product_fixture()
+      _stock_entry = stock_entry_fixture(branch, product)
+      order = order_fixture(customer, branch)
+
+      valid_attrs = %{price: "120.5", quantity: 42}
+
+      assert {:ok, _order} =
+               OfficeSupplyStore.add_product_to_order(order, product, valid_attrs)
+
+      another_product = product_fixture()
+
+      assert {:error, changeset} =
+               OfficeSupplyStore.add_product_to_order(order, another_product, valid_attrs)
+
+      assert "Product is not stocked by branch" in errors_on(changeset).business_rule
+    end
+
+    test "validate customer status for product type" do
+      organization = organization_fixture()
+      customer = business_customer_fixture(organization, status: :standard)
+      branch = branch_fixture()
+
+      standard_product = product_fixture()
+      specialty_product = product_fixture(type: :speciality)
+      _stock_entry = stock_entry_fixture(branch, standard_product)
+      _stock_entry = stock_entry_fixture(branch, specialty_product)
+
+      order = order_fixture(customer, branch)
+
+      valid_attrs = %{price: "120.5", quantity: 42}
+
+      assert {:ok, _order} =
+               OfficeSupplyStore.add_product_to_order(order, standard_product, valid_attrs)
+
+      assert {:error, changeset} =
+               OfficeSupplyStore.add_product_to_order(order, specialty_product, valid_attrs)
+
+      assert "Product is not permitted for customer" in errors_on(changeset).business_rule
+    end
+  end
+
+  describe "office_supply_store_stock_entries" do
+    alias Examples.OfficeSupplyStore.StockEntry
+
+    import Examples.OfficeSupplyStoreFixtures
+
+    test "get_stock_entry!/1 returns the stock_entry with given id" do
+      stock_entry = stock_entry_fixture()
+      assert OfficeSupplyStore.get_stock_entry!(stock_entry.id) == stock_entry
+    end
+
+    test "create_stock_entry/1 with valid data creates a stock_entry" do
+      product = product_fixture()
+      branch = branch_fixture()
+
+      assert {:ok, %StockEntry{} = _stock_entry} =
+               OfficeSupplyStore.create_stock_entry(branch, product)
     end
   end
 end

@@ -6,6 +6,14 @@ defmodule Examples.OfficeSupplyStore do
   import Ecto.Query, warn: false
   alias Examples.Repo
 
+  alias Examples.OfficeSupplyStore.Branch
+
+  def create_branch(attrs \\ %{}) do
+    %Branch{}
+    |> Branch.changeset(attrs)
+    |> Repo.insert()
+  end
+
   alias Examples.OfficeSupplyStore.Person
 
   def get_person!(id), do: Repo.get!(Person, id)
@@ -107,14 +115,22 @@ defmodule Examples.OfficeSupplyStore do
   def get_order!(id) do
     Order
     |> Repo.get!(id)
-    |> Repo.preload(:line_items)
+    |> Repo.preload(
+      customer: [organization: :government_customer],
+      branch: :stock_entries,
+      line_items: :product
+    )
   end
 
-  def create_order(attrs, line_item_attrs) do
+  def create_order(customer, branch, product, attrs, line_item_attrs) do
+    branch = Repo.preload(branch, :stock_entries)
+
     %Order{}
     |> Repo.preload(:line_items)
     |> Order.changeset(attrs)
-    |> Order.put_line_item_changeset(line_item_attrs)
+    |> Order.put_customer_changeset(customer)
+    |> Order.put_branch_changeset(branch)
+    |> Order.put_line_item_changeset(product, line_item_attrs)
     |> Repo.insert()
   end
 
@@ -124,14 +140,13 @@ defmodule Examples.OfficeSupplyStore do
     |> Repo.update()
   end
 
-  alias Examples.OfficeSupplyStore.OrderLineItem
+  def add_product_to_order(order, product, attrs \\ %{}),
+    do: create_order_line_item(order, product, attrs)
 
-  def get_order_line_item!(id), do: Repo.get!(OrderLineItem, id)
-
-  def create_order_line_item(order, attrs \\ %{}) do
+  def create_order_line_item(order, product, attrs \\ %{}) do
     order
-    |> Repo.preload(:line_items)
-    |> Order.put_line_item_changeset(attrs)
+    |> Repo.preload([:line_items, branch: :stock_entries])
+    |> Order.put_line_item_changeset(product, attrs)
     |> Repo.update()
   end
 
@@ -140,5 +155,20 @@ defmodule Examples.OfficeSupplyStore do
     |> Repo.preload(:line_items)
     |> Order.delete_line_item_changeset(order_line_item)
     |> Repo.update()
+  end
+
+  alias Examples.OfficeSupplyStore.StockEntry
+
+  def get_stock_entry!(id) do
+    StockEntry
+    |> Repo.get!(id)
+    |> Repo.preload([:branch, :product])
+  end
+
+  def create_stock_entry(branch, product) do
+    %StockEntry{}
+    |> StockEntry.put_branch_changeset(branch)
+    |> StockEntry.put_product_changeset(product)
+    |> Repo.insert()
   end
 end
