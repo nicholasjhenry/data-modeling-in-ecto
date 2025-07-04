@@ -438,7 +438,8 @@ defmodule Examples.OfficeSupplyStoreTest do
 
     test "validate permitted product order type" do
       product = product_fixture(permitted_order_type: :pickup)
-      order = order_fixture(product, type: :pickup)
+      branch = branch_fixture()
+      order = order_fixture(branch, product, type: :pickup)
       valid_attrs = %{price: "120.5", quantity: 42}
 
       another_product = product_fixture(permitted_order_type: :delivery)
