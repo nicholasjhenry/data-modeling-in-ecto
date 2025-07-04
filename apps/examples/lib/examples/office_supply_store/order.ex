@@ -70,6 +70,20 @@ defmodule Examples.OfficeSupplyStore.Order do
 
   # SECTION: assoc validations
 
+  def validate_put_delivery(delivery_changeset, order) do
+    delivery_address = get_field(delivery_changeset, :address)
+
+    if order.shipping_address !== delivery_address do
+      add_error(
+        delivery_changeset,
+        :business_rule,
+        "Delivery address must the the same as order shipping address"
+      )
+    else
+      delivery_changeset
+    end
+  end
+
   defp validate_line_items(order_changeset) do
     line_item_changesets = get_all_assocs(order_changeset, :line_items, :insert_or_update)
 

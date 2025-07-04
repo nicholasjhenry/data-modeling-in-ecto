@@ -24,5 +24,6 @@ defmodule Examples.OfficeSupplyStore.Delivery do
   def put_order_changeset(delivery, order) do
     delivery
     |> put_assoc(:order, order)
+    |> Order.validate_put_delivery(order)
   end
 end

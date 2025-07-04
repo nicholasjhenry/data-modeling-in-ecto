@@ -565,4 +565,21 @@ defmodule Examples.OfficeSupplyStoreTest do
                OfficeSupplyStore.create_delivery(order, @invalid_attrs)
     end
   end
+
+  describe "delivering an order" do
+    alias Examples.OfficeSupplyStore.Delivery
+
+    import Examples.OfficeSupplyStoreFixtures
+
+    test "validates delivery address with order shipping address" do
+      order = order_fixture()
+      valid_attrs = %{type: :partial, state: :pending, address: "some invalid address"}
+
+      assert {:error, changeset} = OfficeSupplyStore.create_delivery(order, valid_attrs)
+
+      assert "Delivery address must the the same as order shipping address" in errors_on(
+               changeset
+             ).business_rule
+    end
+  end
 end
