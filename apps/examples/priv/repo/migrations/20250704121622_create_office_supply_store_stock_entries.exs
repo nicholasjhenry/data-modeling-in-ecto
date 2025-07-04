@@ -9,7 +9,6 @@ defmodule Examples.Repo.Migrations.CreateOfficeSupplyStoreStockEntries do
       timestamps()
     end
 
-    create index(:office_supply_store_stock_entries, [:branch_id])
-    create index(:office_supply_store_stock_entries, [:product_id])
+    create index(:office_supply_store_stock_entries, [:branch_id, :product_id], unique: true)
   end
 end

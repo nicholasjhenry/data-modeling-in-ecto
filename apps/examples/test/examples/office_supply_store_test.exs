@@ -461,10 +461,11 @@ defmodule Examples.OfficeSupplyStoreTest do
     end
 
     test "create_stock_entry/1 with valid data creates a stock_entry" do
-      valid_attrs = %{}
+      product = product_fixture()
+      branch = branch_fixture()
 
       assert {:ok, %StockEntry{} = _stock_entry} =
-               OfficeSupplyStore.create_stock_entry(valid_attrs)
+               OfficeSupplyStore.create_stock_entry(branch, product)
     end
   end
 end

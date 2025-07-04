@@ -152,11 +152,16 @@ defmodule Examples.OfficeSupplyStore do
 
   alias Examples.OfficeSupplyStore.StockEntry
 
-  def get_stock_entry!(id), do: Repo.get!(StockEntry, id)
+  def get_stock_entry!(id) do
+    StockEntry
+    |> Repo.get!(id)
+    |> Repo.preload([:branch, :product])
+  end
 
-  def create_stock_entry(attrs \\ %{}) do
+  def create_stock_entry(branch, product) do
     %StockEntry{}
-    |> StockEntry.changeset(attrs)
+    |> StockEntry.put_branch_changeset(branch)
+    |> StockEntry.put_product_changeset(product)
     |> Repo.insert()
   end
 end

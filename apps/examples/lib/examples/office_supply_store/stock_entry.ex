@@ -3,17 +3,22 @@ defmodule Examples.OfficeSupplyStore.StockEntry do
   import Ecto.Changeset
 
   schema "office_supply_store_stock_entries" do
-
-    field :branch_id, :id
-    field :product_id, :id
+    belongs_to :branch, Examples.OfficeSupplyStore.Branch
+    belongs_to :product, Examples.OfficeSupplyStore.Product
 
     timestamps()
   end
 
   @doc false
-  def changeset(stock_entry, attrs) do
+  def put_branch_changeset(stock_entry, branch) do
     stock_entry
-    |> cast(attrs, [])
-    |> validate_required([])
+    |> change
+    |> put_assoc(:branch, branch)
+  end
+
+  def put_product_changeset(stock_entry, product) do
+    stock_entry
+    |> change
+    |> put_assoc(:product, product)
   end
 end
