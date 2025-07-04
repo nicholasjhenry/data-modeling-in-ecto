@@ -348,21 +348,20 @@ defmodule Examples.OfficeSupplyStoreTest do
 
     import Examples.OfficeSupplyStoreFixtures
 
-    @invalid_attrs %{state: nil}
+    @invalid_attrs %{state: nil, shipping_address: nil}
 
     test "get_order!/1 returns the order with given id" do
       order = order_fixture()
       assert OfficeSupplyStore.get_order!(order.id) == order
     end
 
-    @tag :wip
     test "create_order/1 with valid data creates a order" do
       customer = business_customer_fixture()
       branch = branch_fixture()
       product = product_fixture()
       _stock_entry = stock_entry_fixture(branch, product)
-      valid_attrs = %{state: :payment_pending}
-      line_item_attrs = %{price: "120.5", quantity: 42}
+      valid_attrs = %{state: :payment_pending, shipping_address: "some shipping address"}
+      line_item_attrs = %{price: "120.5", quantity: 42, shipping_address: "some shipping address"}
 
       assert {:ok, %Order{} = order} =
                OfficeSupplyStore.create_order(

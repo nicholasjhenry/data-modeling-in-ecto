@@ -47,7 +47,8 @@ defmodule Examples.OfficeSupplyStoreFixtures do
         product \\ product_fixture(),
         attrs \\ %{}
       ) do
-    attrs = Enum.into(attrs, %{state: :payment_pending})
+    attrs =
+      Enum.into(attrs, %{state: :payment_pending, shipping_address: "some shipping address"})
 
     _stock_entry = stock_entry_fixture(branch, product)
 

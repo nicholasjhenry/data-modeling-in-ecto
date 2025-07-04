@@ -14,6 +14,7 @@ defmodule Examples.OfficeSupplyStore.Order do
       default: :payment_pending
 
     field :type, Ecto.Enum, values: [:delivery, :pickup], default: :delivery
+    field :shipping_address, :string
 
     has_many :line_items, OrderLineItem
     belongs_to :branch, Branch
@@ -27,8 +28,8 @@ defmodule Examples.OfficeSupplyStore.Order do
   @doc false
   def changeset(order, attrs) do
     order
-    |> cast(attrs, [:state, :type])
-    |> validate_required([:state, :type])
+    |> cast(attrs, [:state, :type, :shipping_address])
+    |> validate_required([:state, :type, :shipping_address])
   end
 
   # SECTION: assoc changesets
