@@ -3,10 +3,10 @@ defmodule Examples.Repo.Migrations.CreateOfficeSupplyDeliveries do
 
   def change do
     create table(:office_supply_deliveries) do
-      add :type, :string
-      add :state, :string
-      add :address, :string
-      add :order_id, references(:office_supply_store_orders, on_delete: :nothing)
+      add :type, :string, null: false
+      add :state, :string, null: false
+      add :address, :string, null: false
+      add :order_id, references(:office_supply_store_orders, on_delete: :nothing), null: false
 
       timestamps()
     end

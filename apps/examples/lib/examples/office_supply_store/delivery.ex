@@ -3,8 +3,8 @@ defmodule Examples.OfficeSupplyStore.Delivery do
   import Ecto.Changeset
 
   schema "office_supply_deliveries" do
-    field :type, Ecto.Enum, values: [:partial, :complete]
-    field :state, Ecto.Enum, values: [:pending, :completed, :cancelled]
+    field :type, Ecto.Enum, values: [:partial, :complete], default: :partial
+    field :state, Ecto.Enum, values: [:pending, :completed, :cancelled], default: :pending
     field :address, :string
     field :order_id, :id
 
