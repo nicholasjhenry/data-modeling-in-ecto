@@ -115,10 +115,12 @@ defmodule Examples.OfficeSupplyStore do
   def get_order!(id) do
     Order
     |> Repo.get!(id)
-    |> Repo.preload(branch: [], line_items: :product)
+    |> Repo.preload(branch: :stock_entries, line_items: :product)
   end
 
   def create_order(branch, product, attrs, line_item_attrs) do
+    branch = Repo.preload(branch, :stock_entries)
+
     %Order{}
     |> Repo.preload(:line_items)
     |> Order.changeset(attrs)
@@ -138,7 +140,7 @@ defmodule Examples.OfficeSupplyStore do
 
   def create_order_line_item(order, product, attrs \\ %{}) do
     order
-    |> Repo.preload(:line_items)
+    |> Repo.preload([:line_items, branch: :stock_entries])
     |> Order.put_line_item_changeset(product, attrs)
     |> Repo.update()
   end

@@ -3,8 +3,8 @@ defmodule Examples.Repo.Migrations.CreateOfficeSupplyStoreStockEntries do
 
   def change do
     create table(:office_supply_store_stock_entries) do
-      add :branch_id, references(:office_supply_store_branches, on_delete: :nothing)
-      add :product_id, references(:office_supply_store_products, on_delete: :nothing)
+      add :branch_id, references(:office_supply_store_branches, on_delete: :nothing), null: false
+      add :product_id, references(:office_supply_store_products, on_delete: :nothing), null: false
 
       timestamps()
     end

@@ -18,17 +18,13 @@ defmodule Examples.OfficeSupplyStore.Product do
   end
 
   def validate_put_order(order_changeset, product) do
-    case apply_action(order_changeset, :validate) do
-      {:ok, order} ->
-        validate_order_type(order_changeset, order, product)
-
-      {:error, _changeset} ->
-        order_changeset
-    end
+    validate_order_type(order_changeset, product)
   end
 
-  def validate_order_type(order_changeset, order, product) do
-    if order.type != product.permitted_order_type do
+  def validate_order_type(order_changeset, product) do
+    order_type = get_field(order_changeset, :type)
+
+    if order_type != product.permitted_order_type do
       add_error(
         order_changeset,
         :business_rule,

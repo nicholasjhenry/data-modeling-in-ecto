@@ -358,6 +358,7 @@ defmodule Examples.OfficeSupplyStoreTest do
     test "create_order/1 with valid data creates a order" do
       branch = branch_fixture()
       product = product_fixture()
+      _stock_entry = stock_entry_fixture(branch, product)
       valid_attrs = %{state: :payment_pending}
       line_item_attrs = %{price: "120.5", quantity: 42}
 
@@ -400,8 +401,11 @@ defmodule Examples.OfficeSupplyStoreTest do
     @invalid_attrs %{price: nil, quantity: nil}
 
     test "create_order_line_item/1 with valid data creates a order_line_item" do
-      order = order_fixture()
+      branch = branch_fixture()
       product = product_fixture()
+      _stock_entry = stock_entry_fixture(branch, product)
+      order = order_fixture(branch)
+
       valid_attrs = %{price: "120.5", quantity: 42}
 
       assert {:ok, %Order{} = order} =
@@ -440,14 +444,35 @@ defmodule Examples.OfficeSupplyStoreTest do
       product = product_fixture(permitted_order_type: :pickup)
       branch = branch_fixture()
       order = order_fixture(branch, product, type: :pickup)
+
       valid_attrs = %{price: "120.5", quantity: 42}
 
       another_product = product_fixture(permitted_order_type: :delivery)
+      # _stock_entry = stock_entry_fixture(branch, another_product)
 
       assert {:error, changeset} =
                OfficeSupplyStore.add_product_to_order(order, another_product, valid_attrs)
 
       assert "Product cannot be added to this order type" in errors_on(changeset).business_rule
+    end
+
+    test "validate product is stocked by branch" do
+      branch = branch_fixture()
+      product = product_fixture()
+      _stock_entry = stock_entry_fixture(branch, product)
+      order = order_fixture(branch)
+
+      valid_attrs = %{price: "120.5", quantity: 42}
+
+      assert {:ok, _order} =
+               OfficeSupplyStore.add_product_to_order(order, product, valid_attrs)
+
+      another_product = product_fixture()
+
+      assert {:error, changeset} =
+               OfficeSupplyStore.add_product_to_order(order, another_product, valid_attrs)
+
+      assert "Product is not stocked by branch" in errors_on(changeset).business_rule
     end
   end
 

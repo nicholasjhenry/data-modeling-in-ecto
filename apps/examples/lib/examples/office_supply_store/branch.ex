@@ -5,6 +5,8 @@ defmodule Examples.OfficeSupplyStore.Branch do
   schema "office_supply_store_branches" do
     field :name, :string
 
+    has_many :stock_entries, Examples.OfficeSupplyStore.StockEntry
+
     timestamps()
   end
 

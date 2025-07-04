@@ -42,6 +42,7 @@ defmodule Examples.OfficeSupplyStore.Order do
     changeset
     |> put_assoc(:line_items, [line_item_changeset | changeset.data.line_items])
     |> validate_line_items
+    |> validate_conflict(product)
     |> Product.validate_put_order(product)
   end
 
@@ -67,6 +68,16 @@ defmodule Examples.OfficeSupplyStore.Order do
       add_error(order_changeset, :business_rule, "An order requires at least one line item")
     else
       order_changeset
+    end
+  end
+
+  defp validate_conflict(order_changeset, product) do
+    branch = get_assoc(order_changeset, :branch, :struct)
+
+    if Enum.any?(branch.stock_entries, &(&1.product_id == product.id)) do
+      order_changeset
+    else
+      add_error(order_changeset, :business_rule, "Product is not stocked by branch")
     end
   end
 end
