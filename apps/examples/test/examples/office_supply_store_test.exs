@@ -535,4 +535,62 @@ defmodule Examples.OfficeSupplyStoreTest do
                OfficeSupplyStore.create_stock_entry(branch, product)
     end
   end
+
+  describe "office_supply_deliveries" do
+    alias Examples.OfficeSupplyStore.Delivery
+
+    import Examples.OfficeSupplyStoreFixtures
+
+    @invalid_attrs %{type: nil, state: nil, address: nil}
+
+    test "list_office_supply_deliveries/0 returns all office_supply_deliveries" do
+      delivery = delivery_fixture()
+      assert OfficeSupplyStore.list_office_supply_deliveries() == [delivery]
+    end
+
+    test "get_delivery!/1 returns the delivery with given id" do
+      delivery = delivery_fixture()
+      assert OfficeSupplyStore.get_delivery!(delivery.id) == delivery
+    end
+
+    test "create_delivery/1 with valid data creates a delivery" do
+      valid_attrs = %{type: :partial, state: :pending, address: "some address"}
+
+      assert {:ok, %Delivery{} = delivery} = OfficeSupplyStore.create_delivery(valid_attrs)
+      assert delivery.type == :partial
+      assert delivery.state == :pending
+      assert delivery.address == "some address"
+    end
+
+    test "create_delivery/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = OfficeSupplyStore.create_delivery(@invalid_attrs)
+    end
+
+    test "update_delivery/2 with valid data updates the delivery" do
+      delivery = delivery_fixture()
+      update_attrs = %{type: :complete, state: :completed, address: "some updated address"}
+
+      assert {:ok, %Delivery{} = delivery} = OfficeSupplyStore.update_delivery(delivery, update_attrs)
+      assert delivery.type == :complete
+      assert delivery.state == :completed
+      assert delivery.address == "some updated address"
+    end
+
+    test "update_delivery/2 with invalid data returns error changeset" do
+      delivery = delivery_fixture()
+      assert {:error, %Ecto.Changeset{}} = OfficeSupplyStore.update_delivery(delivery, @invalid_attrs)
+      assert delivery == OfficeSupplyStore.get_delivery!(delivery.id)
+    end
+
+    test "delete_delivery/1 deletes the delivery" do
+      delivery = delivery_fixture()
+      assert {:ok, %Delivery{}} = OfficeSupplyStore.delete_delivery(delivery)
+      assert_raise Ecto.NoResultsError, fn -> OfficeSupplyStore.get_delivery!(delivery.id) end
+    end
+
+    test "change_delivery/1 returns a delivery changeset" do
+      delivery = delivery_fixture()
+      assert %Ecto.Changeset{} = OfficeSupplyStore.change_delivery(delivery)
+    end
+  end
 end

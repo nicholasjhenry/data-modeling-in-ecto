@@ -129,4 +129,20 @@ defmodule Examples.OfficeSupplyStoreFixtures do
 
     stock_entry
   end
+
+  @doc """
+  Generate a delivery.
+  """
+  def delivery_fixture(attrs \\ %{}) do
+    {:ok, delivery} =
+      attrs
+      |> Enum.into(%{
+        address: "some address",
+        state: :pending,
+        type: :partial
+      })
+      |> Examples.OfficeSupplyStore.create_delivery()
+
+    delivery
+  end
 end
