@@ -5,6 +5,7 @@ defmodule Examples.OfficeSupplyStore.Product do
   schema "office_supply_store_products" do
     field :name, :string
     field :price, :decimal
+    field :type, Ecto.Enum, values: [:standard, :specialty], default: :standard
     field :permitted_order_type, Ecto.Enum, values: [:delivery, :pickup], default: :delivery
 
     timestamps()
