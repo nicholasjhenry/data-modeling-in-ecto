@@ -545,20 +545,25 @@ defmodule Examples.OfficeSupplyStoreTest do
 
     test "get_delivery!/1 returns the delivery with given id" do
       delivery = delivery_fixture()
-      assert OfficeSupplyStore.get_delivery!(delivery.id) == delivery
+      assert OfficeSupplyStore.get_delivery!(delivery.id).id == delivery.id
     end
 
     test "create_delivery/1 with valid data creates a delivery" do
+      order = order_fixture()
       valid_attrs = %{type: :partial, state: :pending, address: "some address"}
 
-      assert {:ok, %Delivery{} = delivery} = OfficeSupplyStore.create_delivery(valid_attrs)
+      assert {:ok, %Delivery{} = delivery} = OfficeSupplyStore.create_delivery(order, valid_attrs)
       assert delivery.type == :partial
       assert delivery.state == :pending
       assert delivery.address == "some address"
+      assert delivery.order_id == order.id
     end
 
     test "create_delivery/1 with invalid data returns error changeset" do
-      assert {:error, %Ecto.Changeset{}} = OfficeSupplyStore.create_delivery(@invalid_attrs)
+      order = order_fixture()
+
+      assert {:error, %Ecto.Changeset{}} =
+               OfficeSupplyStore.create_delivery(order, @invalid_attrs)
     end
   end
 end

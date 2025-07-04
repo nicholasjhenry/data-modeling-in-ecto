@@ -2,11 +2,14 @@ defmodule Examples.OfficeSupplyStore.Delivery do
   use Ecto.Schema
   import Ecto.Changeset
 
+  alias Examples.OfficeSupplyStore.Order
+
   schema "office_supply_deliveries" do
     field :type, Ecto.Enum, values: [:partial, :complete], default: :partial
     field :state, Ecto.Enum, values: [:pending, :completed, :cancelled], default: :pending
     field :address, :string
-    field :order_id, :id
+
+    belongs_to :order, Order
 
     timestamps()
   end
@@ -16,5 +19,10 @@ defmodule Examples.OfficeSupplyStore.Delivery do
     delivery
     |> cast(attrs, [:type, :state, :address])
     |> validate_required([:type, :state, :address])
+  end
+
+  def put_order_changeset(delivery, order) do
+    delivery
+    |> put_assoc(:order, order)
   end
 end

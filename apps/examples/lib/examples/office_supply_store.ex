@@ -176,9 +176,10 @@ defmodule Examples.OfficeSupplyStore do
 
   def get_delivery!(id), do: Repo.get!(Delivery, id)
 
-  def create_delivery(attrs \\ %{}) do
+  def create_delivery(order, attrs \\ %{}) do
     %Delivery{}
     |> Delivery.changeset(attrs)
+    |> Delivery.put_order_changeset(order)
     |> Repo.insert()
   end
 end
