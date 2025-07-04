@@ -4,6 +4,7 @@ defmodule Examples.OfficeSupplyStore.Order do
   import EssentialEcto
 
   alias Examples.OfficeSupplyStore.Branch
+  alias Examples.OfficeSupplyStore.BusinessCustomer
   alias Examples.OfficeSupplyStore.OrderLineItem
   alias Examples.OfficeSupplyStore.Product
 
@@ -16,6 +17,7 @@ defmodule Examples.OfficeSupplyStore.Order do
 
     has_many :line_items, OrderLineItem
     belongs_to :branch, Branch
+    belongs_to :customer, BusinessCustomer
 
     timestamps()
   end
@@ -51,6 +53,12 @@ defmodule Examples.OfficeSupplyStore.Order do
     |> change
     |> delete_assoc(:line_items, line_item)
     |> validate_line_items
+  end
+
+  def put_customer_changeset(order, customer) do
+    order
+    |> change
+    |> put_assoc(:customer, customer)
   end
 
   def put_branch_changeset(order, branch) do

@@ -355,7 +355,9 @@ defmodule Examples.OfficeSupplyStoreTest do
       assert OfficeSupplyStore.get_order!(order.id) == order
     end
 
+    @tag :wip
     test "create_order/1 with valid data creates a order" do
+      customer = business_customer_fixture()
       branch = branch_fixture()
       product = product_fixture()
       _stock_entry = stock_entry_fixture(branch, product)
@@ -363,19 +365,32 @@ defmodule Examples.OfficeSupplyStoreTest do
       line_item_attrs = %{price: "120.5", quantity: 42}
 
       assert {:ok, %Order{} = order} =
-               OfficeSupplyStore.create_order(branch, product, valid_attrs, line_item_attrs)
+               OfficeSupplyStore.create_order(
+                 customer,
+                 branch,
+                 product,
+                 valid_attrs,
+                 line_item_attrs
+               )
 
       assert Enum.count(order.line_items) == 1
       assert order.state == :payment_pending
     end
 
     test "create_order/1 with invalid data returns error changeset" do
+      customer = business_customer_fixture()
       branch = branch_fixture()
       product = product_fixture()
       line_item_attrs = %{quantity: 42, price: "120.5"}
 
       assert {:error, %Ecto.Changeset{}} =
-               OfficeSupplyStore.create_order(branch, product, @invalid_attrs, line_item_attrs)
+               OfficeSupplyStore.create_order(
+                 customer,
+                 branch,
+                 product,
+                 @invalid_attrs,
+                 line_item_attrs
+               )
     end
 
     test "update_order/2 with valid data updates the order" do
@@ -401,10 +416,11 @@ defmodule Examples.OfficeSupplyStoreTest do
     @invalid_attrs %{price: nil, quantity: nil}
 
     test "create_order_line_item/1 with valid data creates a order_line_item" do
+      customer = business_customer_fixture()
       branch = branch_fixture()
       product = product_fixture()
       _stock_entry = stock_entry_fixture(branch, product)
-      order = order_fixture(branch)
+      order = order_fixture(customer, branch)
 
       valid_attrs = %{price: "120.5", quantity: 42}
 
@@ -441,9 +457,10 @@ defmodule Examples.OfficeSupplyStoreTest do
     import Examples.OfficeSupplyStoreFixtures
 
     test "validate permitted product order type" do
-      product = product_fixture(permitted_order_type: :pickup)
+      customer = business_customer_fixture()
       branch = branch_fixture()
-      order = order_fixture(branch, product, type: :pickup)
+      product = product_fixture(permitted_order_type: :pickup)
+      order = order_fixture(customer, branch, product, type: :pickup)
 
       valid_attrs = %{price: "120.5", quantity: 42}
 
@@ -457,10 +474,11 @@ defmodule Examples.OfficeSupplyStoreTest do
     end
 
     test "validate product is stocked by branch" do
+      customer = business_customer_fixture()
       branch = branch_fixture()
       product = product_fixture()
       _stock_entry = stock_entry_fixture(branch, product)
-      order = order_fixture(branch)
+      order = order_fixture(customer, branch)
 
       valid_attrs = %{price: "120.5", quantity: 42}
 
