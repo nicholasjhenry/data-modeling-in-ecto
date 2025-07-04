@@ -5,7 +5,7 @@ defmodule Examples.OfficeSupplyStore.Product do
   schema "office_supply_store_products" do
     field :name, :string
     field :price, :decimal
-    field :type, Ecto.Enum, values: [:standard, :specialty], default: :standard
+    field :type, Ecto.Enum, values: [:standard, :speciality], default: :standard
     field :permitted_order_type, Ecto.Enum, values: [:delivery, :pickup], default: :delivery
 
     timestamps()
@@ -14,8 +14,8 @@ defmodule Examples.OfficeSupplyStore.Product do
   @doc false
   def changeset(product, attrs) do
     product
-    |> cast(attrs, [:name, :price, :permitted_order_type])
-    |> validate_required([:name, :price, :permitted_order_type])
+    |> cast(attrs, [:name, :price, :type, :permitted_order_type])
+    |> validate_required([:name, :price, :type, :permitted_order_type])
   end
 
   def validate_put_order(order_changeset, product) do

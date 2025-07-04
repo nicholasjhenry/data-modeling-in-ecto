@@ -80,12 +80,28 @@ defmodule Examples.OfficeSupplyStore.Order do
   end
 
   defp validate_conflict(order_changeset, product) do
+    order_changeset
+    |> validate_stock_availability(product)
+    |> validate_product_permissibility(product)
+  end
+
+  defp validate_stock_availability(order_changeset, product) do
     branch = get_assoc(order_changeset, :branch, :struct)
 
     if Enum.any?(branch.stock_entries, &(&1.product_id == product.id)) do
       order_changeset
     else
       add_error(order_changeset, :business_rule, "Product is not stocked by branch")
+    end
+  end
+
+  defp validate_product_permissibility(order_changeset, product) do
+    customer = get_assoc(order_changeset, :customer, :struct)
+
+    if product.type == :speciality and customer.status != :preferred do
+      add_error(order_changeset, :business_rule, "Product is not permitted for customer")
+    else
+      order_changeset
     end
   end
 end

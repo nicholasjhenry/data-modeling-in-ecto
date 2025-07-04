@@ -492,6 +492,29 @@ defmodule Examples.OfficeSupplyStoreTest do
 
       assert "Product is not stocked by branch" in errors_on(changeset).business_rule
     end
+
+    test "validate customer status for product type" do
+      organization = organization_fixture()
+      customer = business_customer_fixture(organization, status: :standard)
+      branch = branch_fixture()
+
+      standard_product = product_fixture()
+      specialty_product = product_fixture(type: :speciality)
+      _stock_entry = stock_entry_fixture(branch, standard_product)
+      _stock_entry = stock_entry_fixture(branch, specialty_product)
+
+      order = order_fixture(customer, branch)
+
+      valid_attrs = %{price: "120.5", quantity: 42}
+
+      assert {:ok, _order} =
+               OfficeSupplyStore.add_product_to_order(order, standard_product, valid_attrs)
+
+      assert {:error, changeset} =
+               OfficeSupplyStore.add_product_to_order(order, specialty_product, valid_attrs)
+
+      assert "Product is not permitted for customer" in errors_on(changeset).business_rule
+    end
   end
 
   describe "office_supply_store_stock_entries" do
