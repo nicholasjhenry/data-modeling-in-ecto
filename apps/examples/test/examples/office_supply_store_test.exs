@@ -548,7 +548,7 @@ defmodule Examples.OfficeSupplyStoreTest do
     end
 
     test "create_delivery/1 with valid data creates a delivery" do
-      order = order_fixture()
+      order = completed_order_fixture()
       valid_attrs = %{type: :partial, state: :pending, address: "some address"}
 
       assert {:ok, %Delivery{} = delivery} = OfficeSupplyStore.create_delivery(order, valid_attrs)
@@ -580,6 +580,22 @@ defmodule Examples.OfficeSupplyStoreTest do
       assert "Delivery address must the the same as order shipping address" in errors_on(
                changeset
              ).business_rule
+    end
+
+    test "validates order state" do
+      customer = business_customer_fixture()
+      branch = branch_fixture()
+      product = product_fixture()
+      valid_attrs = %{type: :partial, state: :pending, address: "some address"}
+
+      valid_order = order_fixture(customer, branch, product, state: :completed)
+      assert {:ok, _delivery} = OfficeSupplyStore.create_delivery(valid_order, valid_attrs)
+
+      another_product = product_fixture()
+      invalid_order = order_fixture(customer, branch, another_product, state: :payment_pending)
+      assert {:error, changeset} = OfficeSupplyStore.create_delivery(invalid_order, valid_attrs)
+
+      assert "An order must be completed to be delivered" in errors_on(changeset).business_rule
     end
   end
 end

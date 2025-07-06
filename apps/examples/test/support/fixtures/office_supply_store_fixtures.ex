@@ -61,6 +61,16 @@ defmodule Examples.OfficeSupplyStoreFixtures do
     order
   end
 
+  def completed_order_fixture(
+        customer \\ business_customer_fixture(),
+        branch \\ branch_fixture(),
+        product \\ product_fixture(),
+        attrs \\ %{}
+      ) do
+    attrs = Enum.into(attrs, %{state: :completed})
+    order_fixture(customer, branch, product, attrs)
+  end
+
   @doc """
   Generate a government_customer.
   """
@@ -134,7 +144,7 @@ defmodule Examples.OfficeSupplyStoreFixtures do
   @doc """
   Generate a delivery.
   """
-  def delivery_fixture(order \\ order_fixture(), attrs \\ %{}) do
+  def delivery_fixture(order \\ completed_order_fixture(), attrs \\ %{}) do
     attrs =
       Enum.into(attrs, %{
         address: order.shipping_address,

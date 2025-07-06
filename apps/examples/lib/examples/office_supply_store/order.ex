@@ -71,6 +71,12 @@ defmodule Examples.OfficeSupplyStore.Order do
   # SECTION: assoc validations
 
   def validate_put_delivery(delivery_changeset, order) do
+    delivery_changeset
+    |> validate_shipping_address(order)
+    |> validate_state(order)
+  end
+
+  defp validate_shipping_address(delivery_changeset, order) do
     delivery_address = get_field(delivery_changeset, :address)
 
     if order.shipping_address !== delivery_address do
@@ -79,6 +85,14 @@ defmodule Examples.OfficeSupplyStore.Order do
         :business_rule,
         "Delivery address must the the same as order shipping address"
       )
+    else
+      delivery_changeset
+    end
+  end
+
+  defp validate_state(delivery_changeset, order) do
+    if order.state != :completed do
+      add_error(delivery_changeset, :business_rule, "An order must be completed to be delivered")
     else
       delivery_changeset
     end
