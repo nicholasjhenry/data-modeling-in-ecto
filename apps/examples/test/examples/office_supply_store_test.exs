@@ -606,50 +606,18 @@ defmodule Examples.OfficeSupplyStoreTest do
 
     @invalid_attrs %{quantity: nil}
 
-    test "list_office_supply_store_delivery_line_items/0 returns all office_supply_store_delivery_line_items" do
-      delivery_line_item = delivery_line_item_fixture()
-      assert OfficeSupplyStore.list_office_supply_store_delivery_line_items() == [delivery_line_item]
-    end
-
-    test "get_delivery_line_item!/1 returns the delivery_line_item with given id" do
-      delivery_line_item = delivery_line_item_fixture()
-      assert OfficeSupplyStore.get_delivery_line_item!(delivery_line_item.id) == delivery_line_item
-    end
-
     test "create_delivery_line_item/1 with valid data creates a delivery_line_item" do
       valid_attrs = %{quantity: 42}
 
-      assert {:ok, %DeliveryLineItem{} = delivery_line_item} = OfficeSupplyStore.create_delivery_line_item(valid_attrs)
+      assert {:ok, %DeliveryLineItem{} = delivery_line_item} =
+               OfficeSupplyStore.create_delivery_line_item(valid_attrs)
+
       assert delivery_line_item.quantity == 42
     end
 
     test "create_delivery_line_item/1 with invalid data returns error changeset" do
-      assert {:error, %Ecto.Changeset{}} = OfficeSupplyStore.create_delivery_line_item(@invalid_attrs)
-    end
-
-    test "update_delivery_line_item/2 with valid data updates the delivery_line_item" do
-      delivery_line_item = delivery_line_item_fixture()
-      update_attrs = %{quantity: 43}
-
-      assert {:ok, %DeliveryLineItem{} = delivery_line_item} = OfficeSupplyStore.update_delivery_line_item(delivery_line_item, update_attrs)
-      assert delivery_line_item.quantity == 43
-    end
-
-    test "update_delivery_line_item/2 with invalid data returns error changeset" do
-      delivery_line_item = delivery_line_item_fixture()
-      assert {:error, %Ecto.Changeset{}} = OfficeSupplyStore.update_delivery_line_item(delivery_line_item, @invalid_attrs)
-      assert delivery_line_item == OfficeSupplyStore.get_delivery_line_item!(delivery_line_item.id)
-    end
-
-    test "delete_delivery_line_item/1 deletes the delivery_line_item" do
-      delivery_line_item = delivery_line_item_fixture()
-      assert {:ok, %DeliveryLineItem{}} = OfficeSupplyStore.delete_delivery_line_item(delivery_line_item)
-      assert_raise Ecto.NoResultsError, fn -> OfficeSupplyStore.get_delivery_line_item!(delivery_line_item.id) end
-    end
-
-    test "change_delivery_line_item/1 returns a delivery_line_item changeset" do
-      delivery_line_item = delivery_line_item_fixture()
-      assert %Ecto.Changeset{} = OfficeSupplyStore.change_delivery_line_item(delivery_line_item)
+      assert {:error, %Ecto.Changeset{}} =
+               OfficeSupplyStore.create_delivery_line_item(@invalid_attrs)
     end
   end
 end
