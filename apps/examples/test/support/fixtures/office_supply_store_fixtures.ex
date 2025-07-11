@@ -156,4 +156,18 @@ defmodule Examples.OfficeSupplyStoreFixtures do
 
     delivery
   end
+
+  @doc """
+  Generate a delivery_line_item.
+  """
+  def delivery_line_item_fixture(attrs \\ %{}) do
+    {:ok, delivery_line_item} =
+      attrs
+      |> Enum.into(%{
+        quantity: 42
+      })
+      |> Examples.OfficeSupplyStore.create_delivery_line_item()
+
+    delivery_line_item
+  end
 end

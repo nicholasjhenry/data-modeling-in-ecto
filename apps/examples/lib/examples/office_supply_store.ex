@@ -182,4 +182,100 @@ defmodule Examples.OfficeSupplyStore do
     |> Delivery.put_order_changeset(order)
     |> Repo.insert()
   end
+
+  alias Examples.OfficeSupplyStore.DeliveryLineItem
+
+  @doc """
+  Returns the list of office_supply_store_delivery_line_items.
+
+  ## Examples
+
+      iex> list_office_supply_store_delivery_line_items()
+      [%DeliveryLineItem{}, ...]
+
+  """
+  def list_office_supply_store_delivery_line_items do
+    Repo.all(DeliveryLineItem)
+  end
+
+  @doc """
+  Gets a single delivery_line_item.
+
+  Raises `Ecto.NoResultsError` if the Delivery line item does not exist.
+
+  ## Examples
+
+      iex> get_delivery_line_item!(123)
+      %DeliveryLineItem{}
+
+      iex> get_delivery_line_item!(456)
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_delivery_line_item!(id), do: Repo.get!(DeliveryLineItem, id)
+
+  @doc """
+  Creates a delivery_line_item.
+
+  ## Examples
+
+      iex> create_delivery_line_item(%{field: value})
+      {:ok, %DeliveryLineItem{}}
+
+      iex> create_delivery_line_item(%{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def create_delivery_line_item(attrs \\ %{}) do
+    %DeliveryLineItem{}
+    |> DeliveryLineItem.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  @doc """
+  Updates a delivery_line_item.
+
+  ## Examples
+
+      iex> update_delivery_line_item(delivery_line_item, %{field: new_value})
+      {:ok, %DeliveryLineItem{}}
+
+      iex> update_delivery_line_item(delivery_line_item, %{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def update_delivery_line_item(%DeliveryLineItem{} = delivery_line_item, attrs) do
+    delivery_line_item
+    |> DeliveryLineItem.changeset(attrs)
+    |> Repo.update()
+  end
+
+  @doc """
+  Deletes a delivery_line_item.
+
+  ## Examples
+
+      iex> delete_delivery_line_item(delivery_line_item)
+      {:ok, %DeliveryLineItem{}}
+
+      iex> delete_delivery_line_item(delivery_line_item)
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def delete_delivery_line_item(%DeliveryLineItem{} = delivery_line_item) do
+    Repo.delete(delivery_line_item)
+  end
+
+  @doc """
+  Returns an `%Ecto.Changeset{}` for tracking delivery_line_item changes.
+
+  ## Examples
+
+      iex> change_delivery_line_item(delivery_line_item)
+      %Ecto.Changeset{data: %DeliveryLineItem{}}
+
+  """
+  def change_delivery_line_item(%DeliveryLineItem{} = delivery_line_item, attrs \\ %{}) do
+    DeliveryLineItem.changeset(delivery_line_item, attrs)
+  end
 end
