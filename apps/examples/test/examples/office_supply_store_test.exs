@@ -535,7 +535,7 @@ defmodule Examples.OfficeSupplyStoreTest do
     end
   end
 
-  describe "office_supply_deliveries" do
+  describe "office_supply_store_deliveries" do
     alias Examples.OfficeSupplyStore.Delivery
 
     import Examples.OfficeSupplyStoreFixtures

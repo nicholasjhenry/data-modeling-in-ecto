@@ -4,7 +4,7 @@ defmodule Examples.OfficeSupplyStore.Delivery do
 
   alias Examples.OfficeSupplyStore.Order
 
-  schema "office_supply_deliveries" do
+  schema "office_supply_store_deliveries" do
     field :type, Ecto.Enum, values: [:partial, :complete], default: :partial
     field :state, Ecto.Enum, values: [:pending, :completed, :cancelled], default: :pending
     field :address, :string
