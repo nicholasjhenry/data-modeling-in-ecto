@@ -178,16 +178,15 @@ defmodule Examples.OfficeSupplyStore do
 
   def create_delivery(order, attrs \\ %{}) do
     %Delivery{}
+    |> Repo.preload([:line_items])
     |> Delivery.changeset(attrs)
     |> Delivery.put_order_changeset(order)
     |> Repo.insert()
   end
 
-  alias Examples.OfficeSupplyStore.DeliveryLineItem
-
-  def create_delivery_line_item(attrs \\ %{}) do
-    %DeliveryLineItem{}
-    |> DeliveryLineItem.changeset(attrs)
-    |> Repo.insert()
+  def create_delivery_line_item(delivery, _order, attrs \\ %{}) do
+    delivery
+    |> Delivery.put_line_item_changeset(attrs)
+    |> Repo.update()
   end
 end

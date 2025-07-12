@@ -2,6 +2,7 @@ defmodule Examples.OfficeSupplyStore.Delivery do
   use Ecto.Schema
   import Ecto.Changeset
 
+  alias Examples.OfficeSupplyStore.DeliveryLineItem
   alias Examples.OfficeSupplyStore.Order
 
   schema "office_supply_store_deliveries" do
@@ -10,6 +11,7 @@ defmodule Examples.OfficeSupplyStore.Delivery do
     field :address, :string
 
     belongs_to :order, Order
+    has_many :line_items, DeliveryLineItem
 
     timestamps()
   end
@@ -25,5 +27,11 @@ defmodule Examples.OfficeSupplyStore.Delivery do
     delivery
     |> put_assoc(:order, order)
     |> Order.validate_put_delivery(order)
+  end
+
+  def put_line_item_changeset(delivery, attrs) do
+    delivery
+    |> cast(attrs, [])
+    |> cast_assoc(:line_items)
   end
 end

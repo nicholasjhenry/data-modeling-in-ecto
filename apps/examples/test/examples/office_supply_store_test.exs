@@ -600,24 +600,31 @@ defmodule Examples.OfficeSupplyStoreTest do
   end
 
   describe "office_supply_store_delivery_line_items" do
-    alias Examples.OfficeSupplyStore.DeliveryLineItem
+    alias Examples.OfficeSupplyStore.Delivery
 
     import Examples.OfficeSupplyStoreFixtures
 
     @invalid_attrs %{quantity: nil}
 
     test "create_delivery_line_item/1 with valid data creates a delivery_line_item" do
-      valid_attrs = %{quantity: 42}
+      order = completed_order_fixture()
+      order_line_item = List.first(order.line_items)
+      delivery = delivery_fixture(order)
+      valid_attrs = %{quantity: 42, order_line_item_id: order_line_item.id}
 
-      assert {:ok, %DeliveryLineItem{} = delivery_line_item} =
-               OfficeSupplyStore.create_delivery_line_item(valid_attrs)
+      assert {:ok, %Delivery{} = delivery} =
+               OfficeSupplyStore.create_delivery_line_item(delivery, order, %{line_items: [valid_attrs]})
 
+      assert [delivery_line_item] = delivery.line_items
       assert delivery_line_item.quantity == 42
     end
 
     test "create_delivery_line_item/1 with invalid data returns error changeset" do
+      order = completed_order_fixture()
+      delivery = delivery_fixture(order)
+
       assert {:error, %Ecto.Changeset{}} =
-               OfficeSupplyStore.create_delivery_line_item(@invalid_attrs)
+               OfficeSupplyStore.create_delivery_line_item(delivery, order, %{line_items: @invalid_attrs})
     end
   end
 end
