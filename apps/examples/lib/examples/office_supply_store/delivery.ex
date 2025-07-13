@@ -4,7 +4,6 @@ defmodule Examples.OfficeSupplyStore.Delivery do
 
   alias Examples.OfficeSupplyStore.DeliveryLineItem
   alias Examples.OfficeSupplyStore.Order
-  alias Examples.OfficeSupplyStore.OrderLineItem
 
   schema "office_supply_store_deliveries" do
     field :type, Ecto.Enum, values: [:partial, :complete], default: :partial
@@ -37,11 +36,11 @@ defmodule Examples.OfficeSupplyStore.Delivery do
   end
 
   defp put_line_items_assoc(changeset) do
-    order_line_items =
-      Enum.map(changeset.data.order.line_items, &OrderLineItem.put_quantity_delivered/1)
-
     line_item_changesets =
-      Enum.map(changeset.params["line_items"], &cast_line_item_assoc(&1, order_line_items))
+      Enum.map(
+        changeset.params["line_items"],
+        &cast_line_item_assoc(&1, changeset.data.order.line_items)
+      )
 
     put_assoc(changeset, :line_items, line_item_changesets)
   end
