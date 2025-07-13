@@ -20,14 +20,14 @@ defmodule Examples.OfficeSupplyStore.DeliveryLineItem do
     |> validate_required([:order_line_item_id, :quantity])
   end
 
+  @doc false
   def validate_put_order_line_item_changeset(changeset, order_line_items) do
     case apply_action(changeset, :validate) do
       {:ok, delivery_line_item} ->
         order_line_item =
-          Enum.find(order_line_items, &(&1.id == delivery_line_item.order_line_item_id))
-
-        order_line_item =
-          OrderLineItem.put_quantity_delivered(order_line_item, delivery_line_item)
+          order_line_items
+          |> Enum.find(&(&1.id == delivery_line_item.order_line_item_id))
+          |> OrderLineItem.put_quantity_delivered(delivery_line_item)
 
         if OrderLineItem.quantity_exceeded?(order_line_item) do
           add_error(changeset, :quantity, "exceeds quantity ordered")

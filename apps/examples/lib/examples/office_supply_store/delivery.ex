@@ -30,23 +30,15 @@ defmodule Examples.OfficeSupplyStore.Delivery do
   end
 
   def put_line_items_changeset(delivery, attrs) do
+    order_line_items = delivery.order.line_items
+
     delivery
     |> cast(attrs, [])
-    |> put_line_items_assoc()
+    |> cast_assoc(:line_items, with: &line_item_changeset(&1, &2, order_line_items))
   end
 
-  defp put_line_items_assoc(changeset) do
-    line_item_changesets =
-      Enum.map(
-        changeset.params["line_items"],
-        &cast_line_item_assoc(&1, changeset.data.order.line_items)
-      )
-
-    put_assoc(changeset, :line_items, line_item_changesets)
-  end
-
-  defp cast_line_item_assoc(attrs, order_line_items) do
-    %DeliveryLineItem{}
+  defp line_item_changeset(delivery_line_item, attrs, order_line_items) do
+    delivery_line_item
     |> DeliveryLineItem.changeset(attrs)
     |> DeliveryLineItem.validate_put_order_line_item_changeset(order_line_items)
   end
