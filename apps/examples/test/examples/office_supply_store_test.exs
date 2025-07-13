@@ -613,7 +613,9 @@ defmodule Examples.OfficeSupplyStoreTest do
       valid_attrs = %{quantity: 42, order_line_item_id: order_line_item.id}
 
       assert {:ok, %Delivery{} = delivery} =
-               OfficeSupplyStore.create_delivery_line_item(delivery, order, %{line_items: [valid_attrs]})
+               OfficeSupplyStore.create_delivery_line_item(delivery, %{
+                 line_items: [valid_attrs]
+               })
 
       assert [delivery_line_item] = delivery.line_items
       assert delivery_line_item.quantity == 42
@@ -624,7 +626,42 @@ defmodule Examples.OfficeSupplyStoreTest do
       delivery = delivery_fixture(order)
 
       assert {:error, %Ecto.Changeset{}} =
-               OfficeSupplyStore.create_delivery_line_item(delivery, order, %{line_items: @invalid_attrs})
+               OfficeSupplyStore.create_delivery_line_item(delivery, %{
+                 line_items: [@invalid_attrs]
+               })
+    end
+  end
+
+  describe "office_supply_store_order and office_supply_store_delivery_line_items" do
+    alias Examples.OfficeSupplyStore.Delivery
+
+    import Examples.OfficeSupplyStoreFixtures
+
+    test "validates delivery line item quantity" do
+      customer = business_customer_fixture()
+      branch = branch_fixture()
+      product = product_fixture()
+
+      order =
+        completed_order_fixture(customer, branch, product, %{}, %{price: "120.5", quantity: 1})
+
+      order_line_item = List.first(order.line_items)
+      delivery = delivery_fixture(order)
+      valid_attrs = %{quantity: 1, order_line_item_id: order_line_item.id}
+
+      assert {:ok, %Delivery{} = _delivery} =
+               OfficeSupplyStore.create_delivery_line_item(delivery, %{line_items: [valid_attrs]})
+
+      another_delivery = delivery_fixture(order)
+
+      assert {:error, changeset} =
+               OfficeSupplyStore.create_delivery_line_item(another_delivery, %{
+                 line_items: [valid_attrs]
+               })
+
+      assert "Delivery line items must not exceed the quantity of the order line item" in errors_on(
+               changeset
+             ).business_rule
     end
   end
 end

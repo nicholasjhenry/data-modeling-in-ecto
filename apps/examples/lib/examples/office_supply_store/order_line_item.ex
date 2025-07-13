@@ -6,8 +6,11 @@ defmodule Examples.OfficeSupplyStore.OrderLineItem do
     field :quantity, :integer
     field :price, :decimal
 
+    field :quantity_delivered, :integer, virtual: true, default: 0
+
     belongs_to :order, Examples.OfficeSupplyStore.Order
     belongs_to :product, Examples.OfficeSupplyStore.Product
+    has_many :delivery_line_items, Examples.OfficeSupplyStore.DeliveryLineItem
 
     timestamps()
   end

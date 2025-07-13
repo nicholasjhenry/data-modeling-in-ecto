@@ -5,6 +5,7 @@ defmodule Examples.OfficeSupplyStore.Order do
 
   alias Examples.OfficeSupplyStore.Branch
   alias Examples.OfficeSupplyStore.BusinessCustomer
+  alias Examples.OfficeSupplyStore.Delivery
   alias Examples.OfficeSupplyStore.OrderLineItem
   alias Examples.OfficeSupplyStore.Product
 
@@ -17,6 +18,7 @@ defmodule Examples.OfficeSupplyStore.Order do
     field :shipping_address, :string
 
     has_many :line_items, OrderLineItem
+    has_many :deliveries, Delivery
     belongs_to :branch, Branch
     belongs_to :customer, BusinessCustomer
 
@@ -35,18 +37,21 @@ defmodule Examples.OfficeSupplyStore.Order do
   # SECTION: assoc changesets
 
   def put_line_item_changeset(order, product, line_item_attrs) do
-    changeset = change(order)
+    order
+    |> change()
+    |> cast_line_item_assoc(line_item_attrs, product)
+    |> validate_line_items()
+    |> validate_conflict(product)
+    |> Product.validate_put_order(product)
+  end
 
+  defp cast_line_item_assoc(changeset, line_item_attrs, product) do
     line_item_changeset =
       %OrderLineItem{}
       |> OrderLineItem.changeset(line_item_attrs)
       |> OrderLineItem.put_product_changeset(product)
 
-    changeset
-    |> put_assoc(:line_items, [line_item_changeset | changeset.data.line_items])
-    |> validate_line_items
-    |> validate_conflict(product)
-    |> Product.validate_put_order(product)
+    put_assoc(changeset, :line_items, [line_item_changeset | changeset.data.line_items])
   end
 
   def delete_line_item_changeset(order, line_item) do

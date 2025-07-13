@@ -45,18 +45,26 @@ defmodule Examples.OfficeSupplyStoreFixtures do
         customer \\ business_customer_fixture(),
         branch \\ branch_fixture(),
         product \\ product_fixture(),
-        attrs \\ %{}
+        order_attrs \\ %{},
+        order_line_item_attrs \\ %{}
       ) do
-    attrs =
-      Enum.into(attrs, %{state: :payment_pending, shipping_address: "some address"})
+    order_attrs =
+      Enum.into(order_attrs, %{state: :payment_pending, shipping_address: "some address"})
+
+    order_line_item_attrs = Enum.into(order_line_item_attrs, %{price: "120.5", quantity: 42})
 
     _stock_entry = stock_entry_fixture(branch, product)
 
+    # TODO: Revise how this is implemented
+
     {:ok, order} =
-      Examples.OfficeSupplyStore.create_order(customer, branch, product, attrs, %{
-        price: "120.5",
-        quantity: 42
-      })
+      Examples.OfficeSupplyStore.create_order(
+        customer,
+        branch,
+        product,
+        order_attrs,
+        order_line_item_attrs
+      )
 
     order
   end
@@ -65,10 +73,11 @@ defmodule Examples.OfficeSupplyStoreFixtures do
         customer \\ business_customer_fixture(),
         branch \\ branch_fixture(),
         product \\ product_fixture(),
-        attrs \\ %{}
+        order_attrs \\ %{},
+        order_line_item_attrs \\ %{}
       ) do
-    attrs = Enum.into(attrs, %{state: :completed})
-    order_fixture(customer, branch, product, attrs)
+    order_attrs = Enum.into(order_attrs, %{state: :completed})
+    order_fixture(customer, branch, product, order_attrs, order_line_item_attrs)
   end
 
   @doc """

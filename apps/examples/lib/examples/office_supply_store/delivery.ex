@@ -32,6 +32,57 @@ defmodule Examples.OfficeSupplyStore.Delivery do
   def put_line_item_changeset(delivery, attrs) do
     delivery
     |> cast(attrs, [])
-    |> cast_assoc(:line_items)
+    |> cast_line_items_assoc()
+    |> validate_put_line_items()
+  end
+
+  defp cast_line_items_assoc(changeset) do
+    order = changeset.data.order
+
+    line_item_changesets =
+      changeset.params["line_items"]
+      |> Enum.map(fn attrs ->
+        %DeliveryLineItem{}
+        |> DeliveryLineItem.changeset(attrs)
+        |> DeliveryLineItem.put_order_line_item_changeset(order)
+      end)
+      |> Enum.concat(Enum.map(changeset.data.line_items, &change/1))
+
+    put_assoc(changeset, :line_items, line_item_changesets)
+  end
+
+  defp validate_put_line_items(changeset) do
+    delivery_quantities = sum_quantities(changeset)
+
+    if Enum.any?(delivery_quantities, &quantity_exceeded?/1) do
+      add_error(
+        changeset,
+        :business_rule,
+        "Delivery line items must not exceed the quantity of the order line item"
+      )
+    else
+      changeset
+    end
+  end
+
+  defp quantity_exceeded?({_product_id, sum}) do
+    sum.quantity_delivered > sum.quantity_ordered
+  end
+
+  defp sum_quantities(changeset) do
+    changeset.data.order.deliveries
+    |> Enum.flat_map(& &1.line_items)
+    |> Enum.concat(get_assoc(changeset, :line_items, :struct))
+    |> Enum.reduce(%{}, fn
+      %{order_line_item: nil} = _delivery_line_item, acc ->
+        acc
+
+      %{order_line_item: order_line_item} = delivery_line_item, acc ->
+        default = %{quantity_delivered: 1, quantity_ordered: order_line_item.quantity}
+
+        Map.update(acc, delivery_line_item.order_line_item.product_id, default, fn struct ->
+          %{struct | quantity_delivered: struct.quantity_delivered + delivery_line_item.quantity}
+        end)
+    end)
   end
 end
