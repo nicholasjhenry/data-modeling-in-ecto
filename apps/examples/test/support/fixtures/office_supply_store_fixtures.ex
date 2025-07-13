@@ -45,19 +45,39 @@ defmodule Examples.OfficeSupplyStoreFixtures do
         customer \\ business_customer_fixture(),
         branch \\ branch_fixture(),
         product \\ product_fixture(),
-        attrs \\ %{}
+        order_attrs \\ %{},
+        order_line_item_attrs \\ %{}
       ) do
-    attrs = Enum.into(attrs, %{state: :payment_pending})
+    order_attrs =
+      Enum.into(order_attrs, %{state: :payment_pending, shipping_address: "some address"})
+
+    order_line_item_attrs = Enum.into(order_line_item_attrs, %{price: "120.5", quantity: 42})
 
     _stock_entry = stock_entry_fixture(branch, product)
 
+    # TODO: Revise how this is implemented
+
     {:ok, order} =
-      Examples.OfficeSupplyStore.create_order(customer, branch, product, attrs, %{
-        price: "120.5",
-        quantity: 42
-      })
+      Examples.OfficeSupplyStore.create_order(
+        customer,
+        branch,
+        product,
+        order_attrs,
+        order_line_item_attrs
+      )
 
     order
+  end
+
+  def completed_order_fixture(
+        customer \\ business_customer_fixture(),
+        branch \\ branch_fixture(),
+        product \\ product_fixture(),
+        order_attrs \\ %{},
+        order_line_item_attrs \\ %{}
+      ) do
+    order_attrs = Enum.into(order_attrs, %{state: :completed})
+    order_fixture(customer, branch, product, order_attrs, order_line_item_attrs)
   end
 
   @doc """
@@ -128,5 +148,21 @@ defmodule Examples.OfficeSupplyStoreFixtures do
     {:ok, stock_entry} = Examples.OfficeSupplyStore.create_stock_entry(branch, product)
 
     stock_entry
+  end
+
+  @doc """
+  Generate a delivery.
+  """
+  def delivery_fixture(order \\ completed_order_fixture(), attrs \\ %{}) do
+    attrs =
+      Enum.into(attrs, %{
+        address: order.shipping_address,
+        state: :pending,
+        type: :partial
+      })
+
+    {:ok, delivery} = Examples.OfficeSupplyStore.create_delivery(order, attrs)
+
+    delivery
   end
 end

@@ -348,21 +348,20 @@ defmodule Examples.OfficeSupplyStoreTest do
 
     import Examples.OfficeSupplyStoreFixtures
 
-    @invalid_attrs %{state: nil}
+    @invalid_attrs %{state: nil, shipping_address: nil}
 
     test "get_order!/1 returns the order with given id" do
       order = order_fixture()
       assert OfficeSupplyStore.get_order!(order.id) == order
     end
 
-    @tag :wip
     test "create_order/1 with valid data creates a order" do
       customer = business_customer_fixture()
       branch = branch_fixture()
       product = product_fixture()
       _stock_entry = stock_entry_fixture(branch, product)
-      valid_attrs = %{state: :payment_pending}
-      line_item_attrs = %{price: "120.5", quantity: 42}
+      valid_attrs = %{state: :payment_pending, shipping_address: "some shipping address"}
+      line_item_attrs = %{price: "120.5", quantity: 42, shipping_address: "some shipping address"}
 
       assert {:ok, %Order{} = order} =
                OfficeSupplyStore.create_order(
@@ -533,6 +532,134 @@ defmodule Examples.OfficeSupplyStoreTest do
 
       assert {:ok, %StockEntry{} = _stock_entry} =
                OfficeSupplyStore.create_stock_entry(branch, product)
+    end
+  end
+
+  describe "office_supply_store_deliveries" do
+    alias Examples.OfficeSupplyStore.Delivery
+
+    import Examples.OfficeSupplyStoreFixtures
+
+    @invalid_attrs %{type: nil, state: nil, address: nil}
+
+    test "get_delivery!/1 returns the delivery with given id" do
+      delivery = delivery_fixture()
+      assert OfficeSupplyStore.get_delivery!(delivery.id).id == delivery.id
+    end
+
+    test "create_delivery/1 with valid data creates a delivery" do
+      order = completed_order_fixture()
+      valid_attrs = %{type: :partial, state: :pending, address: "some address"}
+
+      assert {:ok, %Delivery{} = delivery} = OfficeSupplyStore.create_delivery(order, valid_attrs)
+      assert delivery.type == :partial
+      assert delivery.state == :pending
+      assert delivery.address == "some address"
+      assert delivery.order_id == order.id
+    end
+
+    test "create_delivery/1 with invalid data returns error changeset" do
+      order = order_fixture()
+
+      assert {:error, %Ecto.Changeset{}} =
+               OfficeSupplyStore.create_delivery(order, @invalid_attrs)
+    end
+  end
+
+  describe "delivering an order" do
+    alias Examples.OfficeSupplyStore.Delivery
+
+    import Examples.OfficeSupplyStoreFixtures
+
+    test "validates delivery address with order shipping address" do
+      order = order_fixture()
+      valid_attrs = %{type: :partial, state: :pending, address: "some invalid address"}
+
+      assert {:error, changeset} = OfficeSupplyStore.create_delivery(order, valid_attrs)
+
+      assert "Delivery address must the the same as order shipping address" in errors_on(
+               changeset
+             ).business_rule
+    end
+
+    test "validates order state" do
+      customer = business_customer_fixture()
+      branch = branch_fixture()
+      product = product_fixture()
+      valid_attrs = %{type: :partial, state: :pending, address: "some address"}
+
+      valid_order = order_fixture(customer, branch, product, state: :completed)
+      assert {:ok, _delivery} = OfficeSupplyStore.create_delivery(valid_order, valid_attrs)
+
+      another_product = product_fixture()
+      invalid_order = order_fixture(customer, branch, another_product, state: :payment_pending)
+      assert {:error, changeset} = OfficeSupplyStore.create_delivery(invalid_order, valid_attrs)
+
+      assert "An order must be completed to be delivered" in errors_on(changeset).business_rule
+    end
+  end
+
+  describe "office_supply_store_delivery_line_items" do
+    alias Examples.OfficeSupplyStore.Delivery
+
+    import Examples.OfficeSupplyStoreFixtures
+
+    @invalid_attrs %{quantity: nil}
+
+    test "create_delivery_line_item/1 with valid data creates a delivery_line_item" do
+      order = completed_order_fixture()
+      order_line_item = List.first(order.line_items)
+      delivery = delivery_fixture(order)
+      valid_attrs = %{quantity: 42, order_line_item_id: order_line_item.id}
+
+      assert {:ok, %Delivery{} = delivery} =
+               OfficeSupplyStore.create_delivery_line_item(delivery, %{
+                 line_items: [valid_attrs]
+               })
+
+      assert [delivery_line_item] = delivery.line_items
+      assert delivery_line_item.quantity == 42
+    end
+
+    test "create_delivery_line_item/1 with invalid data returns error changeset" do
+      order = completed_order_fixture()
+      delivery = delivery_fixture(order)
+
+      assert {:error, %Ecto.Changeset{}} =
+               OfficeSupplyStore.create_delivery_line_item(delivery, %{
+                 line_items: [@invalid_attrs]
+               })
+    end
+  end
+
+  describe "office_supply_store_order and office_supply_store_delivery_line_items" do
+    alias Examples.OfficeSupplyStore.Delivery
+
+    import Examples.OfficeSupplyStoreFixtures
+
+    test "validates delivery line item quantity" do
+      customer = business_customer_fixture()
+      branch = branch_fixture()
+      product = product_fixture()
+
+      order =
+        completed_order_fixture(customer, branch, product, %{}, %{price: "120.5", quantity: 1})
+
+      order_line_item = List.first(order.line_items)
+      delivery = delivery_fixture(order)
+      valid_attrs = %{quantity: 1, order_line_item_id: order_line_item.id}
+
+      assert {:ok, %Delivery{} = _delivery} =
+               OfficeSupplyStore.create_delivery_line_item(delivery, %{line_items: [valid_attrs]})
+
+      another_delivery = delivery_fixture(order)
+
+      assert {:error, changeset} =
+               OfficeSupplyStore.create_delivery_line_item(another_delivery, %{
+                 line_items: [valid_attrs]
+               })
+
+      assert "exceeds quantity ordered" in errors_on(List.first(changeset.changes.line_items)).quantity
     end
   end
 end

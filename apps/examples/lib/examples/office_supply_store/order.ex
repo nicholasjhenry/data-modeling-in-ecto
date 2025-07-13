@@ -5,6 +5,7 @@ defmodule Examples.OfficeSupplyStore.Order do
 
   alias Examples.OfficeSupplyStore.Branch
   alias Examples.OfficeSupplyStore.BusinessCustomer
+  alias Examples.OfficeSupplyStore.Delivery
   alias Examples.OfficeSupplyStore.OrderLineItem
   alias Examples.OfficeSupplyStore.Product
 
@@ -14,8 +15,10 @@ defmodule Examples.OfficeSupplyStore.Order do
       default: :payment_pending
 
     field :type, Ecto.Enum, values: [:delivery, :pickup], default: :delivery
+    field :shipping_address, :string
 
     has_many :line_items, OrderLineItem
+    has_many :deliveries, Delivery
     belongs_to :branch, Branch
     belongs_to :customer, BusinessCustomer
 
@@ -27,25 +30,28 @@ defmodule Examples.OfficeSupplyStore.Order do
   @doc false
   def changeset(order, attrs) do
     order
-    |> cast(attrs, [:state, :type])
-    |> validate_required([:state, :type])
+    |> cast(attrs, [:state, :type, :shipping_address])
+    |> validate_required([:state, :type, :shipping_address])
   end
 
   # SECTION: assoc changesets
 
   def put_line_item_changeset(order, product, line_item_attrs) do
-    changeset = change(order)
+    order
+    |> change()
+    |> cast_line_item_assoc(line_item_attrs, product)
+    |> validate_line_items()
+    |> validate_conflict(product)
+    |> Product.validate_put_order(product)
+  end
 
+  defp cast_line_item_assoc(changeset, line_item_attrs, product) do
     line_item_changeset =
       %OrderLineItem{}
       |> OrderLineItem.changeset(line_item_attrs)
       |> OrderLineItem.put_product_changeset(product)
 
-    changeset
-    |> put_assoc(:line_items, [line_item_changeset | changeset.data.line_items])
-    |> validate_line_items
-    |> validate_conflict(product)
-    |> Product.validate_put_order(product)
+    put_assoc(changeset, :line_items, [line_item_changeset | changeset.data.line_items])
   end
 
   def delete_line_item_changeset(order, line_item) do
@@ -68,6 +74,34 @@ defmodule Examples.OfficeSupplyStore.Order do
   end
 
   # SECTION: assoc validations
+
+  def validate_put_delivery(delivery_changeset, order) do
+    delivery_changeset
+    |> validate_shipping_address(order)
+    |> validate_state(order)
+  end
+
+  defp validate_shipping_address(delivery_changeset, order) do
+    delivery_address = get_field(delivery_changeset, :address)
+
+    if order.shipping_address !== delivery_address do
+      add_error(
+        delivery_changeset,
+        :business_rule,
+        "Delivery address must the the same as order shipping address"
+      )
+    else
+      delivery_changeset
+    end
+  end
+
+  defp validate_state(delivery_changeset, order) do
+    if order.state != :completed do
+      add_error(delivery_changeset, :business_rule, "An order must be completed to be delivered")
+    else
+      delivery_changeset
+    end
+  end
 
   defp validate_line_items(order_changeset) do
     line_item_changesets = get_all_assocs(order_changeset, :line_items, :insert_or_update)

@@ -1,0 +1,45 @@
+defmodule Examples.OfficeSupplyStore.Delivery do
+  use Ecto.Schema
+  import Ecto.Changeset
+
+  alias Examples.OfficeSupplyStore.DeliveryLineItem
+  alias Examples.OfficeSupplyStore.Order
+
+  schema "office_supply_store_deliveries" do
+    field :type, Ecto.Enum, values: [:partial, :complete], default: :partial
+    field :state, Ecto.Enum, values: [:pending, :completed, :cancelled], default: :pending
+    field :address, :string
+
+    belongs_to :order, Order
+    has_many :line_items, DeliveryLineItem
+
+    timestamps()
+  end
+
+  @doc false
+  def changeset(delivery, attrs) do
+    delivery
+    |> cast(attrs, [:type, :state, :address])
+    |> validate_required([:type, :state, :address])
+  end
+
+  def put_order_changeset(delivery, order) do
+    delivery
+    |> put_assoc(:order, order)
+    |> Order.validate_put_delivery(order)
+  end
+
+  def put_line_items_changeset(delivery, attrs) do
+    order_line_items = delivery.order.line_items
+
+    delivery
+    |> cast(attrs, [])
+    |> cast_assoc(:line_items, with: &line_item_changeset(&1, &2, order_line_items))
+  end
+
+  defp line_item_changeset(delivery_line_item, attrs, order_line_items) do
+    delivery_line_item
+    |> DeliveryLineItem.changeset(attrs)
+    |> DeliveryLineItem.validate_put_order_line_item_changeset(order_line_items)
+  end
+end

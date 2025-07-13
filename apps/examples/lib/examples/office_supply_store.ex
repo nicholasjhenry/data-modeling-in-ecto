@@ -171,4 +171,30 @@ defmodule Examples.OfficeSupplyStore do
     |> StockEntry.put_product_changeset(product)
     |> Repo.insert()
   end
+
+  alias Examples.OfficeSupplyStore.Delivery
+  alias Examples.OfficeSupplyStore.OrderLineItem
+
+  def get_delivery!(id), do: Repo.get!(Delivery, id)
+
+  def create_delivery(order, attrs \\ %{}) do
+    %Delivery{}
+    |> Repo.preload([:line_items])
+    |> Delivery.changeset(attrs)
+    |> Delivery.put_order_changeset(order)
+    |> Repo.insert()
+  end
+
+  def create_delivery_line_item(delivery, attrs \\ %{}) do
+    delivery
+    |> Repo.preload(order: [line_items: :delivery_line_items])
+    |> put_line_item_quantity_delivered()
+    |> Delivery.put_line_items_changeset(attrs)
+    |> Repo.update()
+  end
+
+  defp put_line_item_quantity_delivered(delivery) do
+    line_items = Enum.map(delivery.order.line_items, &OrderLineItem.put_quantity_delivered/1)
+    %{delivery | order: %{delivery.order | line_items: line_items}}
+  end
 end
