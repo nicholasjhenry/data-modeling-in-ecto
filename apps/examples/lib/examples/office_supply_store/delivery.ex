@@ -65,8 +65,8 @@ defmodule Examples.OfficeSupplyStore.Delivery do
     end
   end
 
-  defp quantity_exceeded?({_product_id, sum}) do
-    sum.quantity_delivered > sum.quantity_ordered
+  defp quantity_exceeded?({_order_line_item_id, order_line_item}) do
+    order_line_item.quantity_delivered > order_line_item.quantity
   end
 
   defp sum_quantities(changeset) do
@@ -78,10 +78,13 @@ defmodule Examples.OfficeSupplyStore.Delivery do
         acc
 
       %{order_line_item: order_line_item} = delivery_line_item, acc ->
-        default = %{quantity_delivered: 1, quantity_ordered: order_line_item.quantity}
+        default = %{order_line_item | quantity_delivered: delivery_line_item.quantity}
 
-        Map.update(acc, delivery_line_item.order_line_item.product_id, default, fn struct ->
-          %{struct | quantity_delivered: struct.quantity_delivered + delivery_line_item.quantity}
+        Map.update(acc, delivery_line_item.order_line_item.id, default, fn order_line_item ->
+          %{
+            order_line_item
+            | quantity_delivered: order_line_item.quantity_delivered + delivery_line_item.quantity
+          }
         end)
     end)
   end
