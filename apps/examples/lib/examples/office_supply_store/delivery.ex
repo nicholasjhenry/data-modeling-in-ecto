@@ -30,7 +30,7 @@ defmodule Examples.OfficeSupplyStore.Delivery do
     |> Order.validate_put_delivery(order)
   end
 
-  def put_line_item_changeset(delivery, attrs) do
+  def put_line_items_changeset(delivery, attrs) do
     delivery
     |> cast(attrs, [])
     |> cast_assoc(:line_items)
