@@ -33,50 +33,22 @@ defmodule Examples.OfficeSupplyStore.Delivery do
   def put_line_items_changeset(delivery, attrs) do
     delivery
     |> cast(attrs, [])
-    |> cast_assoc(:line_items)
-    |> validate_put_line_items()
+    |> put_line_items_assoc()
   end
 
-  defp validate_put_line_items(changeset) do
-    order_line_items = put_quantity_delivered(changeset)
+  defp put_line_items_assoc(changeset) do
+    order_line_items =
+      Enum.map(changeset.data.order.line_items, &OrderLineItem.put_quantity_delivered/1)
 
-    if Enum.any?(order_line_items, &quantity_exceeded?/1) do
-      add_error(
-        changeset,
-        :business_rule,
-        "Delivery line items must not exceed the quantity of the order line item"
-      )
-    else
-      changeset
-    end
+    line_item_changesets =
+      Enum.map(changeset.params["line_items"], &cast_line_item_assoc(&1, order_line_items))
+
+    put_assoc(changeset, :line_items, line_item_changesets)
   end
 
-  defp quantity_exceeded?(order_line_item) do
-    order_line_item.quantity_delivered > order_line_item.quantity
-  end
-
-  defp put_quantity_delivered(changeset) do
-    order_line_items = changeset.data.order.line_items
-    new_delivery_line_items = get_assoc(changeset, :line_items, :struct)
-
-    delivery_line_items =
-      changeset.data.order.deliveries
-      |> Enum.flat_map(& &1.line_items)
-      |> Enum.concat(new_delivery_line_items)
-
-    delivery_line_items
-    |> Enum.filter(&(&1.order_line_item_id != nil))
-    |> Enum.reduce(%{}, fn delivery_line_item, acc ->
-      order_line_item =
-        Enum.find(order_line_items, &(&1.id == delivery_line_item.order_line_item_id))
-
-      Map.update(
-        acc,
-        order_line_item.id,
-        OrderLineItem.add_quantity_delivered(order_line_item, delivery_line_item),
-        &OrderLineItem.add_quantity_delivered(&1, delivery_line_item)
-      )
-    end)
-    |> Map.values()
+  defp cast_line_item_assoc(attrs, order_line_items) do
+    %DeliveryLineItem{}
+    |> DeliveryLineItem.changeset(attrs)
+    |> DeliveryLineItem.validate_put_order_line_item_changeset(order_line_items)
   end
 end

@@ -659,9 +659,7 @@ defmodule Examples.OfficeSupplyStoreTest do
                  line_items: [valid_attrs]
                })
 
-      assert "Delivery line items must not exceed the quantity of the order line item" in errors_on(
-               changeset
-             ).business_rule
+      assert "exceeds quantity ordered" in errors_on(List.first(changeset.changes.line_items)).quantity
     end
   end
 end

@@ -26,10 +26,21 @@ defmodule Examples.OfficeSupplyStore.OrderLineItem do
     put_assoc(order_line_item, :product, product)
   end
 
-  def add_quantity_delivered(order_line_item, delivery_line_item) do
+  def put_quantity_delivered(order_line_item) do
+    Enum.reduce(order_line_item.delivery_line_items, order_line_item, fn delivery_line_item,
+                                                                         acc ->
+      put_quantity_delivered(acc, delivery_line_item)
+    end)
+  end
+
+  def put_quantity_delivered(order_line_item, delivery_line_item) do
     %{
       order_line_item
       | quantity_delivered: order_line_item.quantity_delivered + delivery_line_item.quantity
     }
+  end
+
+  def quantity_exceeded?(order_line_item) do
+    order_line_item.quantity_delivered > order_line_item.quantity
   end
 end

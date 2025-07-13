@@ -19,4 +19,24 @@ defmodule Examples.OfficeSupplyStore.DeliveryLineItem do
     |> cast(attrs, [:order_line_item_id, :quantity])
     |> validate_required([:order_line_item_id, :quantity])
   end
+
+  def validate_put_order_line_item_changeset(changeset, order_line_items) do
+    case apply_action(changeset, :validate) do
+      {:ok, delivery_line_item} ->
+        order_line_item =
+          Enum.find(order_line_items, &(&1.id == delivery_line_item.order_line_item_id))
+
+        order_line_item =
+          OrderLineItem.put_quantity_delivered(order_line_item, delivery_line_item)
+
+        if OrderLineItem.quantity_exceeded?(order_line_item) do
+          add_error(changeset, :quantity, "exceeds quantity ordered")
+        else
+          changeset
+        end
+
+      {:error, _changeset} ->
+        changeset
+    end
+  end
 end
