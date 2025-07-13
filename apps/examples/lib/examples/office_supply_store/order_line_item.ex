@@ -25,4 +25,11 @@ defmodule Examples.OfficeSupplyStore.OrderLineItem do
   def put_product_changeset(order_line_item, product) do
     put_assoc(order_line_item, :product, product)
   end
+
+  def add_quantity_delivered(order_line_item, delivery_line_item) do
+    %{
+      order_line_item
+      | quantity_delivered: order_line_item.quantity_delivered + delivery_line_item.quantity
+    }
+  end
 end

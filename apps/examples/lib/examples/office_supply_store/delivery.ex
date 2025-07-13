@@ -4,6 +4,7 @@ defmodule Examples.OfficeSupplyStore.Delivery do
 
   alias Examples.OfficeSupplyStore.DeliveryLineItem
   alias Examples.OfficeSupplyStore.Order
+  alias Examples.OfficeSupplyStore.OrderLineItem
 
   schema "office_supply_store_deliveries" do
     field :type, Ecto.Enum, values: [:partial, :complete], default: :partial
@@ -78,14 +79,12 @@ defmodule Examples.OfficeSupplyStore.Delivery do
         acc
 
       %{order_line_item: order_line_item} = delivery_line_item, acc ->
-        default = %{order_line_item | quantity_delivered: delivery_line_item.quantity}
-
-        Map.update(acc, delivery_line_item.order_line_item.id, default, fn order_line_item ->
-          %{
-            order_line_item
-            | quantity_delivered: order_line_item.quantity_delivered + delivery_line_item.quantity
-          }
-        end)
+        Map.update(
+          acc,
+          delivery_line_item.order_line_item.id,
+          OrderLineItem.add_quantity_delivered(order_line_item, delivery_line_item),
+          &OrderLineItem.add_quantity_delivered(&1, delivery_line_item)
+        )
     end)
   end
 end
