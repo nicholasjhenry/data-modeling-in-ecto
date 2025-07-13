@@ -33,29 +33,14 @@ defmodule Examples.OfficeSupplyStore.Delivery do
   def put_line_item_changeset(delivery, attrs) do
     delivery
     |> cast(attrs, [])
-    |> cast_line_items_assoc()
+    |> cast_assoc(:line_items)
     |> validate_put_line_items()
   end
 
-  defp cast_line_items_assoc(changeset) do
-    order = changeset.data.order
-
-    line_item_changesets =
-      changeset.params["line_items"]
-      |> Enum.map(fn attrs ->
-        %DeliveryLineItem{}
-        |> DeliveryLineItem.changeset(attrs)
-        |> DeliveryLineItem.put_order_line_item_changeset(order)
-      end)
-      |> Enum.concat(Enum.map(changeset.data.line_items, &change/1))
-
-    put_assoc(changeset, :line_items, line_item_changesets)
-  end
-
   defp validate_put_line_items(changeset) do
-    delivery_quantities = sum_quantities(changeset)
+    order_line_items = put_quantity_delivered(changeset)
 
-    if Enum.any?(delivery_quantities, &quantity_exceeded?/1) do
+    if Enum.any?(order_line_items, &quantity_exceeded?/1) do
       add_error(
         changeset,
         :business_rule,
@@ -66,25 +51,32 @@ defmodule Examples.OfficeSupplyStore.Delivery do
     end
   end
 
-  defp quantity_exceeded?({_order_line_item_id, order_line_item}) do
+  defp quantity_exceeded?(order_line_item) do
     order_line_item.quantity_delivered > order_line_item.quantity
   end
 
-  defp sum_quantities(changeset) do
-    changeset.data.order.deliveries
-    |> Enum.flat_map(& &1.line_items)
-    |> Enum.concat(get_assoc(changeset, :line_items, :struct))
-    |> Enum.reduce(%{}, fn
-      %{order_line_item: nil} = _delivery_line_item, acc ->
-        acc
+  defp put_quantity_delivered(changeset) do
+    order_line_items = changeset.data.order.line_items
+    new_delivery_line_items = get_assoc(changeset, :line_items, :struct)
 
-      %{order_line_item: order_line_item} = delivery_line_item, acc ->
-        Map.update(
-          acc,
-          delivery_line_item.order_line_item.id,
-          OrderLineItem.add_quantity_delivered(order_line_item, delivery_line_item),
-          &OrderLineItem.add_quantity_delivered(&1, delivery_line_item)
-        )
+    delivery_line_items =
+      changeset.data.order.deliveries
+      |> Enum.flat_map(& &1.line_items)
+      |> Enum.concat(new_delivery_line_items)
+
+    delivery_line_items
+    |> Enum.filter(&(&1.order_line_item_id != nil))
+    |> Enum.reduce(%{}, fn delivery_line_item, acc ->
+      order_line_item =
+        Enum.find(order_line_items, &(&1.id == delivery_line_item.order_line_item_id))
+
+      Map.update(
+        acc,
+        order_line_item.id,
+        OrderLineItem.add_quantity_delivered(order_line_item, delivery_line_item),
+        &OrderLineItem.add_quantity_delivered(&1, delivery_line_item)
+      )
     end)
+    |> Map.values()
   end
 end

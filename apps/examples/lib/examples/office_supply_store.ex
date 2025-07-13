@@ -186,7 +186,7 @@ defmodule Examples.OfficeSupplyStore do
 
   def create_delivery_line_item(delivery, attrs \\ %{}) do
     delivery
-    |> Repo.preload(order: [deliveries: [line_items: :order_line_item]])
+    |> Repo.preload(order: [:line_items, deliveries: :line_items])
     |> Delivery.put_line_item_changeset(attrs)
     |> Repo.update()
   end

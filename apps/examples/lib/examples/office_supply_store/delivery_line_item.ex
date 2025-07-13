@@ -16,16 +16,7 @@ defmodule Examples.OfficeSupplyStore.DeliveryLineItem do
   @doc false
   def changeset(delivery_line_item, attrs) do
     delivery_line_item
-    |> cast(attrs, [:quantity])
-    |> validate_required([:quantity])
-  end
-
-  def put_order_line_item_changeset(changeset, order) do
-    put_assoc(changeset, :order_line_item, find_order_line_item(changeset, order))
-  end
-
-  defp find_order_line_item(changeset, order) do
-    order_line_item_id = changeset.params["order_line_item_id"]
-    Enum.find(order.line_items, &(&1.id == order_line_item_id))
+    |> cast(attrs, [:order_line_item_id, :quantity])
+    |> validate_required([:order_line_item_id, :quantity])
   end
 end
