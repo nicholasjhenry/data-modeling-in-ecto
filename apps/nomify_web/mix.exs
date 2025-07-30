@@ -37,6 +37,7 @@ defmodule NomifyWeb.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
+      {:usage_rules, "~> 0.1", only: [:dev]},
       {:phoenix, "~> 1.8.0-rc.0", override: true},
       {:phoenix_ecto, "~> 4.5"},
       {:phoenix_html, "~> 4.1"},
@@ -56,10 +57,12 @@ defmodule NomifyWeb.MixProject do
       {:telemetry_metrics, "~> 1.0"},
       {:telemetry_poller, "~> 1.0"},
       {:examples, in_umbrella: true},
+      {:essential_ecto, in_umbrella: true},
       {:nomify, in_umbrella: true},
       {:jason, "~> 1.2"},
       {:bandit, "~> 1.5"},
-      {:tidewave, "~> 0.1", only: [:dev]}
+      {:tidewave, "~> 0.1", only: [:dev]},
+      {:igniter, "~> 0.5", only: [:dev, :test]}
     ]
   end
 

@@ -111,6 +111,9 @@ defmodule Nomify.Umbrella.MixProject do
     [
       # run `mix setup` in all child apps
       setup: ["cmd mix setup"],
+      "usage_rules.sync": [
+        "do --app nomify_web cmd mix usage_rules.sync ../../AGENTS.md --all --inline usage_rules:all  --link-to-folder deps"
+      ],
       docs: ["docs", "docs.gen.erd"],
       "docs.gen.erd": [
         "cmd mkdir -p doc/assets",
