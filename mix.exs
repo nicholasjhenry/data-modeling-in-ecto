@@ -29,12 +29,6 @@ defmodule Nomify.Umbrella.MixProject do
       main: "readme",
       extras: [
         "README.md",
-        "guides/10_essential_ecto.md",
-        "guides/20_association_patterns.md",
-        "guides/30_association_validations.md",
-        "guides/40_fields_and_actions.md",
-        "guides/50_implementing_associations.md",
-        "guides/60_implementing_business_rules.md",
         "notebooks/case_study_1.livemd",
         "notebooks/case_study_2.livemd"
       ],
@@ -111,6 +105,9 @@ defmodule Nomify.Umbrella.MixProject do
     [
       # run `mix setup` in all child apps
       setup: ["cmd mix setup"],
+      "usage_rules.sync": [
+        "do --app nomify_web cmd mix usage_rules.sync ../../AGENTS.md --all --inline usage_rules:all  --link-to-folder deps"
+      ],
       docs: ["docs", "docs.gen.erd"],
       "docs.gen.erd": [
         "cmd mkdir -p doc/assets",
