@@ -725,4 +725,466 @@ Types for fields:
 - `id: integer()`
 
 <!-- essential_ecto:typespec-end -->
+<!-- essential_ecto:10_essential_ecto-start -->
+## essential_ecto:10_essential_ecto usage
+# Essential Ecto
+
+## Record Categories
+
+Through discovery find the following category of records:
+
+- **People**: a record of a person or an organization; an _actor_ participating in a system.
+- **Places**: a record of the location where an event occurs; places in multiple contexts record
+  their participation as a _role_.
+- **Articles**: a _subject_ of an **event**; people or places as the subject of an event act like
+  articles. Articles require two records to represent them -- a generalized record (item) shared
+  between many specific records (specific item). **Aggregated Articles** require two records to
+  represent the receptacle and the article in the receptacle; these include _containers_ (_content_),
+  _groups_ (_member_) and _assemblies_ (_part_).
+- **Events**: a historical record of the particpation of people, places or articles in a context.
+  Events are recorded as transactions in two way: **point-in-time** (single timestamp) or
+  **time-interval** (start and end timestamps). Events may require multiple transaction records for
+  _composite_ or _follow-up_ events.
+
+## Association Players
+
+Typically associations are thought of in terms of `has_many`, `has_one`, `belongs_to`. etc, and each
+record form a parent-child relationship, limiting our ability to model the domain.
+
+Thinking beyond Ecto associations, records forming an association play a richer part than simply
+parent-child:
+
+**People**
+
+- Actor
+- Role
+
+**Places**
+
+- Place
+- OuterPlace
+
+**Articles**
+
+- Item
+- SpecificItem
+- Assembly
+- Part
+- Container
+- Content
+
+**Events**
+
+- Transaction
+- CompositeTransaction
+- LineItem
+- Follow-upTransaction
+
+> "the presence of a given type of object suggests the presences of its likely collaborators"
+> -- Streamlined Object Modeling
+
+## Theory
+
+1. [Association Patterns]()
+2. [Association Validations]()
+3. [Fields and Actions]()
+
+## Implementation
+
+The implementation is performed in two steps:
+
+1. [Implement the association pairs](); i.e. schema and context modules
+2. [Implement the buiness rules]()
+
+<!-- essential_ecto:10_essential_ecto-end -->
+<!-- essential_ecto:20_association_patterns-start -->
+## essential_ecto:20_association_patterns usage
+## Association Patterns
+
+Asssocations must be documented with one of the following patterns:
+
+**Actor - Role**
+
+Use to model the participation of a person, organization, place, or thing in a context.
+
+- An _actor_ knows about zero to many _roles_, but typically takes on only or of each kind.
+- A _role_ represents a unique view of its _actor_ with a context. The _role_ depends on its _actor_ and cannot exist without it.
+
+**OuterPlace - Place**
+
+Use to model a hierarchy of locations where events happen.
+
+- An _outer place_ is the container for zero or more _places_.
+- A _place_ knows at most one o_uter place_. The _place's_ location depends on the location of its _outer place_.
+
+**Item - SpecificItem**
+
+Use to model a thing that exists in several distinct variations.
+
+- An _item_ is the common description for zero to many _specific items_.
+- A _specific item_ knows and depends on one _item_. The _specific item's_ property values distinguish it from other _specific items_ described by the same _item_.
+
+**Assembly - Part**
+
+Use to model an ensemble of things.
+
+- An _assembly_ has one or more _parts_. Its _parts_ determine its properties, and the _assembly_ cannot exist without them.
+- A _part_ belongs to at most one _assembly_ at a time. The _part_ can exist on its own.
+
+**Container - Content**
+
+Use to model a receptacle for things.
+
+- A _container_ holds zero or more _content_ objects. Unlike an _assembly_, it can be empty.
+- A _content_ object can be in at most one _container_ at a time. The _content_ object can exist on its own.
+
+**Group - Member**
+
+Use to model a classification of things.
+
+- A _group_ contains zero or more _members_. _Groups_ are used to classify objects.
+- A _member_, unlike a _part_ or _content_ objects, can belong to more than one _group_.
+
+**Role - Transaction**
+
+Use to record participants in events.
+
+- A _transaction_ knows one _role_, the doer of its interaction.
+- A _role_ knows about zero or more _transactions_. The _role_ provides a contextual description of the person, organization, thing, or place involved in the _transaction_.
+
+**Place - Transaction**
+
+Use to record where an event happens.
+
+- A _transaction_ occurs at one _place_.
+- A _place_ knows about zero to many _transactions_. The _transactions_ record the history of interactions at the _place_.
+
+**SpecificItem - Transaction**
+
+Use to record an event involving a single thing.
+
+- A _transaction_ knows about on _specific item_.
+- A _specific item_ can be involved in zero to many _transactions._ The _transactions_ record the _specific item's_ history or interactions.
+
+**CompositeTransaction - LineItem**
+
+Use to record an event involving more than one thing.
+
+- A _composite transaction_ must contain at least one _line item_.
+- A _line item_ knows only one _composite transaction_. The _line item_ depends on the _composite transaction_ and cannot exist without it.
+
+**SpecificItem - LineItem**
+
+Use to record the particular involvement of a thing in an event involving multiple things.
+
+- A _specific item_ can be involved in zero to many _line items_.
+- A _line item_ knows exactly one _specific item_. The _line item_ captures details about the _specific item's_ interaction a _composite transaction_.
+
+**Transaction - FollowupTransaction**
+
+Use to record an event that occurs only after a previous event.
+
+- A _transaction_ knows about some number of _follow-up transactions_.
+- A follow-up transaction_ follows and depends on exactly one previous _transaction_.
+
+Association documentation must be formatted as a list of bullet points using the following template:
+
+```TEMPLATE
+`{assocation_name}` ({assocation pattern}): {documentation}
+```
+
+<!-- essential_ecto:20_association_patterns-end -->
+<!-- essential_ecto:30_association_validations-start -->
+## essential_ecto:30_association_validations usage
+# Association Validations
+
+Association patterns enable us to implement Business Rules. Business rules from the problem domain
+are translated to Association Validations in your record modules in the solution domain.
+
+Five categories of validations:
+
+- **Type**: validate right type
+- **Cardinality**: validate too many/too few associations
+- **Field**: validate correct values
+- **State**: validate correct state
+- **Conflict**: validate compatibility
+
+Validations are shared between players:
+
+|                       | Type | Cardinality | Fields   | State | Conflict |
+| --------------------- | ---- | ------------| -------- | ----- | -------- |
+| Actor                 |      |             |          |       |          |
+| Role                  | x    | x           | x        | x     | x        |
+|                       |      |             |          |       |          |
+| Outer Place           |      | x           | x        | x     |          |
+| Place                 | x    | x           | x        | x     | x        |
+|                       |      |             |          |       |          |
+| Item                  |      | x           |          | x     |          |
+| Item Specific         | x    | x           | x        | x     | x        |
+|                       |      |             |          |       |          |
+| Assembly              |      | x           | x        | x     |          |
+| Part                  | x    | x           | x        | x     | x        |
+|                       |      |             |          |       |          |
+| Container             |      | x           | x        | x     |          |
+| Content               | x    | x           | x        | x     | x        |
+|                       |      |             |          |       |          |
+| Group                 |      | x           | x        | x     | x        |
+| Member                | x    | x           | x        | x     | x        |
+|                       |      |             |          |       |          |
+| Role                  | x    | x           | x        | x     | x        |
+| Transaction           |      | x           |          |       |          |
+|                       |      |             |          |       |          |
+| Place                 | x    | x           | x        | x     | x        |
+| Transaction           |      | x           |          |       |          |
+|                       |      |             |          |       |          |
+| Specific Item         | x    | x           | x        | x     | x        |
+| Transaction           |      | x           |          |       |          |
+|                       |      |             |          |       |          |
+| Composite Transaction |      | x           |          |       |          |
+| Specific Item         | x    | x           |          |       |          |
+|                       |      |             |          |       |          |
+| Transaction           | x    | x           | x        | x     | x        |
+| Follow-up Transaction |      | x           |          |       |          |
+
+<!-- essential_ecto:30_association_validations-end -->
+<!-- essential_ecto:40_fields_and_actions-start -->
+## essential_ecto:40_fields_and_actions usage
+# Fields and Actions
+
+## Fields
+
+- Except _descriptive_ fields, typically fields are validated and changed by a business service.
+- Fields maybe _calculated or derived_, e.g. order total. They may be cached once a value cannot change.
+- Fields maybe "_inherited_" from a record when two tables are need to present a "complete" record (Actor – Role, Item – SpecificItem,  CompositeTransaction – Line Item, see Generic - Specific Template below)
+- Calculated or inherited fields are implemented using _virtual fields_.
+- Historical fields are modeled as a _transaction_ (e.g. PriceHistory, RoleHistory)
+
+Five categories of fields:
+
+- **Descriptive**: Domain-specific and _tracking_ fields
+- **Time**: date or time fields, typically records occurence of a transaction
+- **Lifecycle state**: status of one-way state transitions (e.g., nomination status: pending, in review, approved, rejected)
+- **Operating state**: status of two-way state transitions (e.g., sensor state: off, on)
+- **Role**: classification of people (e.g., team member role: chair, admin, member)
+- **Type**: classification of places, things, and events (e.g., store type: physical, online, phone)
+
+Categorizing fields help us to decide how to represent them and what [business rules]() need to be consider.
+
+## Actions
+
+Three categories of actions:
+
+- **Business Actions**: validate and change state (field and associations); create new records (typically transactions)
+- **Query Actions**: return current state, e.g. predicates
+- **Reporting Actions**: report on future or historical state
+
+<!-- essential_ecto:40_fields_and_actions-end -->
+<!-- essential_ecto:50_implementing_associations-start -->
+## essential_ecto:50_implementing_associations usage
+# Implementing Association Pairs
+
+There are three implementation templates:
+
+> ... 12 collaboration patterns can be classified into three categories: generic – specific, whole – part, or transaction – specific. The same prototyping template can implement all collaborations within a given category; thus, only three templates are required to implement all 12 collaboration patterns.
+>
+> -- Streamlined Object Modeling
+
+> #### Templates {: .warning}
+>
+> Each template applies to two records.
+
+**Generic - Specific Template**
+
+- Actor - Role
+- Item - Specific Item
+- Composite Transaction - Line Item
+
+**Whole - Part Template**
+
+- Outer Place - Place
+- Assembly - Part
+- Container - Content
+- Group - Member
+
+**Specific - Transaction Template**
+
+- Role - Transaction
+- Place - Transaction
+- Specific item - Transaction
+- Transaction - Follow-up Transaction
+- Specific Item - Line Item
+
+## DAmpIER
+
+How to define record and context modules:
+
+1. Define (`def*`)
+
+- Name: Give the record module a name
+- Fields: Define the schema with fields with sensible defaults
+- Associations: Add associations to the schema
+- Context: Give the context module a name
+- Migrations: Write the migrations
+
+2. Actions
+
+- Fields: Write `insert_changeset/2` and `update_changeset/2 function` in the schema module with field validations
+- Associations: Write `put_ASSOC_changeset/2` functions in schema module (`delete_ASSOC_changeset/2`) ???
+- Context: Write the actions functions
+
+3. Inspect
+
+- Fields
+- Associations
+
+4. Equality?
+
+5. Run?
+
+## Record Module Definitions
+
+Record modules include:
+
+- Fields (properties)
+- Associations (object collaborations)
+- Changesets; Fields and Associations
+- Validations; Fields and Associations (object collaboration rules)
+
+### Changesets
+
+Write validations for each field as appropriate:
+
+- validated with `Ecto.Changeset` validation functions, e.g., `validate_length/3`.
+- `Ecto.Changeset` validation functions wrapped, e.g., `validate_title/1`
+
+### Associations
+
+Write association changesets for the dependent record:
+
+- `put_ASSOC_changeset/2`, e.g., `put_team_member_changeset/2`
+
+### Validations (Business Rules)
+
+Convert business rules to validations:
+
+- validate associations with `validate_ASSOC/1`, e.g. `validate_team_member/1`
+  - calls `ASSOC_RECORD.check_RECORD/1`, e.g. `TeamMember.check_nomination/1`
+- validate association conflicts with `validate_RECORD_conflict`
+  - conflict exists between two or more associations
+  - calls `ASSOC_RECORD.check_RECORD_conflict/2`
+
+## Templates
+
+TODO: Add examples from DAIER for each template
+
+Associations Summary:
+
+| Player 1    | Player 2 | assoc              |          | assoc        |          |
+| ----------- | -------- | ------------------ | -------- | ------------ | -------- |
+| Generic     | Specific | `has_one/has_many` |          | `belongs_to` | required |
+| Whole       | Part     | `has_many`         |          | `belongs_to` | optional |
+| Transaction | Specific | `belongs_to`       | required | `has_many`   |          |
+
+NOTE: The dependent record is identified by the `belongs_to` association (or foreign_key).
+
+### Generic - Specific Template
+
+Generic:
+
+- Associations: one association for each Specific; `has_one` or `has_many` dependent on business rules
+
+Specific:
+
+- Fields: Include "inherited" fields from Generic; populated in query functions
+- Associations: `belongs_to` Generic (required)
+- Record: `put_GENERIC_changeset/2`
+- Context: `create_SPECIFIC(GENERIC, params)`
+
+### Whole - Part Template
+
+Whole:
+
+- Associations: `has_many` Parts (optional)
+
+Part:
+
+- Associations: `belongs_to` Whole (optional)
+- Record: `put_WHOLE_changeset/2`
+- Context: `put_PART(WHOLE, PART)` or `create_PART(WHOLE, params)`
+
+### Transaction - Specific Template
+
+Transaction:
+
+- Associations: `belongs_to` Specific (required)
+- Context: `create_TRANSACTION(SPECIFIC, params)` (can be renamed to a business revealing action)
+- Record: `put_SPECIFIC_changeset/2`
+
+Specific:
+
+- Associations: `has_many` Transactions
+
+<!-- essential_ecto:50_implementing_associations-end -->
+<!-- essential_ecto:60_implementing_business_rules-start -->
+## essential_ecto:60_implementing_business_rules usage
+# Implementing Business Rules
+
+## Field Validations
+
+Domain-specific limits on field values implemented using `Ecto.Changeset.validate_*` functions.
+
+> 1. checking the logical validity of the new value, e.g `Ecto.Changeset.validate_required/3`
+> 2. checking the business rule validity of the new value
+
+Functions for enforcing field validations for business rules `validate_FIELD/1`, e.g.
+`validate_title/1`. Wrapping encourages cohesive functions that include all related validations,
+helpful for Cross-Field Validations (see below).
+
+How to handle enums?? `validate_FIELD_VALUE/1`, e.g. `validate_status_accepted/1`
+
+Validation rules by field category:
+
+- **Descriptive and Time**: (1) State transition rules prevent fields from changing; (2) limit the range of possible values
+- **State, Role and Type**: `Ecto.Enum` and may limit changes, e.g. state transition
+
+Cross-Field Validation:
+
+- Validate a change in one record requires checking business-rules in another.
+- Record validates own field, associated record checks if the field value invalidates the association.
+- Indicates a separate action/changeset is required
+
+## Association Validations
+
+Guidelines:
+
+- Dual Validation: Both association players (record modules) validate the association (Why? Extensability, cohesiveness, locality)
+- NJH: Commutative Rule Checking ???
+
+## Steps
+
+Follow the dependency graph to update Actions (changesets) :
+
+1. Add "check" `check_ASSOC/1` functions to each associated record where required,
+   see [Association Validations]()
+2. Add validation functions for association changeset to call `check_ASSOC/1` functions
+3. Add validations for each category as needed, see [Association Validations]()
+
+`put_ASSOC_changeset/2` => `validate_ASSOC_1/1` => `check_ASSOC_1/1`
+                        => `validate_ASSOC_2/1` => `check_ASSOC_2/1`
+
+- Generic-Specific => `validate_GENERIC/1` ("inherited" fields)
+- Whole-Part => `validate_WHOLE/1` => `WHOLE.check_PART/2`
+- Transaction-Specific => `validate_SPECIFIC/1` => `SPECIFIC.check_TRANSACTION/1`
+
+## Conflict Validations
+
+Validates conflicts between in-direct associated records for a intermediary record.
+
+`validate_PLAYER_1_PLAYER_2_conflict/1` can be implemented to any player that
+has associations with different records.
+
+- Implemented using `Ecto.Changeset.unique_constraint/3`
+- Implemented calling `check_ASSOC/1` for indirect associated records.
+
+<!-- essential_ecto:60_implementing_business_rules-end -->
 <!-- usage-rules-end -->
