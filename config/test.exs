@@ -12,7 +12,8 @@ config :nomify, Nomify.Repo,
   username: "postgres",
   password: "postgres",
   hostname: "localhost",
-  database: "nomify_test#{System.get_env("MIX_TEST_PARTITION")}",
+  database:
+    "nomify_test#{System.get_env("CONDUCTOR_WORKSPACE_NAME")}#{System.get_env("MIX_TEST_PARTITION")}",
   pool: Ecto.Adapters.SQL.Sandbox,
   pool_size: System.schedulers_online() * 2
 
@@ -20,7 +21,8 @@ config :examples, Examples.Repo,
   username: "postgres",
   password: "postgres",
   hostname: "localhost",
-  database: "examples_test#{System.get_env("MIX_TEST_PARTITION")}",
+  database:
+    "examples_test#{System.get_env("CONDUCTOR_WORKSPACE_NAME")}#{System.get_env("MIX_TEST_PARTITION")}",
   pool: Ecto.Adapters.SQL.Sandbox,
   pool_size: System.schedulers_online() * 2
 

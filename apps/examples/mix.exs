@@ -12,6 +12,7 @@ defmodule Examples.MixProject do
       elixir: "~> 1.18",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
+      aliases: aliases(),
       deps: deps()
     ]
   end
@@ -36,6 +37,15 @@ defmodule Examples.MixProject do
       {:jason, "~> 1.2"},
       {:pg_ranges, "~> 1.1.1"},
       {:essential_ecto, in_umbrella: true}
+    ]
+  end
+
+  # Aliases are shortcuts or tasks specific to the current project.
+  #
+  # See the documentation for `Mix` for more info on aliases.
+  defp aliases do
+    [
+      setup: []
     ]
   end
 end

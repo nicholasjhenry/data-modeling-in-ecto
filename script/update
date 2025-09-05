@@ -7,7 +7,6 @@ set -e
 cd "$(dirname "$0")/.."
 
 source ./script/sh/read_env
-
 script/bootstrap
 
 echo "==> Updating db…"
