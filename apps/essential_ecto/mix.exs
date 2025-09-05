@@ -11,6 +11,7 @@ defmodule EssentialEcto.MixProject do
       lockfile: "../../mix.lock",
       elixir: "~> 1.18",
       start_permanent: Mix.env() == :prod,
+      aliases: aliases(),
       deps: deps()
     ]
   end
@@ -26,6 +27,15 @@ defmodule EssentialEcto.MixProject do
   defp deps do
     [
       {:ecto_sql, "~> 3.10"}
+    ]
+  end
+
+  # Aliases are shortcuts or tasks specific to the current project.
+  #
+  # See the documentation for `Mix` for more info on aliases.
+  defp aliases do
+    [
+      setup: []
     ]
   end
 end

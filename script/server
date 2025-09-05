@@ -12,6 +12,8 @@ source ./script/sh/read_env
 # ensure everything in the app is up to date.
 script/update
 
+NODE_NAME=${CONDUCTOR_WORKSPACE_NAME:-test}
+
 # boot the app and any other necessary processes.
 docker compose up -d
-eval "$(read_env)" iex -S mix phx.server
+eval "$(read_env)" iex --name $NODE_NAME@127.0.0.1 --cookie mycookie -S mix phx.server
