@@ -3,19 +3,6 @@ defmodule Examples do
   Documentation for `Examples`.
   """
 
-  @doc """
-  Hello world.
-
-  ## Examples
-
-      iex> Examples.hello()
-      :world
-
-  """
-  def hello do
-    :world
-  end
-
   @doc false
   def record do
     quote do
