@@ -85,7 +85,7 @@ defmodule Examples.PublicLibraryTest do
 
     test "get_patron!/1 returns the patron with given id" do
       patron = patron_fixture()
-      fetched_patron = PublicLibrary.get_patron!(patron.id)
+      fetched_patron = PublicLibrary.get_patron_with_computed!(patron.id)
       assert PublicLibrary.patron_equal?(patron, fetched_patron)
     end
 
