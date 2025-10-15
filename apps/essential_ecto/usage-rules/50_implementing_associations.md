@@ -23,6 +23,16 @@ There are three implementation templates:
 - Container - Content
 - Group - Member
 
+**Transaction - Specfic Template**
+
+- Transaction - Role
+- Transaction - Place
+- Transaction - Specific Transaction
+- Follow-up Transaction - Transaction
+- Line Item - Specific Item
+
+This is how it is summarized, but all other references refer to above format.
+
 **Specific - Transaction Template**
 
 - Role - Transaction
@@ -92,11 +102,9 @@ Convert business rules to validations:
 
 ## Templates
 
-TODO: Add examples from DAIER for each template
-
 Associations Summary:
 
-| Player 1    | Player 2 | assoc              |          | assoc        |          |
+| Player 1    | Player 2 | P1 assoc           |          | P2 assoc     |          |
 | ----------- | -------- | ------------------ | -------- | ------------ | -------- |
 | Generic     | Specific | `has_one/has_many` |          | `belongs_to` | required |
 | Whole       | Part     | `has_many`         |          | `belongs_to` | optional |
@@ -134,7 +142,7 @@ Part:
 Transaction:
 
 - Associations: `belongs_to` Specific (required)
-- Context: `create_TRANSACTION(SPECIFIC, params)` (can be renamed to a business revealing action)
+- Context: `create_TRANSACTION(SPECIFIC, params)` (can be renamed or delegated to a business revealing action)
 - Record: `put_SPECIFIC_changeset/2`
 
 Specific:
