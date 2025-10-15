@@ -3,10 +3,10 @@ defmodule Examples.OfficeSupplyStore.Person do
   import Ecto.Changeset
 
   schema "office_supply_store_people" do
-    field(:name, :string)
-    field(:born_at, :date)
-    field(:email, :string)
-    field(:telephone_number, :string)
+    field :name, :string
+    field :born_at, :date
+    field :email, :string
+    field :telephone_number, :string
 
     timestamps()
   end
