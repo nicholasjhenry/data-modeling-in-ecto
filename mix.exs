@@ -25,7 +25,10 @@ defmodule Nomify.Umbrella.MixProject do
       # NOTE: Resolves "warning: index.html redirects to README.html, which does not exist".
       main: "readme",
       api_reference: false,
-      extras: ["README.md"],
+      extras: [
+        "README.md",
+        "guides/agentic_coding.md"
+      ],
       ignore_apps: apps()
     ]
   end
