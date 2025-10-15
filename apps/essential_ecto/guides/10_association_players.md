@@ -1,4 +1,4 @@
-# Essential Ecto
+# Association Players
 
 ## Record Categories
 
@@ -53,16 +53,3 @@ parent-child:
 
 > "the presence of a given type of object suggests the presences of its likely collaborators"
 > -- Streamlined Object Modeling
-
-## Theory
-
-1. [Association Patterns]()
-2. [Association Validations]()
-3. [Fields and Actions]()
-
-## Implementation
-
-The implementation is performed in two steps:
-
-1. [Implement the association pairs](); i.e. schema and context modules
-2. [Implement the buiness rules]()

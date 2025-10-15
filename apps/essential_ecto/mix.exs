@@ -50,15 +50,15 @@ defmodule EssentialEcto.MixProject do
       output: "../../doc/essential_ecto",
       extras: [
         "README.md",
-        "usage-rules/10_essential_ecto.md",
-        "usage-rules/20_association_patterns.md",
-        "usage-rules/30_association_validations.md",
-        "usage-rules/40_fields_and_actions.md",
-        "usage-rules/50_implementing_associations.md",
-        "usage-rules/60_implementing_business_rules.md"
+        "guides/10_association_players.md",
+        "guides/20_association_patterns.md",
+        "guides/30_association_validations.md",
+        "guides/40_fields_and_actions.md",
+        "guides/50_implementing_associations.md",
+        "guides/60_implementing_business_rules.md"
       ],
       groups_for_extras: [
-        "LLM Usage Rules": Path.wildcard("./usage-rules/*.md")
+        Guides: Path.wildcard("./guides/*.md")
       ]
     ]
   end

@@ -4,8 +4,8 @@ This is a web application written using the Phoenix web framework.
 <!-- usage-rules-header -->
 # Usage Rules
 
-**IMPORTANT**: Consult these usage rules early and often when working with the packages listed below. 
-Before attempting to use any of these packages or to discover if you should use them, review their 
+**IMPORTANT**: Consult these usage rules early and often when working with the packages listed below.
+Before attempting to use any of these packages or to discover if you should use them, review their
 usage rules to understand the correct patterns, conventions, and best practices.
 <!-- usage-rules-header-end -->
 
@@ -413,7 +413,7 @@ mix usage_rules.docs Enum.zip/1
 
 ## Searching Documentation
 
-You should also consult the documentation of any tools you are using, early and often. The best 
+You should also consult the documentation of any tools you are using, early and often. The best
 way to accomplish this is to use the `usage_rules.search_docs` mix task. Once you have
 found what you are looking for, use the links in the search results to get more detail. For example:
 
@@ -462,7 +462,7 @@ mix usage_rules.search_docs "Enum.zip" --query-by title
 - Use guard clauses: `when is_binary(name) and byte_size(name) > 0`
 - Prefer multiple function clauses over complex conditional logic
 - Name functions descriptively: `calculate_total_price/2` not `calc/2`
-- Predicate function names should not start with `is` and should end in a question mark. 
+- Predicate function names should not start with `is` and should end in a question mark.
 - Names like `is_thing` should be reserved for guards
 
 ## Data Structures
@@ -624,7 +624,7 @@ Use to record an event that occurs only after a previous event.
 Association documentation must be formatted as a list of bullet points using the following template:
 
 ```TEMPLATE
-`{assocation_name}` ({assocation pattern}): {documentation}
+`{association_name}` ({association pattern}): {documentation}
 ```
 
 <!-- essential_ecto:association_patterns-end -->
@@ -707,7 +707,7 @@ A {human_form_of_module_name} has these fields:
 
 {list_of_fields}
 
-//OPTIONAL(start): include only when assocations are defined
+//OPTIONAL(start): include only when associations are defined
 
 ## Associations
 
@@ -890,7 +890,7 @@ Use to record an event that occurs only after a previous event.
 Association documentation must be formatted as a list of bullet points using the following template:
 
 ```TEMPLATE
-`{assocation_name}` ({assocation pattern}): {documentation}
+`{association_name}` ({association pattern}): {documentation}
 ```
 
 <!-- essential_ecto:20_association_patterns-end -->
