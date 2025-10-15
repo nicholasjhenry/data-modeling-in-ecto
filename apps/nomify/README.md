@@ -1,3 +1,0 @@
-# Nomify
-
-**TODO: Add description**

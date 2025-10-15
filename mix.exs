@@ -22,49 +22,15 @@ defmodule Nomify.Umbrella.MixProject do
 
   defp docs do
     [
-      main: "Nomify",
-      # logo: "path/to/logo.png",
-      formatters: ["html"],
-      ignore_apps: [:nomify_web],
+      # NOTE: Resolves "warning: index.html redirects to README.html, which does not exist".
       main: "readme",
-      extras: [
-        "README.md",
-        "notebooks/case_study_1.livemd",
-        "notebooks/case_study_2.livemd"
-      ],
-      groups_for_extras: [
-        Guides: Path.wildcard("guides/*.md"),
-        "Case Studies": Path.wildcard("notebooks/*.livemd")
-      ],
-      assets: %{
-        "guides/assets" => "assets"
-      },
-      api_reference: true,
-      groups_for_modules: [
-        Accounts: [
-          ~r"^Nomify\.Accounts",
-          ~r"^Nomify\.Accounts\..*"
-        ],
-        Directory: [
-          ~r"^Nomify\.Directory",
-          ~r"^Nomify\.Directory\..*"
-        ],
-        Teams: [
-          ~r"^Nomify\.Teams",
-          ~r"^Nomify\.Teams\..*"
-        ],
-        Documents: [
-          ~r"^Nomify\.Documents",
-          ~r"^Nomify\.Documents\..*"
-        ],
-        Util: [
-          ~r"^Nomify\.Util",
-          ~r"^Nomify\.Util\..*"
-        ]
-      ],
-      nest_modules_by_prefix: []
+      api_reference: false,
+      extras: ["README.md"],
+      ignore_apps: apps()
     ]
   end
+
+  defp apps, do: File.ls!("./apps") |> Enum.map(&String.to_atom/1)
 
   # Dependencies can be Hex packages:
   #
@@ -85,7 +51,6 @@ defmodule Nomify.Umbrella.MixProject do
       # Required to run "mix format" on ~H/.heex files from the umbrella root
       {:phoenix_live_view, ">= 0.0.0"},
       # Application dependencies
-      {:ecto_erd, "~> 0.6.4", only: [:dev]},
       {:ex_doc, "~> 0.38.1", only: [:dev]},
       {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false},
       {:mix_test_watch, "~> 1.0", only: [:dev, :test], runtime: false}
@@ -108,14 +73,7 @@ defmodule Nomify.Umbrella.MixProject do
       "usage_rules.sync": [
         "do --app nomify_web cmd mix usage_rules.sync ../../AGENTS.md --all --inline usage_rules:all  --link-to-folder deps"
       ],
-      docs: ["docs", "docs.gen.erd"],
-      "docs.gen.erd": [
-        "cmd mkdir -p doc/assets",
-        # NOTE: See `./.ecto_erd.exs for configuration`
-        "ecto.gen.erd --output-path doc/assets/ecto_erd.dot",
-        # process in the root of the umbrella (../../)
-        "cmd dot -Tpng ../../doc/assets/ecto_erd.dot -o ../../doc/assets/erd.png"
-      ]
+      docs: ["docs --formatter html", "cmd mix docs --formatter html"]
     ]
   end
 end

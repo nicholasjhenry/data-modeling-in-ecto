@@ -1,4 +1,4 @@
-## Association Patterns
+# Association Patterns
 
 Asssocations must be documented with one of the following patterns:
 

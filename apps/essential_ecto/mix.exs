@@ -12,7 +12,11 @@ defmodule EssentialEcto.MixProject do
       elixir: "~> 1.18",
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
-      deps: deps()
+      deps: deps(),
+      # Docs
+      name: "Essential Ecto",
+      homepage_url: "../index.html",
+      docs: docs()
     ]
   end
 
@@ -26,7 +30,8 @@ defmodule EssentialEcto.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:ecto_sql, "~> 3.10"}
+      {:ecto_sql, "~> 3.10"},
+      {:ex_doc, "~> 0.38.1", only: [:dev]}
     ]
   end
 
@@ -36,6 +41,25 @@ defmodule EssentialEcto.MixProject do
   defp aliases do
     [
       setup: []
+    ]
+  end
+
+  defp docs do
+    [
+      main: "readme",
+      output: "../../doc/essential_ecto",
+      extras: [
+        "README.md",
+        "usage-rules/10_essential_ecto.md",
+        "usage-rules/20_association_patterns.md",
+        "usage-rules/30_association_validations.md",
+        "usage-rules/40_fields_and_actions.md",
+        "usage-rules/50_implementing_associations.md",
+        "usage-rules/60_implementing_business_rules.md"
+      ],
+      groups_for_extras: [
+        "LLM Usage Rules": Path.wildcard("./usage-rules/*.md")
+      ]
     ]
   end
 end

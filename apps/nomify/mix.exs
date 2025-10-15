@@ -13,7 +13,11 @@ defmodule Nomify.MixProject do
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
-      deps: deps()
+      deps: deps(),
+      # Docs
+      name: "Nomify",
+      homepage_url: "../index.html",
+      docs: docs()
     ]
   end
 
@@ -46,7 +50,9 @@ defmodule Nomify.MixProject do
       {:req, "~> 0.5"},
       # App dependencies
       {:unicode, "~> 1.20"},
-      {:bitmask, github: "JayPeet/bitmask"}
+      {:bitmask, github: "JayPeet/bitmask"},
+      {:ecto_erd, "~> 0.6.4", only: [:dev]},
+      {:essential_ecto, in_umbrella: true}
     ]
   end
 
@@ -54,11 +60,64 @@ defmodule Nomify.MixProject do
   #
   # See the documentation for `Mix` for more info on aliases.
   defp aliases do
+    # process in the root of the umbrella (../../)
+    assets_path = "../../doc/nomify/assets"
+
     [
       setup: ["deps.get", "ecto.setup"],
       "ecto.setup": ["ecto.create", "ecto.migrate", "run #{__DIR__}/priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
-      test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"]
+      test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
+      docs: ["docs", "docs.gen.erd"],
+      "docs.gen.erd": [
+        "cmd mkdir -p doc/assets",
+        # NOTE: See `./.ecto_erd.exs for configuration`
+        "ecto.gen.erd --config-path ../../.ecto_erd.exs --output-path #{assets_path}/ecto_erd.dot",
+        "cmd dot -Tpng #{assets_path}/ecto_erd.dot -o #{assets_path}/erd.png"
+      ]
+    ]
+  end
+
+  defp docs do
+    [
+      # NOTE: Module name
+      main: "Nomify",
+      output: "../../doc/nomify",
+      # logo: "path/to/logo.png",
+      extras: [
+        "notebooks/case_study_1.livemd",
+        "notebooks/case_study_2.livemd"
+      ],
+      groups_for_extras: [
+        "Case Studies": Path.wildcard("notebooks/*.livemd")
+      ],
+      assets: %{
+        "guides/assets" => "assets"
+      },
+      api_reference: true,
+      groups_for_modules: [
+        Accounts: [
+          ~r"^Nomify\.Accounts",
+          ~r"^Nomify\.Accounts\..*"
+        ],
+        Directory: [
+          ~r"^Nomify\.Directory",
+          ~r"^Nomify\.Directory\..*"
+        ],
+        Teams: [
+          ~r"^Nomify\.Teams",
+          ~r"^Nomify\.Teams\..*"
+        ],
+        Documents: [
+          ~r"^Nomify\.Documents",
+          ~r"^Nomify\.Documents\..*"
+        ],
+        Util: [
+          ~r"^Nomify\.Util",
+          ~r"^Nomify\.Util\..*"
+        ]
+      ],
+      nest_modules_by_prefix: []
     ]
   end
 end

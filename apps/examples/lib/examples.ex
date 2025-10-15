@@ -1,6 +1,6 @@
 defmodule Examples do
   @moduledoc """
-  Examples based on SOM, Chapter 4, Collaboration Rules.
+  Examples based on SOM, Chapter 4, Collaboration Rules and Chapter 8, Implementing Business Rules.
   """
 
   @doc false
