@@ -1,4 +1,14 @@
-## Association Patterns
+# Association Patterns
+
+## Documentation
+
+Association documentation must be formatted as a list of bullet points using the following template:
+
+```TEMPLATE
+`{association_name}` ({association pattern}): {documentation}
+```
+
+## Patterns
 
 Asssocations must be documented with one of the following patterns:
 
@@ -85,9 +95,3 @@ Use to record an event that occurs only after a previous event.
 
 - A _transaction_ knows about some number of _follow-up transactions_.
 - A follow-up transaction_ follows and depends on exactly one previous _transaction_.
-
-Association documentation must be formatted as a list of bullet points using the following template:
-
-```TEMPLATE
-`{assocation_name}` ({assocation pattern}): {documentation}
-```

@@ -18,7 +18,7 @@ A {human_form_of_module_name} has these fields:
 
 {list_of_fields}
 
-//OPTIONAL(start): include only when assocations are defined
+//OPTIONAL(start): include only when associations are defined
 
 ## Associations
 

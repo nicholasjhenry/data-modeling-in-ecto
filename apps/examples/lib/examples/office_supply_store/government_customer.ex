@@ -27,8 +27,13 @@ defmodule Examples.OfficeSupplyStore.GovernmentCustomer do
 
   defp validate_put_organization(changeset, organization) do
     changeset
+    # Business Rule: Type (enforced by Ecto)
+    # Business Rule: Cardinality
+    # Business Rule: Fields
     |> validate_organization_fields(organization)
+    # Business Rule: State
     |> validate_organization_active(organization)
+    # Business Rule: Conflict
     |> validate_organization_conflict(organization)
   end
 

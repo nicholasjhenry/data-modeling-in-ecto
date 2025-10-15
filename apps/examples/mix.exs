@@ -13,7 +13,11 @@ defmodule Examples.MixProject do
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
-      deps: deps()
+      deps: deps(),
+      # Docs
+      name: "Examples",
+      homepage_url: "../index.html",
+      docs: docs()
     ]
   end
 
@@ -46,6 +50,44 @@ defmodule Examples.MixProject do
   defp aliases do
     [
       setup: []
+    ]
+  end
+
+  defp docs do
+    [
+      # NOTE: Module name
+      main: "Examples",
+      output: "../../doc/examples",
+      groups_for_modules: [
+        Accounts: [
+          ~r"^Examples\.ComputerStore",
+          ~r"^Examples\.ComputerStore\..*"
+        ],
+        "Distribution Center": [
+          ~r"^Examples\.DistributionCenter",
+          ~r"^Examples\.DistributionCenter\..*"
+        ],
+        "Luxury Catalog": [
+          ~r"^Examples\.LuxuryCatalog",
+          ~r"^Examples\.LuxuryCatalog\..*"
+        ],
+        "Office Supply Store": [
+          ~r"^Examples\.OfficeSupplyStore",
+          ~r"^Examples\.OfficeSupplyStore\..*"
+        ],
+        "Public Library": [
+          ~r"^Examples\.PublicLibrary",
+          ~r"^Examples\.PublicLibrary\..*"
+        ],
+        Warehouse: [
+          ~r"^Examples\.Warehouse",
+          ~r"^Examples\.Warehouse\..*"
+        ],
+        Util: [
+          ~r"^Examples\.Util",
+          ~r"^Examples\.Util\..*"
+        ]
+      ]
     ]
   end
 end

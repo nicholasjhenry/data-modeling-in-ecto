@@ -1,20 +1,7 @@
 defmodule Examples do
   @moduledoc """
-  Documentation for `Examples`.
+  Examples based on SOM, Chapter 4, Collaboration Rules and Chapter 8, Implementing Business Rules.
   """
-
-  @doc """
-  Hello world.
-
-  ## Examples
-
-      iex> Examples.hello()
-      :world
-
-  """
-  def hello do
-    :world
-  end
 
   @doc false
   def record do
