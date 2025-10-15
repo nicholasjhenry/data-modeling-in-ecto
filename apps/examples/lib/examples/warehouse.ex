@@ -9,7 +9,11 @@ defmodule Examples.Warehouse do
 
   alias Examples.Warehouse.LoadingArea
 
-  def get_loading_area!(id), do: Repo.get!(LoadingArea, id)
+  def get_loading_area!(id, preloads \\ []) do
+    LoadingArea
+    |> Repo.get!(id)
+    |> Repo.preload(preloads)
+  end
 
   def create_loading_area(%LoadingBin{} = loading_bin, attrs \\ %{}) do
     %LoadingArea{}
@@ -40,7 +44,11 @@ defmodule Examples.Warehouse do
 
   alias Examples.Warehouse.LoadingBin
 
-  def get_loading_bin!(id), do: Repo.get!(LoadingBin, id)
+  def get_loading_bin!(id, preloads \\ []) do
+    LoadingBin
+    |> Repo.get!(id)
+    |> Repo.preload(preloads)
+  end
 
   def create_loading_bin(attrs \\ %{}) do
     %LoadingBin{}

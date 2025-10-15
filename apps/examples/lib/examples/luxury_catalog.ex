@@ -8,7 +8,11 @@ defmodule Examples.LuxuryCatalog do
 
   alias Examples.LuxuryCatalog.Category
 
-  def get_category!(id), do: Repo.get!(Category, id)
+  def get_category!(id, preloads \\ []) do
+    Category
+    |> Repo.get!(id)
+    |> Repo.preload(preloads)
+  end
 
   def create_category(attrs \\ %{}) do
     %Category{}
@@ -31,7 +35,11 @@ defmodule Examples.LuxuryCatalog do
 
   alias Examples.LuxuryCatalog.Product
 
-  def get_product!(id), do: Repo.get!(Product, id)
+  def get_product!(id, preloads \\ []) do
+    Product
+    |> Repo.get!(id)
+    |> Repo.preload(preloads)
+  end
 
   def create_product(attrs \\ %{}) do
     %Product{}

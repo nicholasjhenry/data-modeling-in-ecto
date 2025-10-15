@@ -8,10 +8,10 @@ defmodule Examples.ComputerStore do
 
   alias Examples.ComputerStore.System
 
-  def get_system!(id) do
+  def get_system!(id, preloads \\ [:components]) do
     System
     |> Repo.get!(id)
-    |> Repo.preload(:components)
+    |> Repo.preload(preloads)
   end
 
   def create_system(component, attrs \\ %{}) do
@@ -35,7 +35,11 @@ defmodule Examples.ComputerStore do
 
   alias Examples.ComputerStore.Component
 
-  def get_component!(id), do: Repo.get!(Component, id)
+  def get_component!(id, preloads \\ []) do
+    Component
+    |> Repo.get!(id)
+    |> Repo.preload(preloads)
+  end
 
   def create_component(attrs \\ %{}) do
     %Component{}

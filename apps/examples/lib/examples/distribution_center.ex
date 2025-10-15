@@ -8,7 +8,11 @@ defmodule Examples.DistributionCenter do
 
   alias Examples.DistributionCenter.Pallet
 
-  def get_pallet!(id), do: Repo.get!(Pallet, id)
+  def get_pallet!(id, preloads \\ []) do
+    Pallet
+    |> Repo.get!(id)
+    |> Repo.preload(preloads)
+  end
 
   def create_pallet(attrs \\ %{}) do
     %Pallet{}
@@ -24,7 +28,11 @@ defmodule Examples.DistributionCenter do
 
   alias Examples.DistributionCenter.Case
 
-  def get_case!(id), do: Repo.get!(Case, id)
+  def get_case!(id, preloads \\ []) do
+    Case
+    |> Repo.get!(id)
+    |> Repo.preload(preloads)
+  end
 
   def create_case(attrs \\ %{}) do
     %Case{}

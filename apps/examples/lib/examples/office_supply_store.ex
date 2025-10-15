@@ -16,7 +16,11 @@ defmodule Examples.OfficeSupplyStore do
 
   alias Examples.OfficeSupplyStore.Person
 
-  def get_person!(id), do: Repo.get!(Person, id)
+  def get_person!(id, preloads \\ []) do
+    Person
+    |> Repo.get!(id)
+    |> Repo.preload(preloads)
+  end
 
   def create_person(attrs \\ %{}) do
     %Person{}
@@ -32,7 +36,11 @@ defmodule Examples.OfficeSupplyStore do
 
   alias Examples.OfficeSupplyStore.Organization
 
-  def get_organization!(id), do: Repo.get!(Organization, id)
+  def get_organization!(id, preloads \\ []) do
+    Organization
+    |> Repo.get!(id)
+    |> Repo.preload(preloads)
+  end
 
   def create_organization(attrs \\ %{}) do
     %Organization{}
@@ -48,7 +56,11 @@ defmodule Examples.OfficeSupplyStore do
 
   alias Examples.OfficeSupplyStore.GovernmentCustomer
 
-  def get_government_customer!(id), do: Repo.get!(GovernmentCustomer, id)
+  def get_government_customer!(id, preloads \\ []) do
+    GovernmentCustomer
+    |> Repo.get!(id)
+    |> Repo.preload(preloads)
+  end
 
   def create_government_customer(organization, attrs \\ %{}) do
     organization = Repo.preload(organization, :business_customer)
@@ -75,7 +87,11 @@ defmodule Examples.OfficeSupplyStore do
 
   alias Examples.OfficeSupplyStore.BusinessCustomer
 
-  def get_business_customer!(id), do: Repo.get!(BusinessCustomer, id)
+  def get_business_customer!(id, preloads \\ []) do
+    BusinessCustomer
+    |> Repo.get!(id)
+    |> Repo.preload(preloads)
+  end
 
   def create_business_customer(organization, attrs \\ %{}) do
     organization = Repo.preload(organization, :government_customer)
@@ -102,7 +118,11 @@ defmodule Examples.OfficeSupplyStore do
 
   alias Examples.OfficeSupplyStore.Product
 
-  def get_product!(id), do: Repo.get!(Product, id)
+  def get_product!(id, preloads \\ []) do
+    Product
+    |> Repo.get!(id)
+    |> Repo.preload(preloads)
+  end
 
   def create_product(attrs \\ %{}) do
     %Product{}
@@ -112,14 +132,17 @@ defmodule Examples.OfficeSupplyStore do
 
   alias Examples.OfficeSupplyStore.Order
 
-  def get_order!(id) do
+  def get_order!(
+        id,
+        preloads \\ [
+          customer: [organization: :government_customer],
+          branch: :stock_entries,
+          line_items: :product
+        ]
+      ) do
     Order
     |> Repo.get!(id)
-    |> Repo.preload(
-      customer: [organization: :government_customer],
-      branch: :stock_entries,
-      line_items: :product
-    )
+    |> Repo.preload(preloads)
   end
 
   def create_order(customer, branch, product, attrs, line_item_attrs) do
@@ -159,10 +182,10 @@ defmodule Examples.OfficeSupplyStore do
 
   alias Examples.OfficeSupplyStore.StockEntry
 
-  def get_stock_entry!(id) do
+  def get_stock_entry!(id, preloads \\ [:branch, :product]) do
     StockEntry
     |> Repo.get!(id)
-    |> Repo.preload([:branch, :product])
+    |> Repo.preload(preloads)
   end
 
   def create_stock_entry(branch, product) do
@@ -175,7 +198,11 @@ defmodule Examples.OfficeSupplyStore do
   alias Examples.OfficeSupplyStore.Delivery
   alias Examples.OfficeSupplyStore.OrderLineItem
 
-  def get_delivery!(id), do: Repo.get!(Delivery, id)
+  def get_delivery!(id, preloads \\ []) do
+    Delivery
+    |> Repo.get!(id)
+    |> Repo.preload(preloads)
+  end
 
   def create_delivery(order, attrs \\ %{}) do
     %Delivery{}

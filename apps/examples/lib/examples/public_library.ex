@@ -8,7 +8,11 @@ defmodule Examples.PublicLibrary do
 
   alias Examples.PublicLibrary.Branch
 
-  def get_branch!(id), do: Repo.get!(Branch, id)
+  def get_branch!(id, preloads \\ []) do
+    Branch
+    |> Repo.get!(id)
+    |> Repo.preload(preloads)
+  end
 
   def create_branch(attrs \\ %{}) do
     %Branch{}
@@ -18,7 +22,11 @@ defmodule Examples.PublicLibrary do
 
   alias Examples.PublicLibrary.Resource
 
-  def get_resource!(id), do: Repo.get!(Resource, id)
+  def get_resource!(id, preloads \\ []) do
+    Resource
+    |> Repo.get!(id)
+    |> Repo.preload(preloads)
+  end
 
   def create_resource(attrs \\ %{}) do
     %Resource{}
@@ -28,7 +36,11 @@ defmodule Examples.PublicLibrary do
 
   alias Examples.PublicLibrary.Person
 
-  def get_person!(id), do: Repo.get!(Person, id)
+  def get_person!(id, preloads \\ []) do
+    Person
+    |> Repo.get!(id)
+    |> Repo.preload(preloads)
+  end
 
   def create_person(attrs \\ %{}) do
     %Person{}
@@ -38,7 +50,13 @@ defmodule Examples.PublicLibrary do
 
   alias Examples.PublicLibrary.Patron
 
-  def get_patron!(id) do
+  def get_patron!(id, preloads \\ []) do
+    Patron
+    |> Repo.get!(id)
+    |> Repo.preload(preloads)
+  end
+
+  def get_patron_with_computed!(id) do
     Patron
     |> Patron.base_query()
     |> Repo.get!(id)
@@ -51,7 +69,7 @@ defmodule Examples.PublicLibrary do
            |> Patron.changeset(attrs)
            |> Patron.put_person_changeset(person)
            |> Repo.insert(returning: [:id]) do
-      {:ok, get_patron!(id)}
+      {:ok, get_patron_with_computed!(id)}
     end
   end
 
@@ -69,7 +87,11 @@ defmodule Examples.PublicLibrary do
 
   alias Examples.PublicLibrary.ResourceHold
 
-  def get_resource_hold!(id), do: Repo.get!(ResourceHold, id)
+  def get_resource_hold!(id, preloads \\ []) do
+    ResourceHold
+    |> Repo.get!(id)
+    |> Repo.preload(preloads)
+  end
 
   def create_resource_hold(
         %Resource{} = resource,
