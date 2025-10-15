@@ -1,6 +1,6 @@
 defmodule Examples do
   @moduledoc """
-  Documentation for `Examples`.
+  Examples based on SOM, Chapter 4, Collaboration Rules.
   """
 
   @doc false
