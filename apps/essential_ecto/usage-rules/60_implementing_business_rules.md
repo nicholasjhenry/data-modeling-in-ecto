@@ -1,5 +1,13 @@
 # Implementing Business Rules
 
+## Rule Types
+
+- Type
+- Cardinality
+- Fields
+- State
+- Conflict
+
 ## Field Validations
 
 Domain-specific limits on field values implemented using `Ecto.Changeset.validate_*` functions.
@@ -17,6 +25,8 @@ Validation rules by field category:
 
 - **Descriptive and Time**: (1) State transition rules prevent fields from changing; (2) limit the range of possible values
 - **State, Role and Type**: `Ecto.Enum` and may limit changes, e.g. state transition
+
+Note: **Type Rules** are also defined by the Ecto schema association. e.g. `has_one ValidType`
 
 Cross-Field Validation:
 
