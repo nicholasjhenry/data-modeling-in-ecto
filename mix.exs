@@ -76,7 +76,12 @@ defmodule Nomify.Umbrella.MixProject do
       "usage_rules.sync": [
         "do --app nomify_web cmd mix usage_rules.sync ../../AGENTS.md --all --inline usage_rules:all  --link-to-folder deps"
       ],
-      docs: ["docs --formatter html", "cmd mix docs --formatter html"]
+      docs: ["docs --formatter html", "cmd mix docs --formatter html"],
+      "docs.open": &open_docs/1
     ]
+  end
+
+  defp open_docs(_) do
+    System.cmd("open", ["doc/index.html"])
   end
 end
