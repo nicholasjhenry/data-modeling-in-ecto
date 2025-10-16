@@ -12,9 +12,7 @@ script/bootstrap
 
 echo "==> Setting up project…"
 # reset database to a fresh state.
-eval "$(read_env)" mix ecto.reset
+eval "$(read_env)" mix ecto.drop
 eval "$(read_env)" mix setup
-eval "$(read_env)" MIX_ENV=test mix do ecto.drop, ecto.create
-eval "$(read_env)" MIX_ENV=test mix ecto.migrate
 
 echo "==> The project is setup! 🚀 Is there demo data to load?"

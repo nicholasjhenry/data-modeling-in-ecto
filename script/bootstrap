@@ -19,6 +19,3 @@ fi
 
 echo "==> Installing Elixir/Erlang…"
 mise install
-
-echo "==> Installing dependencies…"
-mix deps.get
