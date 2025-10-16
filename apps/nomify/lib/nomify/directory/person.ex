@@ -18,12 +18,12 @@ defmodule Nomify.Directory.Person do
   """
 
   @type t :: %__MODULE__{
-          id: integer(),
-          title: String.t(),
-          name: String.t(),
-          email: String.t(),
-          inserted_at: NaiveDateTime.t(),
-          updated_at: NaiveDateTime.t()
+          id: integer() | nil,
+          title: String.t() | nil,
+          name: String.t() | nil,
+          email: String.t() | nil,
+          inserted_at: NaiveDateTime.t() | nil,
+          updated_at: NaiveDateTime.t() | nil
         }
 
   schema "directory_people" do
