@@ -3,6 +3,7 @@ defmodule Nomify.Accounts.UserToken do
 
   use Ecto.Schema
   import Ecto.Query
+  alias Nomify.Accounts.User
   alias Nomify.Accounts.UserToken
 
   @hash_algorithm :sha256
@@ -22,6 +23,16 @@ defmodule Nomify.Accounts.UserToken do
 
     timestamps(updated_at: false)
   end
+
+  @type t :: %__MODULE__{
+          id: integer() | nil,
+          token: binary(),
+          context: String.t(),
+          sent_to: String.t() | nil,
+          user_id: integer() | nil,
+          user: User.t() | Ecto.Association.NotLoaded.t() | nil,
+          inserted_at: NaiveDateTime.t() | nil
+        }
 
   @doc """
   Generates a token that will be stored in a signed place,
@@ -154,6 +165,7 @@ defmodule Nomify.Accounts.UserToken do
   @doc """
   Returns the token struct for the given token value and context.
   """
+  @spec by_token_and_context_query(binary(), String.t()) :: Ecto.Query.t()
   def by_token_and_context_query(token, context) do
     from UserToken, where: [token: ^token, context: ^context]
   end

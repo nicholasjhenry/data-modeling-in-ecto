@@ -15,15 +15,15 @@ defmodule Nomify.Accounts.User do
   """
 
   @type t :: %__MODULE__{
-          id: integer(),
-          email: String.t(),
+          id: integer() | nil,
+          email: String.t() | nil,
           password: String.t() | nil,
           hashed_password: String.t() | nil,
           current_password: String.t() | nil,
           confirmed_at: NaiveDateTime.t() | nil,
           authenticated_at: NaiveDateTime.t() | nil,
-          inserted_at: NaiveDateTime.t(),
-          updated_at: NaiveDateTime.t()
+          inserted_at: NaiveDateTime.t() | nil,
+          updated_at: NaiveDateTime.t() | nil
         }
 
   schema "account_users" do
