@@ -3,12 +3,12 @@ defmodule Nomify.Teams.Privileges do
   Privileges defines team privileges.
   """
 
-  @type t :: :delete | :nominate
-
   use Bitmask, [
     :delete,
     :nominate
   ]
+
+  @type t :: %Bitmask{bitmask: non_neg_integer(), flags: list(atom())}
 
   @doc false
   def parse(params) do

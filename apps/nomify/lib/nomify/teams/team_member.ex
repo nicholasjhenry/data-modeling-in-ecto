@@ -22,7 +22,7 @@ defmodule Nomify.Teams.TeamMember do
 
   @typedoc """
   ## Fields
-
+<!---->
   A TeamMember has these fields:
 
   - `role` (role): The role of the team member (e.g., admin, chair, member).
@@ -43,7 +43,7 @@ defmodule Nomify.Teams.TeamMember do
   - `nominations` (Role - Transaction): The nominations made by the team member.
   """
   @type t :: %__MODULE__{
-          id: integer(),
+          id: integer() | nil,
           role: :admin | :chair | :member,
           privileges: Privileges.t(),
           security_level: SecurityLevel.t(),
@@ -52,13 +52,13 @@ defmodule Nomify.Teams.TeamMember do
           title: String.t() | nil,
           name: String.t() | nil,
           email: String.t() | nil,
-          person_id: integer(),
-          person: Person.t() | nil,
-          team_id: integer(),
-          team: Team.t() | nil,
-          nominations: list(Nomination.t()),
-          inserted_at: NaiveDateTime.t(),
-          updated_at: NaiveDateTime.t()
+          person_id: integer() | nil,
+          person: Person.t() | Ecto.Association.NotLoaded.t() | nil,
+          team_id: integer() | nil,
+          team: Team.t() | Ecto.Association.NotLoaded.t() | nil,
+          nominations: list(Nomination.t()) | Ecto.Association.NotLoaded.t(),
+          inserted_at: NaiveDateTime.t() | nil,
+          updated_at: NaiveDateTime.t() | nil
         }
 
   schema "team_members" do

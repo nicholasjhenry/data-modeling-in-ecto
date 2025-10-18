@@ -23,12 +23,12 @@ defmodule Nomify.Teams.Team do
   - `team_members` (Group - Member): Represents the members belonging to the team.
   """
   @type t :: %__MODULE__{
-          id: integer(),
-          description: String.t(),
-          format: :none | :single | :multiple,
-          team_members: [TeamMember.t()],
-          inserted_at: NaiveDateTime.t(),
-          updated_at: NaiveDateTime.t()
+          id: integer() | nil,
+          description: String.t() | nil,
+          format: :none | :single | :multiple | nil,
+          team_members: [TeamMember.t()] | Ecto.Association.NotLoaded.t(),
+          inserted_at: NaiveDateTime.t() | nil,
+          updated_at: NaiveDateTime.t() | nil
         }
 
   schema "team_teams" do
