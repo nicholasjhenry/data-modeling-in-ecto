@@ -22,7 +22,6 @@ defmodule Nomify.Teams.TeamMember do
 
   @typedoc """
   ## Fields
-<!---->
   A TeamMember has these fields:
 
   - `role` (role): The role of the team member (e.g., admin, chair, member).
