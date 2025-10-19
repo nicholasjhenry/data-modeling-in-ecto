@@ -88,8 +88,8 @@ defmodule Nomify.Documents do
     end
   end
 
-  @spec change_document(%Document{}) :: Changeset.t(Document.t())
-  @spec change_document(%Document{}, Attrs.t()) :: Changeset.t(Document.t())
+  @spec change_document(Document.t()) :: Changeset.t(Document.t())
+  @spec change_document(Document.t(), Attrs.t()) :: Changeset.t(Document.t())
   def change_document(%Document{} = document, attrs \\ %{}) do
     Document.changeset(document, attrs)
   end
@@ -202,8 +202,8 @@ defmodule Nomify.Documents do
     end
   end
 
-  @spec change_nomination(%Nomination{}) :: Changeset.t(Nomination.t())
-  @spec change_nomination(%Nomination{}, Attrs.t()) :: Changeset.t(Nomination.t())
+  @spec change_nomination(Nomination.t()) :: Changeset.t(Nomination.t())
+  @spec change_nomination(Nomination.t(), Attrs.t()) :: Changeset.t(Nomination.t())
   def change_nomination(%Nomination{} = nomination, attrs \\ %{}) do
     current_date = Date.utc_today()
 

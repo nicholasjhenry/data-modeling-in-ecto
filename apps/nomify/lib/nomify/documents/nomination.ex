@@ -26,16 +26,16 @@ defmodule Nomify.Documents.Nomination do
   - `team_member` (Role - Transaction): The team member proposing the document.
   """
   @type t :: %__MODULE__{
-          id: integer(),
+          id: integer() | nil,
           comments: String.t() | nil,
           status: :pending | :in_review | :rejected | :approved,
-          nomination_date: Date.t(),
-          document_id: integer(),
+          nomination_date: Date.t() | nil,
+          document_id: integer() | nil,
           document: Document.t() | Ecto.Association.NotLoaded.t(),
-          team_member_id: integer(),
+          team_member_id: integer() | nil,
           team_member: TeamMember.t() | Ecto.Association.NotLoaded.t(),
-          inserted_at: NaiveDateTime.t(),
-          updated_at: NaiveDateTime.t()
+          inserted_at: NaiveDateTime.t() | nil,
+          updated_at: NaiveDateTime.t() | nil
         }
 
   schema "document_nominations" do
