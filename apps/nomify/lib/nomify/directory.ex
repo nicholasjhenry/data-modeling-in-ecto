@@ -5,7 +5,6 @@ defmodule Nomify.Directory do
 
   use Nomify, :context
 
-
   alias Nomify.Accounts.Scope
   alias Nomify.Directory.Person
 

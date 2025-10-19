@@ -39,7 +39,8 @@ defmodule Nomify.Documents do
   end
 
   @spec create_document(Scope.t()) :: {:ok, Document.t()} | {:error, Changeset.t(Document.t())}
-  @spec create_document(Scope.t(), Attrs.t()) :: {:ok, Document.t()} | {:error, Changeset.t(Document.t())}
+  @spec create_document(Scope.t(), Attrs.t()) ::
+          {:ok, Document.t()} | {:error, Changeset.t(Document.t())}
   def create_document(%Scope{} = scope, attrs \\ %{}) do
     with {:ok, document = %Document{}} <-
            %Document{}
@@ -50,7 +51,8 @@ defmodule Nomify.Documents do
     end
   end
 
-  @spec publish_document(Scope.t(), Document.t()) :: {:ok, Document.t()} | {:error, Changeset.t(Document.t())}
+  @spec publish_document(Scope.t(), Document.t()) ::
+          {:ok, Document.t()} | {:error, Changeset.t(Document.t())}
   def publish_document(scope, document) do
     with {:ok, document = %Document{}} <-
            document
@@ -62,7 +64,8 @@ defmodule Nomify.Documents do
     end
   end
 
-  @spec update_document(Scope.t(), Document.t(), Attrs.t()) :: {:ok, Document.t()} | {:error, Changeset.t(Document.t())}
+  @spec update_document(Scope.t(), Document.t(), Attrs.t()) ::
+          {:ok, Document.t()} | {:error, Changeset.t(Document.t())}
   def update_document(%Scope{} = scope, %Document{} = document, attrs) do
     with {:ok, document = %Document{}} <-
            document
@@ -73,7 +76,8 @@ defmodule Nomify.Documents do
     end
   end
 
-  @spec delete_document(Scope.t(), Document.t()) :: {:ok, Document.t()} | {:error, Changeset.t(Document.t())}
+  @spec delete_document(Scope.t(), Document.t()) ::
+          {:ok, Document.t()} | {:error, Changeset.t(Document.t())}
   def delete_document(%Scope{} = scope, %Document{} = document) do
     with {:ok, document = %Document{}} <-
            document
@@ -151,9 +155,12 @@ defmodule Nomify.Documents do
     Repo.preload(nomination, document: [], team_member: TeamMember.base_query())
   end
 
-  @spec nominate_document(Scope.t(), Document.t(), TeamMember.t()) :: {:ok, Nomination.t()} | {:error, Changeset.t(Nomination.t())}
-  @spec nominate_document(Scope.t(), Document.t(), TeamMember.t(), Attrs.t()) :: {:ok, Nomination.t()} | {:error, Changeset.t(Nomination.t())}
-  @spec nominate_document(Scope.t(), Document.t(), TeamMember.t(), Attrs.t(), keyword()) :: {:ok, Nomination.t()} | {:error, Changeset.t(Nomination.t())}
+  @spec nominate_document(Scope.t(), Document.t(), TeamMember.t()) ::
+          {:ok, Nomination.t()} | {:error, Changeset.t(Nomination.t())}
+  @spec nominate_document(Scope.t(), Document.t(), TeamMember.t(), Attrs.t()) ::
+          {:ok, Nomination.t()} | {:error, Changeset.t(Nomination.t())}
+  @spec nominate_document(Scope.t(), Document.t(), TeamMember.t(), Attrs.t(), keyword()) ::
+          {:ok, Nomination.t()} | {:error, Changeset.t(Nomination.t())}
   def nominate_document(%Scope{} = scope, document, team_member, attrs \\ %{}, opts \\ []) do
     document = Repo.preload(document, latest_nomination: Nomination.latest())
     team_member = Repo.preload(team_member, :nominations)
@@ -173,7 +180,8 @@ defmodule Nomify.Documents do
     end
   end
 
-  @spec update_nomination(Scope.t(), Nomination.t(), Attrs.t()) :: {:ok, Nomination.t()} | {:error, Changeset.t(Nomination.t())}
+  @spec update_nomination(Scope.t(), Nomination.t(), Attrs.t()) ::
+          {:ok, Nomination.t()} | {:error, Changeset.t(Nomination.t())}
   def update_nomination(%Scope{} = scope, %Nomination{} = nomination, attrs) do
     with {:ok, nomination = %Nomination{}} <-
            nomination
@@ -184,7 +192,8 @@ defmodule Nomify.Documents do
     end
   end
 
-  @spec delete_nomination(Scope.t(), Nomination.t()) :: {:ok, Nomination.t()} | {:error, Changeset.t(Nomination.t())}
+  @spec delete_nomination(Scope.t(), Nomination.t()) ::
+          {:ok, Nomination.t()} | {:error, Changeset.t(Nomination.t())}
   def delete_nomination(%Scope{} = scope, %Nomination{} = nomination) do
     with {:ok, nomination = %Nomination{}} <-
            Repo.delete(nomination) do
