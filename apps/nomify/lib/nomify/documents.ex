@@ -1,6 +1,6 @@
 defmodule Nomify.Documents do
   @moduledoc """
-  The Documents component is responsible for managing documents and nominations.
+  The Documents component is responsible for managing documents (specific item) and nominations (transaction).
   """
 
   use Nomify, :context

@@ -1,6 +1,6 @@
 defmodule Nomify.Teams do
   @moduledoc """
-  The Teams component is responsible for managing teams and members.
+  The Teams component is responsible for managing teams (group) and members (member).
   """
 
   use Nomify, :context
