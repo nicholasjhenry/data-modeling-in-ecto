@@ -5,8 +5,8 @@ defmodule Nomify.Teams do
 
   use Nomify, :context
 
-  alias Nomify.Directory
   alias Nomify.Accounts.Scope
+  alias Nomify.Directory
 
   # SECTION: Team
 

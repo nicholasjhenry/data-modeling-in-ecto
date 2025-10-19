@@ -15,7 +15,7 @@ defmodule Nomify.Util.UnicodeIdentifier do
     :Pc
   ]
 
-  def is_unicode_identifier_part?(char) do
+  def unicode_identifier_part?(char) do
     [category] = Unicode.GeneralCategory.category(char)
     category in @valid_categories
   end

@@ -7,8 +7,8 @@ defmodule Nomify.Accounts do
   alias Ecto.Changeset
   alias Nomify.Repo
 
+  alias Nomify.Accounts.{Scope, User, UserNotifier, UserToken}
   alias Nomify.Attrs
-  alias Nomify.Accounts.{Scope, User, UserToken, UserNotifier}
 
   ## Database getters
 

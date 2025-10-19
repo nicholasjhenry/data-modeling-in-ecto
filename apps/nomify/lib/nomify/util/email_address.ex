@@ -86,10 +86,10 @@ defmodule Nomify.Util.EmailAddress do
 
   defp validate_char({char, index}, _acc) do
     cond do
-      index == 0 and !UnicodeIdentifier.is_unicode_identifier_part?(char) ->
+      index == 0 and !UnicodeIdentifier.unicode_identifier_part?(char) ->
         {:halt, :error}
 
-      char in [".", "-", "_"] or UnicodeIdentifier.is_unicode_identifier_part?(char) ->
+      char in [".", "-", "_"] or UnicodeIdentifier.unicode_identifier_part?(char) ->
         {:cont, true}
 
       true ->

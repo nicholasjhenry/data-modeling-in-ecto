@@ -3,8 +3,8 @@ defmodule Nomify.Accounts.UserNotifier do
 
   import Swoosh.Email
 
-  alias Nomify.Mailer
   alias Nomify.Accounts.User
+  alias Nomify.Mailer
 
   # Delivers the email using the application mailer.
   defp deliver(recipient, subject, body) do

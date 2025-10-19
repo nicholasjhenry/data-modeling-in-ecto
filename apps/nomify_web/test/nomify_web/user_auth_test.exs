@@ -1,10 +1,10 @@
 defmodule NomifyWeb.UserAuthTest do
   use NomifyWeb.ConnCase, async: true
 
-  alias Phoenix.LiveView
   alias Nomify.Accounts
   alias Nomify.Accounts.Scope
   alias NomifyWeb.UserAuth
+  alias Phoenix.LiveView
 
   import Nomify.AccountsFixtures
 

@@ -1,8 +1,8 @@
 defmodule Examples.OfficeSupplyStore.BusinessCustomer do
   use Examples, :record
 
-  alias Examples.OfficeSupplyStore.Organization
   alias Examples.OfficeSupplyStore.GovernmentCustomer
+  alias Examples.OfficeSupplyStore.Organization
 
   schema "office_supply_store_business_customers" do
     field :registered_on, :date
