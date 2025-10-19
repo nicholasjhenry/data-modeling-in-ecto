@@ -146,21 +146,15 @@ defmodule Nomify.Teams do
   @spec create_team_member(Scope.t(), Team.t(), Directory.Person.t()) ::
           {:ok, TeamMember.t()} | {:error, Changeset.t(TeamMember.t())}
   def create_team_member(%Scope{} = scope, team, person) do
-    with {:ok, team = %TeamMember{}} <-
+    # SOM: Principle 75 - Properties Before Collaborators
+    with {:ok, team_member = %TeamMember{}} <-
            %TeamMember{}
-           # NOTE: Principle 75: Properties Before Collaborators
-           #
-           # > Object construction methods initialize properties before establishing collaborations because
-           # > collaboration rules may check property values.
-           # >
-           # > -- Streamlined Object Modeling
-           #
            |> TeamMember.insert_changeset()
            |> TeamMember.put_team_changeset(team)
            |> TeamMember.put_person_changeset(person)
            |> Repo.insert() do
-      broadcast_team_members(scope, {:created, team})
-      {:ok, team}
+      broadcast_team_members(scope, {:created, team_member})
+      {:ok, team_member}
     end
   end
 

@@ -55,7 +55,8 @@ defmodule EssentialEcto.MixProject do
         "guides/30_association_validations.md",
         "guides/40_fields_and_actions.md",
         "guides/50_implementing_associations.md",
-        "guides/60_implementing_business_rules.md"
+        "guides/60_implementing_business_rules.md",
+        "guides/70_principles.md"
       ],
       groups_for_extras: [
         Guides: Path.wildcard("./guides/*.md")

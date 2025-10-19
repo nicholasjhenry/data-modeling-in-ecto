@@ -9,6 +9,8 @@ defmodule Nomify.Teams.TeamMember do
   > - Generic - **Specific** (Actor - Role)
   > - Whole - **Part** (Group - Member)
   > - **Specific** - Transaction (Role - Transaction)
+  >
+  > See **Associations** below.
   """
 
   use Nomify, :record
@@ -29,6 +31,19 @@ defmodule Nomify.Teams.TeamMember do
   - `security_level` (type): The security classification of the team member.
   - `nominations_per_period_count` (descriptive): The count of nominations made by the team member in the current period.
   - `max_nominations_allowed` (descriptive): The maximum number of nominations allowed for the team member in the current period.
+
+
+  > #### Essential Ecto {: .info}
+  >
+  > Record Inheritance
+  >
+  > Any coding template for the generic – specific pattern must accommodate the object inheritance
+  > mechanism, which specifies the properties and services in the generic that are accessible from
+  > the specific object. What object inheritance really means is that certain determine mine and
+  > analyze transactions services available in the generic are also available in the specific.
+  >
+  > -- Streamlined Object Modeling
+
   - `title` (descriptive): The title or honorific of the team member.
   - `name` (descriptive): The full name of the team member.
   - `email` (descriptive): The email address of the team member.
@@ -69,16 +84,6 @@ defmodule Nomify.Teams.TeamMember do
     # SECTION: Fields - Calculated
     field :nominations_per_period_count, :integer, virtual: true
     field :max_nominations_allowed, :integer, virtual: true
-
-    # NOTE: Record Inheritance
-    #
-    # > Any coding template for the generic – specific pattern must accommodate the object inheritance
-    # > mechanism, which specifies the properties and services in the generic that are accessible from
-    # > the specific object. What object inheritance really means is that certain determine mine and
-    # > analyze transactions services available in the generic are also available in the specific.
-    # >
-    # > -- Streamlined Object Modeling
-    #
 
     # SECTION: Fields - Person
     field :title, :string, virtual: true
