@@ -48,4 +48,10 @@ defmodule Nomify.Directory.Person do
   def valid_email?(person) do
     match?({:ok, _email}, EmailAddress.parse(person.email))
   end
+
+  defimpl String.Chars do
+    def to_string(person) do
+      "👤 #{person.name}"
+    end
+  end
 end
