@@ -1,0 +1,115 @@
+#!/bin/bash
+
+# script/notes: Lists NOTE|FIXME|TODO of source files in the current directory.
+#               Pattern and path can be overridden by passing them as arguments.
+#
+#               Usage: script/notes [pattern] [path]
+
+set -euo pipefail
+
+pattern='\b(NOTE|FIXME|TODO)\b'
+
+pattern_arg="${1:-}"
+search_root="${2:-.}"
+
+if [[ -n "$pattern_arg" ]]; then
+    pattern="$pattern_arg"
+fi
+
+rg "$pattern" -n --color=always --no-heading -A 2 "$search_root" |
+    awk '
+    function strip_color(s) {
+      gsub(/\033\[[0-9;]*m/, "", s)
+      return s
+    }
+
+    function take_prefix(str, count,    result, ch, seq_end) {
+      result = ""
+
+      while (count > 0 && length(str) > 0) {
+        ch = substr(str, 1, 1)
+
+        if (ch == "\033") {
+          seq_end = index(str, "m")
+          if (seq_end == 0) {
+            result = result substr(str, 1, 1)
+            str = substr(str, 2)
+          } else {
+            result = result substr(str, 1, seq_end)
+            str = substr(str, seq_end + 1)
+          }
+          continue
+        }
+
+        result = result ch
+        str = substr(str, 2)
+        count--
+      }
+
+      return result
+    }
+
+    function drop_prefix(str, count,    result, ch, seq_end) {
+      result = str
+
+      while (count > 0 && length(result) > 0) {
+        ch = substr(result, 1, 1)
+
+        if (ch == "\033") {
+          seq_end = index(result, "m")
+          if (seq_end == 0) {
+            result = substr(result, 2)
+          } else {
+            result = substr(result, seq_end + 1)
+          }
+          continue
+        }
+
+        result = substr(result, 2)
+        count--
+      }
+
+      return result
+    }
+
+    {
+      raw = $0
+      clean = strip_color(raw)
+
+      if (clean == "--") {
+        context_remaining = 0
+        next
+      }
+
+      if (match(clean, /:[0-9]+:/)) {
+        path = substr(clean, 1, RSTART - 1)
+        line = substr(clean, RSTART + 1, RLENGTH - 2)
+
+        if (printed_any) {
+          print ""
+        }
+        printed_any = 1
+
+        display_chars = length(path) + 1 + length(line)
+        path_line_colored = take_prefix(raw, display_chars)
+        print path_line_colored
+
+        prefix_chars = display_chars + 1
+        content = drop_prefix(raw, prefix_chars)
+        print content
+
+        context_remaining = 2
+        next
+      }
+
+      if (context_remaining > 0 && match(clean, /-[0-9]+-/)) {
+        path = substr(clean, 1, RSTART - 1)
+        line = substr(clean, RSTART + 1, RLENGTH - 2)
+
+        prefix_chars = length(path) + 1 + length(line) + 1
+        context = drop_prefix(raw, prefix_chars)
+        print context
+        context_remaining--
+      }
+    }
+  '
