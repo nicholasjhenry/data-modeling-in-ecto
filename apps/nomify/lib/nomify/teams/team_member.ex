@@ -210,8 +210,8 @@ defmodule Nomify.Teams.TeamMember do
     # VALIDATION: Cardinality
     # VALIDATION: Fields
     |> validate_email
-    # VALIDATION: STATE
-    # VALIDATION: CONFLICT
+    # VALIDATION: State
+    # VALIDATION: Conflict
     |> validate_person_team_conflict()
   end
 
@@ -223,8 +223,8 @@ defmodule Nomify.Teams.TeamMember do
     # VALIDATION: Type (enforced by Ecto)
     # VALIDATION: Cardinality
     # VALIDATION: Fields
-    # VALIDATION: STATE
-    # VALIDATION: CONFLICT
+    # VALIDATION: State
+    # VALIDATION: Conflict
     |> validate_person_team_conflict()
   end
 
@@ -234,8 +234,8 @@ defmodule Nomify.Teams.TeamMember do
     # VALIDATION: Type (enforced by Ecto)
     # VALIDATION: Cardinality
     # VALIDATION: Fields
-    # VALIDATION: STATE
-    # VALIDATION: CONFLICT
+    # VALIDATION: State
+    # VALIDATION: Conflict
     |> validate_nomination_conflict(team_member, opts)
   end
 

@@ -119,8 +119,8 @@ defmodule Nomify.Documents.Document do
     # VALIDATION: Type (enforced by Ecto)
     # VALIDATION: Cardinality
     # VALIDATION: Fields
-    # VALIDATION: STATE
-    # VALIDATION: CONFLICT
+    # VALIDATION: State
+    # VALIDATION: Conflict
     |> validate_document_nomination_conflict(document)
   end
 

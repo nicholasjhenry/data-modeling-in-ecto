@@ -66,8 +66,8 @@ defmodule Nomify.Teams.Team do
     # VALIDATION: Type (enforced by Ecto)
     # VALIDATION: Cardinality
     # VALIDATION: Fields
-    # VALIDATION: STATE
-    # VALIDATION: CONFLICT
+    # VALIDATION: State
+    # VALIDATION: Conflict
     |> validate_team_member_conflict(team)
   end
 
