@@ -43,8 +43,6 @@ defmodule Nomify.Documents.Nomination do
     field :comments, :string
 
     # SOM: Principle 40 - Knowing Where in the Lifecycle
-    # SOM: Principle 43 - Only Change State When Conducting Business
-    #
     field :status, Ecto.Enum,
       values: [:pending, :in_review, :rejected, :approved],
       default: :pending
@@ -77,6 +75,7 @@ defmodule Nomify.Documents.Nomination do
   @doc false
   def update_changeset(nomination, attrs) do
     nomination
+    # SOM: Principle 43 - Only Change State When Conducting Business
     |> cast(attrs, [:comments, :status])
     |> validate_required([:status])
     |> validate_status
