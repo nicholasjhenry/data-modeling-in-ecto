@@ -88,6 +88,7 @@ defmodule Nomify.Teams.Team do
     end
   end
 
+  @doc false
   def validate_team_member(team, team_member_changeset) do
     if get_field(team_member_changeset, :role) == :chair do
       validate_chair_eligibility(team, team_member_changeset)
