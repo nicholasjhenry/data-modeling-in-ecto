@@ -2,6 +2,9 @@ defmodule Nomify do
   @moduledoc """
   A document review process to empowering teams to collaborate,  review, and approve documents.
 
+  Examples based on SOM, Chapter 7 Implementing Collaborations Patterns, Chapter 8 Implementing Business Rules and
+  the casestudy code.
+
   ## Sub-Domains
 
   For information on each sub-domain, see:

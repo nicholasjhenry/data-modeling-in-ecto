@@ -56,7 +56,13 @@ defmodule EssentialEcto.MixProject do
         "guides/40_fields_and_actions.md",
         "guides/50_implementing_associations.md",
         "guides/60_implementing_business_rules.md",
-        "guides/70_principles.md"
+        "guides/principles/2_finding_objects.md",
+        "guides/principles/3_collaboration_patterns_rules.md",
+        "guides/principles/4_services_and_properties.md",
+        "guides/principles/5_object_inheritance.md",
+        "guides/principles/6_implementing_collaboration_pairs.md",
+        "guides/principles/7_implementing_business_rules.md",
+        "guides/principles/8_object_model_documentation.md"
       ],
       groups_for_extras: [
         Guides: Path.wildcard("./guides/*.md")

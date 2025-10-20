@@ -56,7 +56,7 @@ How to define record and context modules:
 2. Actions
 
 - Fields: Write `insert_changeset/2` and `update_changeset/2 function` in the schema module with field validations
-- Associations: Write `put_ASSOC_changeset/2` functions in schema module (`delete_ASSOC_changeset/2`) ???
+- Associations: Write `put_ASSOC_changeset/2` and `delete_ASSOC_changeset/2` functions in schema module
 - Context: Write the actions functions
 
 3. Inspect
@@ -64,9 +64,15 @@ How to define record and context modules:
 - Fields
 - Associations
 
-4. Equality?
+4. Equality
 
-5. Run?
+- Compare select fields
+- Compare Associations
+
+5. Run
+
+- Test builder functions
+- Test cases
 
 ## Record Module Definitions
 
@@ -101,6 +107,12 @@ Convert business rules to validations:
   - calls `ASSOC_RECORD.check_RECORD_conflict/2`
 
 ## Templates
+
+> #### Essential Ecto {: .tip}
+>
+> Templates are for implementing associations, NOT implementing business rules.
+> See the next guide [Implementing Business Rules](./60_implementing_business_rules.md)
+> for guidance.
 
 Associations Summary:
 

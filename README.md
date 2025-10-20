@@ -14,11 +14,11 @@ Mark Mayfield and Mike Abney applied to Ecto.
 
 ## Documentation
 
-| Application                                        | Description                                                                                    |
-| -------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
-| Essential Ecto [Docs](./essential_ecto/index.html) | Business Rule Specification                                                                    |
-| Nomify [Docs](./nomify/index.html)                 | From Chapter 7 Implementing Collaborations Patterns and Chapter 8 Implementing Business Rules. |
-| Examples [Docs](./examples/index.html)             | From Chapter 4 Collaboration Rules                                                             |
+| Application                                        | Description                                                                                                    |
+| -------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| Essential Ecto [Docs](./essential_ecto/index.html) | Business Rule Specification                                                                                    |
+| Nomify [Docs](./nomify/index.html)                 | From Chapter 7 Implementing Collaborations Patterns, Chapter 8 Implementing Business Rules and casestudy code. |
+| Examples [Docs](./examples/index.html)             | From Chapter 4 Collaboration Rules                                                                             |
 
 ## Setup
 
