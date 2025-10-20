@@ -9,6 +9,8 @@ defmodule Nomify.Teams.TeamMember do
   > - Generic - **Specific** (Actor - Role)
   > - Whole - **Part** (Group - Member)
   > - **Specific** - Transaction (Role - Transaction)
+  >
+  > See **Associations** below.
   """
 
   use Nomify, :record
@@ -22,7 +24,6 @@ defmodule Nomify.Teams.TeamMember do
 
   @typedoc """
   ## Fields
-
   A TeamMember has these fields:
 
   - `role` (role): The role of the team member (e.g., admin, chair, member).
@@ -30,6 +31,19 @@ defmodule Nomify.Teams.TeamMember do
   - `security_level` (type): The security classification of the team member.
   - `nominations_per_period_count` (descriptive): The count of nominations made by the team member in the current period.
   - `max_nominations_allowed` (descriptive): The maximum number of nominations allowed for the team member in the current period.
+
+
+  > #### Essential Ecto {: .info}
+  >
+  > Record Inheritance
+  >
+  > Any coding template for the generic – specific pattern must accommodate the object inheritance
+  > mechanism, which specifies the properties and services in the generic that are accessible from
+  > the specific object. What object inheritance really means is that certain determine mine and
+  > analyze transactions services available in the generic are also available in the specific.
+  >
+  > -- Streamlined Object Modeling
+
   - `title` (descriptive): The title or honorific of the team member.
   - `name` (descriptive): The full name of the team member.
   - `email` (descriptive): The email address of the team member.
@@ -43,7 +57,7 @@ defmodule Nomify.Teams.TeamMember do
   - `nominations` (Role - Transaction): The nominations made by the team member.
   """
   @type t :: %__MODULE__{
-          id: integer(),
+          id: integer() | nil,
           role: :admin | :chair | :member,
           privileges: Privileges.t(),
           security_level: SecurityLevel.t(),
@@ -52,13 +66,13 @@ defmodule Nomify.Teams.TeamMember do
           title: String.t() | nil,
           name: String.t() | nil,
           email: String.t() | nil,
-          person_id: integer(),
-          person: Person.t() | nil,
-          team_id: integer(),
-          team: Team.t() | nil,
-          nominations: list(Nomination.t()),
-          inserted_at: NaiveDateTime.t(),
-          updated_at: NaiveDateTime.t()
+          person_id: integer() | nil,
+          person: Person.t() | Ecto.Association.NotLoaded.t() | nil,
+          team_id: integer() | nil,
+          team: Team.t() | Ecto.Association.NotLoaded.t() | nil,
+          nominations: list(Nomination.t()) | Ecto.Association.NotLoaded.t(),
+          inserted_at: NaiveDateTime.t() | nil,
+          updated_at: NaiveDateTime.t() | nil
         }
 
   schema "team_members" do
@@ -70,16 +84,6 @@ defmodule Nomify.Teams.TeamMember do
     # SECTION: Fields - Calculated
     field :nominations_per_period_count, :integer, virtual: true
     field :max_nominations_allowed, :integer, virtual: true
-
-    # NOTE: Record Inheritance
-    #
-    # > Any coding template for the generic – specific pattern must accommodate the object inheritance
-    # > mechanism, which specifies the properties and services in the generic that are accessible from
-    # > the specific object. What object inheritance really means is that certain determine mine and
-    # > analyze transactions services available in the generic are also available in the specific.
-    # >
-    # > -- Streamlined Object Modeling
-    #
 
     # SECTION: Fields - Person
     field :title, :string, virtual: true
@@ -201,17 +205,14 @@ defmodule Nomify.Teams.TeamMember do
   # SECTION: Assoc Validations
 
   defp validate_person(changeset) do
-    person = get_assoc(changeset, :person, :struct)
-
-    # Example: Association Validation - Property Validation
-    changeset =
-      if Person.valid_email?(person) do
-        changeset
-      else
-        add_error(changeset, :business_rule, "Person cannot be team member. Invalid email.")
-      end
-
-    validate_person_team_conflict(changeset)
+    changeset
+    # VALIDATION: Type (enforced by Ecto)
+    # VALIDATION: Cardinality
+    # VALIDATION: Fields
+    |> validate_email
+    # VALIDATION: State
+    # VALIDATION: Conflict
+    |> validate_person_team_conflict()
   end
 
   defp validate_team(changeset) do
@@ -219,10 +220,36 @@ defmodule Nomify.Teams.TeamMember do
 
     team
     |> Team.validate_team_member(changeset)
+    # VALIDATION: Type (enforced by Ecto)
+    # VALIDATION: Cardinality
+    # VALIDATION: Fields
+    # VALIDATION: State
+    # VALIDATION: Conflict
     |> validate_person_team_conflict()
   end
 
-  # NOTE: Conflict Validations
+  @doc false
+  def validate_nomination(team_member, nomination_changeset, opts \\ []) do
+    nomination_changeset
+    # VALIDATION: Type (enforced by Ecto)
+    # VALIDATION: Cardinality
+    # VALIDATION: Fields
+    # VALIDATION: State
+    # VALIDATION: Conflict
+    |> validate_nomination_conflict(team_member, opts)
+  end
+
+  defp validate_email(changeset) do
+    person = get_assoc(changeset, :person, :struct)
+
+    if Person.valid_email?(person) do
+      changeset
+    else
+      add_error(changeset, :business_rule, "Person cannot be team member. Invalid email.")
+    end
+  end
+
+  # SOM: Conflict Rules
   #
   # > Conflict rules come into play when business rules define restrictions between objects that
   # > collaborate through an intermediary object. In essence, conflict rules are collaboration
@@ -238,9 +265,7 @@ defmodule Nomify.Teams.TeamMember do
     )
   end
 
-  # SECTION: Assoc Validations
-
-  def validate_nomination(team_member, nomination_changeset, opts \\ []) do
+  defp validate_nomination_conflict(changeset, team_member, opts) do
     nomination_allowance_opts = Keyword.get(opts, :nomination_allowance, [])
 
     team_member =
@@ -251,20 +276,20 @@ defmodule Nomify.Teams.TeamMember do
     cond do
       !Privileges.has_flag(team_member.privileges, :nominate) ->
         add_error(
-          nomination_changeset,
+          changeset,
           :business_rule,
           "Security violation. Team member cannot nominate."
         )
 
       team_member.nominations_per_period_count >= team_member.max_nominations_allowed ->
         add_error(
-          nomination_changeset,
+          changeset,
           :business_rule,
           "Team member cannot nominate. Too many nominations."
         )
 
       true ->
-        nomination_changeset
+        changeset
     end
   end
 

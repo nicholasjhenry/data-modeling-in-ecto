@@ -413,7 +413,7 @@ mix usage_rules.docs Enum.zip/1
 
 ## Searching Documentation
 
-You should also consult the documentation of any tools you are using, early and often. The best
+You should also consult the documentation of any tools you are using, early and often. The best 
 way to accomplish this is to use the `usage_rules.search_docs` mix task. Once you have
 found what you are looking for, use the links in the search results to get more detail. For example:
 
@@ -462,7 +462,7 @@ mix usage_rules.search_docs "Enum.zip" --query-by title
 - Use guard clauses: `when is_binary(name) and byte_size(name) > 0`
 - Prefer multiple function clauses over complex conditional logic
 - Name functions descriptively: `calculate_total_price/2` not `calc/2`
-- Predicate function names should not start with `is` and should end in a question mark.
+- Predicate function names should not start with `is` and should end in a question mark. 
 - Names like `is_thing` should be reserved for guards
 
 ## Data Structures

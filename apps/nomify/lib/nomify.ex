@@ -20,10 +20,26 @@ defmodule Nomify do
     quote do
       use Ecto.Schema
 
+      alias Nomify.Identifier
+
       import Ecto.Changeset
       import Ecto.Query, warn: false
       import Nomify.Result
       import Nomify.Util.Validators
+    end
+  end
+
+  def context do
+    quote do
+      alias Ecto.Changeset
+
+      alias Nomify.Attrs
+      alias Nomify.Identifier
+      alias Nomify.Repo
+
+      alias Nomify.Accounts.Scope
+
+      import Ecto.Query, warn: false
     end
   end
 

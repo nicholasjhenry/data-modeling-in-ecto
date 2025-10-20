@@ -23,12 +23,12 @@ defmodule Nomify.Teams.Team do
   - `team_members` (Group - Member): Represents the members belonging to the team.
   """
   @type t :: %__MODULE__{
-          id: integer(),
-          description: String.t(),
-          format: :none | :single | :multiple,
-          team_members: [TeamMember.t()],
-          inserted_at: NaiveDateTime.t(),
-          updated_at: NaiveDateTime.t()
+          id: integer() | nil,
+          description: String.t() | nil,
+          format: :none | :single | :multiple | nil,
+          team_members: [TeamMember.t()] | Ecto.Association.NotLoaded.t(),
+          inserted_at: NaiveDateTime.t() | nil,
+          updated_at: NaiveDateTime.t() | nil
         }
 
   schema "team_teams" do
@@ -61,6 +61,25 @@ defmodule Nomify.Teams.Team do
   # SECTION: Assoc validations
 
   @doc false
+  def validate_team_member(team, team_member_changeset) do
+    team_member_changeset
+    # VALIDATION: Type (enforced by Ecto)
+    # VALIDATION: Cardinality
+    # VALIDATION: Fields
+    # VALIDATION: State
+    # VALIDATION: Conflict
+    |> validate_team_member_conflict(team)
+  end
+
+  defp validate_team_member_conflict(team_member_changeset, team) do
+    if get_field(team_member_changeset, :role) == :chair do
+      validate_chair_eligibility(team, team_member_changeset)
+    else
+      team_member_changeset
+    end
+  end
+
+  @doc false
   def validate_chair_eligibility(team, team_member_changeset) do
     case team.format do
       :none ->
@@ -85,14 +104,6 @@ defmodule Nomify.Teams.Team do
 
       :multiple ->
         team_member_changeset
-    end
-  end
-
-  def validate_team_member(team, team_member_changeset) do
-    if get_field(team_member_changeset, :role) == :chair do
-      validate_chair_eligibility(team, team_member_changeset)
-    else
-      team_member_changeset
     end
   end
 end

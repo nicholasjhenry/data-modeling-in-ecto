@@ -4,10 +4,10 @@ defmodule Examples.Warehouse do
   """
 
   import Ecto.Query, warn: false
-  alias Examples.Warehouse.LoadingBin
   alias Examples.Repo
 
   alias Examples.Warehouse.LoadingArea
+  alias Examples.Warehouse.LoadingBin
 
   def get_loading_area!(id, preloads \\ []) do
     LoadingArea

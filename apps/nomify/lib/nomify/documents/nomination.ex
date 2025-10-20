@@ -26,37 +26,23 @@ defmodule Nomify.Documents.Nomination do
   - `team_member` (Role - Transaction): The team member proposing the document.
   """
   @type t :: %__MODULE__{
-          id: integer(),
+          id: integer() | nil,
           comments: String.t() | nil,
           status: :pending | :in_review | :rejected | :approved,
-          nomination_date: Date.t(),
-          document_id: integer(),
+          nomination_date: Date.t() | nil,
+          document_id: integer() | nil,
           document: Document.t() | Ecto.Association.NotLoaded.t(),
-          team_member_id: integer(),
+          team_member_id: integer() | nil,
           team_member: TeamMember.t() | Ecto.Association.NotLoaded.t(),
-          inserted_at: NaiveDateTime.t(),
-          updated_at: NaiveDateTime.t()
+          inserted_at: NaiveDateTime.t() | nil,
+          updated_at: NaiveDateTime.t() | nil
         }
 
   schema "document_nominations" do
     # SECTION: Fields
     field :comments, :string
 
-    # NOTE: Principle 40: Knowing Where in the Lifecycle
-    #
-    # > In a person, place, or thing object, make the lifecycle state a property derived
-    # > from event collaborators. In an event, make the lifecycle state a property,
-    # > unless it is derived from follow-up events.
-    # >
-    # > -- Streamlined Object Modeling
-    #
-    # NOTE: Principle 43: Only Change State When Conducting Business
-    #
-    # > Allow only conduct business services to change an object’s lifecycle or
-    # > operational state properties.
-    # >
-    # > -- Streamlined Object Modeling
-    #
+    # SOM: Principle 40 - Knowing Where in the Lifecycle
     field :status, Ecto.Enum,
       values: [:pending, :in_review, :rejected, :approved],
       default: :pending
@@ -89,6 +75,7 @@ defmodule Nomify.Documents.Nomination do
   @doc false
   def update_changeset(nomination, attrs) do
     nomination
+    # SOM: Principle 43 - Only Change State When Conducting Business
     |> cast(attrs, [:comments, :status])
     |> validate_required([:status])
     |> validate_status
@@ -135,6 +122,7 @@ defmodule Nomify.Documents.Nomination do
 
   # SECTION: Assoc Validations
 
+  @doc false
   def validate_conflict(changeset) do
     document = get_assoc(changeset, :document, :struct)
     team_member = get_assoc(changeset, :team_member, :struct)

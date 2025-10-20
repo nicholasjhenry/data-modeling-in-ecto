@@ -4,9 +4,11 @@ defmodule Nomify.Accounts do
   """
 
   import Ecto.Query, warn: false
+  alias Ecto.Changeset
   alias Nomify.Repo
 
-  alias Nomify.Accounts.{Scope, User, UserToken, UserNotifier}
+  alias Nomify.Accounts.{Scope, User, UserNotifier, UserToken}
+  alias Nomify.Attrs
 
   ## Database getters
 
@@ -22,6 +24,7 @@ defmodule Nomify.Accounts do
       nil
 
   """
+  @spec get_user_by_email(String.t()) :: User.t() | nil
   def get_user_by_email(email) when is_binary(email) do
     Repo.get_by(User, email: email)
   end
@@ -38,6 +41,7 @@ defmodule Nomify.Accounts do
       nil
 
   """
+  @spec get_user_by_email_and_password(String.t(), String.t()) :: User.t() | nil
   def get_user_by_email_and_password(email, password)
       when is_binary(email) and is_binary(password) do
     user = Repo.get_by(User, email: email)
@@ -58,6 +62,7 @@ defmodule Nomify.Accounts do
       ** (Ecto.NoResultsError)
 
   """
+  @spec get_user!(integer()) :: User.t()
   def get_user!(id), do: Repo.get!(User, id)
 
   ## User registration
@@ -74,6 +79,7 @@ defmodule Nomify.Accounts do
       {:error, %Ecto.Changeset{}}
 
   """
+  @spec register_user(Attrs.t()) :: {:ok, User.t()} | {:error, Changeset.t(User.t())}
   def register_user(attrs) do
     %User{}
     |> User.email_changeset(attrs)
@@ -88,6 +94,7 @@ defmodule Nomify.Accounts do
   The user is in sudo mode when the last authentication was done no further
   than 20 minutes ago. The limit can be given as second argument in minutes.
   """
+  @spec sudo_mode?(User.t() | nil, integer()) :: boolean()
   def sudo_mode?(user, minutes \\ -20)
 
   def sudo_mode?(%User{authenticated_at: ts}, minutes) when is_struct(ts, NaiveDateTime) do
@@ -107,6 +114,7 @@ defmodule Nomify.Accounts do
       %Ecto.Changeset{data: %User{}}
 
   """
+  @spec change_user_email(User.t(), Attrs.t(), keyword()) :: Changeset.t(User.t())
   def change_user_email(user, attrs \\ %{}, opts \\ []) do
     User.email_changeset(user, attrs, opts)
   end
@@ -116,6 +124,7 @@ defmodule Nomify.Accounts do
 
   If the token matches, the user email is updated and the token is deleted.
   """
+  @spec update_user_email(User.t(), String.t()) :: :ok | :error
   def update_user_email(user, token) do
     context = "change:#{user.email}"
 
@@ -147,6 +156,7 @@ defmodule Nomify.Accounts do
       %Ecto.Changeset{data: %User{}}
 
   """
+  @spec change_user_password(User.t(), Attrs.t(), keyword()) :: Changeset.t(User.t())
   def change_user_password(user, attrs \\ %{}, opts \\ []) do
     User.password_changeset(user, attrs, opts)
   end
@@ -165,6 +175,8 @@ defmodule Nomify.Accounts do
       {:error, %Ecto.Changeset{}}
 
   """
+  @spec update_user_password(User.t(), Attrs.t()) ::
+          {:ok, User.t(), [UserToken.t()]} | {:error, Changeset.t(User.t())}
   def update_user_password(user, attrs) do
     user
     |> User.password_changeset(attrs)
@@ -180,6 +192,7 @@ defmodule Nomify.Accounts do
   @doc """
   Generates a session token.
   """
+  @spec generate_user_session_token(User.t()) :: binary()
   def generate_user_session_token(user) do
     {token, user_token} = UserToken.build_session_token(user)
     Repo.insert!(user_token)
@@ -189,6 +202,7 @@ defmodule Nomify.Accounts do
   @doc """
   Gets the user with the given signed token.
   """
+  @spec get_user_by_session_token(binary()) :: User.t() | nil
   def get_user_by_session_token(token) do
     {:ok, query} = UserToken.verify_session_token_query(token)
     Repo.one(query)
@@ -197,6 +211,7 @@ defmodule Nomify.Accounts do
   @doc """
   Gets the user with the given magic link token.
   """
+  @spec get_user_by_magic_link_token(String.t()) :: User.t() | nil
   def get_user_by_magic_link_token(token) do
     with {:ok, query} <- UserToken.verify_magic_link_token_query(token),
          {user, _token} <- Repo.one(query) do
@@ -224,6 +239,8 @@ defmodule Nomify.Accounts do
      source of security pitfalls. See the "Mixing magic link and password registration" section of
      `mix help phx.gen.auth`.
   """
+  @spec login_user_by_magic_link(String.t()) ::
+          {:ok, User.t(), [UserToken.t()]} | {:error, :not_found}
   def login_user_by_magic_link(token) do
     {:ok, query} = UserToken.verify_magic_link_token_query(token)
 
@@ -261,6 +278,11 @@ defmodule Nomify.Accounts do
       {:ok, %{to: ..., body: ...}}
 
   """
+  @spec deliver_user_update_email_instructions(
+          User.t(),
+          String.t(),
+          (String.t() -> String.t())
+        ) :: {:ok, Swoosh.Email.t()} | {:error, term()}
   def deliver_user_update_email_instructions(%User{} = user, current_email, update_email_url_fun)
       when is_function(update_email_url_fun, 1) do
     {encoded_token, user_token} = UserToken.build_email_token(user, "change:#{current_email}")
@@ -272,6 +294,8 @@ defmodule Nomify.Accounts do
   @doc ~S"""
   Delivers the magic link login instructions to the given user.
   """
+  @spec deliver_login_instructions(User.t(), (String.t() -> String.t())) ::
+          {:ok, Swoosh.Email.t()} | {:error, term()}
   def deliver_login_instructions(%User{} = user, magic_link_url_fun)
       when is_function(magic_link_url_fun, 1) do
     {encoded_token, user_token} = UserToken.build_email_token(user, "login")
@@ -282,6 +306,7 @@ defmodule Nomify.Accounts do
   @doc """
   Deletes the signed token with the given context.
   """
+  @spec delete_user_session_token(binary()) :: :ok
   def delete_user_session_token(token) do
     Repo.delete_all(UserToken.by_token_and_context_query(token, "session"))
     :ok
@@ -289,6 +314,8 @@ defmodule Nomify.Accounts do
 
   ## Token helper
 
+  @spec update_user_and_delete_all_tokens(Changeset.t(User.t())) ::
+          {:ok, User.t(), [UserToken.t()]} | {:error, term(), term(), term()}
   defp update_user_and_delete_all_tokens(changeset) do
     %{data: %User{} = user} = changeset
 
@@ -304,6 +331,7 @@ defmodule Nomify.Accounts do
     end
   end
 
+  @spec test_scope() :: Scope.t()
   def test_scope do
     %Scope{user: %User{id: 1}}
   end

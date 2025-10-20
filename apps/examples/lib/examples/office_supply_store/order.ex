@@ -106,7 +106,7 @@ defmodule Examples.OfficeSupplyStore.Order do
   defp validate_line_items(order_changeset) do
     line_item_changesets = get_all_assocs(order_changeset, :line_items, :insert_or_update)
 
-    if Enum.count(line_item_changesets) == 0 do
+    if Enum.empty?(line_item_changesets) do
       add_error(order_changeset, :business_rule, "An order requires at least one line item")
     else
       order_changeset

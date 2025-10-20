@@ -76,7 +76,7 @@ defmodule Examples.ComputerStore.System do
 
   @doc false
   def validate_must_have_at_least_one_component(changeset, components) do
-    if Enum.count(components) == 0 do
+    if Enum.empty?(components) do
       add_error(changeset, :business_rule, "System must have at least one component")
     else
       changeset

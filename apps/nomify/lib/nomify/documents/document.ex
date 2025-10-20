@@ -26,14 +26,14 @@ defmodule Nomify.Documents.Document do
   - `latest_nomination` (Specific Item - Transaction): The most recent nomination for the document.
   """
   @type t :: %__MODULE__{
-          id: integer(),
-          title: String.t(),
+          id: integer() | nil,
+          title: String.t() | nil,
           publication_date: Date.t() | nil,
-          security_level: SecurityLevel.t(),
-          nominations: list(Nomination.t()),
-          latest_nomination: Nomination.t() | nil,
-          inserted_at: NaiveDateTime.t(),
-          updated_at: NaiveDateTime.t()
+          security_level: SecurityLevel.t() | nil,
+          nominations: list(Nomination.t()) | Ecto.Association.NotLoaded.t(),
+          latest_nomination: Nomination.t() | Ecto.Association.NotLoaded.t(),
+          inserted_at: NaiveDateTime.t() | nil,
+          updated_at: NaiveDateTime.t() | nil
         }
 
   schema "document_documents" do
@@ -115,6 +115,16 @@ defmodule Nomify.Documents.Document do
   # SECTION: Assoc Validations
 
   def validate_nomination(document, changeset) do
+    changeset
+    # VALIDATION: Type (enforced by Ecto)
+    # VALIDATION: Cardinality
+    # VALIDATION: Fields
+    # VALIDATION: State
+    # VALIDATION: Conflict
+    |> validate_document_nomination_conflict(document)
+  end
+
+  defp validate_document_nomination_conflict(changeset, document) do
     if document.latest_nomination && document.latest_nomination.status in [:pending, :approved] do
       add_error(
         changeset,
