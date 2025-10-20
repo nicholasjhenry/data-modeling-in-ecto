@@ -205,17 +205,14 @@ defmodule Nomify.Teams.TeamMember do
   # SECTION: Assoc Validations
 
   defp validate_person(changeset) do
-    person = get_assoc(changeset, :person, :struct)
-
-    # Example: Association Validation - Property Validation
-    changeset =
-      if Person.valid_email?(person) do
-        changeset
-      else
-        add_error(changeset, :business_rule, "Person cannot be team member. Invalid email.")
-      end
-
-    validate_person_team_conflict(changeset)
+    changeset
+    # VALIDATION: Type (enforced by Ecto)
+    # VALIDATION: Cardinality
+    # VALIDATION: Fields
+    |> validate_email
+    # VALIDATION: STATE
+    # VALIDATION: CONFLICT
+    |> validate_person_team_conflict()
   end
 
   defp validate_team(changeset) do
@@ -223,10 +220,36 @@ defmodule Nomify.Teams.TeamMember do
 
     team
     |> Team.validate_team_member(changeset)
+    # VALIDATION: Type (enforced by Ecto)
+    # VALIDATION: Cardinality
+    # VALIDATION: Fields
+    # VALIDATION: STATE
+    # VALIDATION: CONFLICT
     |> validate_person_team_conflict()
   end
 
-  # NOTE: Conflict Validations
+  @doc false
+  def validate_nomination(team_member, nomination_changeset, opts \\ []) do
+    nomination_changeset
+    # VALIDATION: Type (enforced by Ecto)
+    # VALIDATION: Cardinality
+    # VALIDATION: Fields
+    # VALIDATION: STATE
+    # VALIDATION: CONFLICT
+    |> validate_nomination_conflict(team_member, opts)
+  end
+
+  defp validate_email(changeset) do
+    person = get_assoc(changeset, :person, :struct)
+
+    if Person.valid_email?(person) do
+      changeset
+    else
+      add_error(changeset, :business_rule, "Person cannot be team member. Invalid email.")
+    end
+  end
+
+  # SOM: Conflict Rules
   #
   # > Conflict rules come into play when business rules define restrictions between objects that
   # > collaborate through an intermediary object. In essence, conflict rules are collaboration
@@ -242,9 +265,7 @@ defmodule Nomify.Teams.TeamMember do
     )
   end
 
-  # SECTION: Assoc Validations
-
-  def validate_nomination(team_member, nomination_changeset, opts \\ []) do
+  defp validate_nomination_conflict(changeset, team_member, opts) do
     nomination_allowance_opts = Keyword.get(opts, :nomination_allowance, [])
 
     team_member =
@@ -255,20 +276,20 @@ defmodule Nomify.Teams.TeamMember do
     cond do
       !Privileges.has_flag(team_member.privileges, :nominate) ->
         add_error(
-          nomination_changeset,
+          changeset,
           :business_rule,
           "Security violation. Team member cannot nominate."
         )
 
       team_member.nominations_per_period_count >= team_member.max_nominations_allowed ->
         add_error(
-          nomination_changeset,
+          changeset,
           :business_rule,
           "Team member cannot nominate. Too many nominations."
         )
 
       true ->
-        nomination_changeset
+        changeset
     end
   end
 

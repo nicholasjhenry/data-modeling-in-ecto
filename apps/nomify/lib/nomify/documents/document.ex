@@ -115,6 +115,16 @@ defmodule Nomify.Documents.Document do
   # SECTION: Assoc Validations
 
   def validate_nomination(document, changeset) do
+    changeset
+    # VALIDATION: Type (enforced by Ecto)
+    # VALIDATION: Cardinality
+    # VALIDATION: Fields
+    # VALIDATION: STATE
+    # VALIDATION: CONFLICT
+    |> validate_document_nomination_conflict(document)
+  end
+
+  defp validate_document_nomination_conflict(changeset, document) do
     if document.latest_nomination && document.latest_nomination.status in [:pending, :approved] do
       add_error(
         changeset,

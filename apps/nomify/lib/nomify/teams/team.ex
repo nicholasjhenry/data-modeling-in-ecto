@@ -61,6 +61,25 @@ defmodule Nomify.Teams.Team do
   # SECTION: Assoc validations
 
   @doc false
+  def validate_team_member(team, team_member_changeset) do
+    team_member_changeset
+    # VALIDATION: Type (enforced by Ecto)
+    # VALIDATION: Cardinality
+    # VALIDATION: Fields
+    # VALIDATION: STATE
+    # VALIDATION: CONFLICT
+    |> validate_team_member_conflict(team)
+  end
+
+  defp validate_team_member_conflict(team_member_changeset, team) do
+    if get_field(team_member_changeset, :role) == :chair do
+      validate_chair_eligibility(team, team_member_changeset)
+    else
+      team_member_changeset
+    end
+  end
+
+  @doc false
   def validate_chair_eligibility(team, team_member_changeset) do
     case team.format do
       :none ->
@@ -85,15 +104,6 @@ defmodule Nomify.Teams.Team do
 
       :multiple ->
         team_member_changeset
-    end
-  end
-
-  @doc false
-  def validate_team_member(team, team_member_changeset) do
-    if get_field(team_member_changeset, :role) == :chair do
-      validate_chair_eligibility(team, team_member_changeset)
-    else
-      team_member_changeset
     end
   end
 end

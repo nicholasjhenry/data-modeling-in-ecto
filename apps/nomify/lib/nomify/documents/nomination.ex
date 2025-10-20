@@ -122,6 +122,7 @@ defmodule Nomify.Documents.Nomination do
 
   # SECTION: Assoc Validations
 
+  @doc false
   def validate_conflict(changeset) do
     document = get_assoc(changeset, :document, :struct)
     team_member = get_assoc(changeset, :team_member, :struct)
