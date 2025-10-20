@@ -108,6 +108,12 @@ Convert business rules to validations:
 
 ## Templates
 
+> #### Essential Ecto {: .tip}
+>
+> Templates are for implementing associations, NOT implementing business rules.
+> See the next guide [Implementing Business Rules](./60_implementing_business_rules.md)
+> for guidance.
+
 Associations Summary:
 
 | Player 1    | Player 2 | P1 assoc           |          | P2 assoc     |          |

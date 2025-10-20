@@ -2,83 +2,83 @@
 
 ## Object Think Processes
 
-**23. Be Objective with Processes**
+**Principle 23. Be Objective with Processes**
 
 Be objective when asking about processes. Talk instead about the objects--people, places, things, and events--involved in the process and the actions on these objects, rather than asking clients how they "want to do it."
 
-**24. Do it Myself**
+**Principle 24. Do it Myself**
 
 Objects that are acted upon by others in the real world do the work themselves in the boject world.
 
-**25. Do it with Data**
+**Principle 25. Do it with Data**
 
 Objects encapsulate data representing an entity together with the services that act on it.
 
 ## Distributing the Work
 
-**26. Director Principle**
+**Principle 26. Director Principle**
 
 Real-world actions on entities map to one of the objects representing that entity. This object is called the direct of the action because it directs itself and its collaborators in carrying out the action.
 
-**27. Most Specific Directs**
+**Principle 27. Most Specific Directs**
 
 When a real-world action maps to two collaborators representing a single entity or an aggregation of entities, the direct is the most specific, local, or detailed pattern player.
 
-**28. Events Direct the Work**
+**Principle 28. Events Direct the Work**
 
 When an action requires cooperation among the collaborating entities of an event, the event directs the action.
 
 **Types of Services**
 
-**29. Let the Director Conduct**
+**Principle 29. Let the Director Conduct**
 
 Use the "specific directs" and "event directs" principles to find the director of a process. Assign the director a conduct business service to initiate the process.
 
-**30. Most Knowledgeable is Responsible**
+**Principle 30. Most Knowledgeable is Responsible**
 
 When a role acts on a specific item at a give place and the event is recorded, give the most knowledgeable or restrictive object a conduct business service that establishes the transaction.
 
-**31. Let an Object Determine Mine**
+**Principle 31. Let an Object Determine Mine**
 
 Provide an object with determine mine services so it may answer requests for current information.
 
-**32. Let an Object Assess Events**
+**Principle 32. Let an Object Assess Events**
 
 Provide an object with analyze transactions services so it may assess its historical information, past events, and future scheduled events.
 
 ## Descriptive Properties
 
-**33. Make it Real and Relevant**
+**Principle 33. Make it Real and Relevant**
 
 Descriptive properties come from an object's relevant real-world characteristics. Use domain experts, legacy databases, and information architectures to locate relevant descriptive properties.
 
-**34. Track but don't key**
+**Principle 34. Track but don't key**
 
 Keep keys and object IDs off the diagram. Include identifying properties only if they come from the domain.
 
-**35. Hide Redundant Accessors**
+**Principle 35. Hide Redundant Accessors**
 
 Assume each property listed in the object definition has a read and write accessor, but don't put them in the diagram.
 
-**36. Show Derived Accessors**
+**Principle 36. Show Derived Accessors**
 
 Represent a derived property with a read accessor in the service section.
 
-**37. Always Date Events**
+**Principle 37. Always Date Events**
 
 Transaction object always include date and/or time properties.
 
-**38. Date Objects with Special Occurrences**
+**Principle 38. Date Objects with Special Occurrences**
 
 Put date and/or time properties in non-transaction objects to record a non-repeatable occurrence or a repeatable occurrence that does not require history.
 
-**39. Historical Properties Need Objects**
+**Principle 39. Historical Properties Need Objects**
 
 Use history event object to keep an audit trail of values of a property. Treat the property like a derived one; include a special acessor to read the property value for a give date.
 
 ## State Properties
 
-**40. Knowing where in the Lifecycle**
+**Principle 40. Knowing where in the Lifecycle**
 
 In a person, place, or thing, make the lifecycle state a property derived from event collaborators. In an event, make the lifecycle state a property, unless it is derived from follow-up events.
 
@@ -90,15 +90,15 @@ field :status, Ecto.Enum,
   default: :pending
 ```
 
-**41. Knowing which Operational State**
+**Principle 41. Knowing which Operational State**
 
 Put an operating state property in any person, place, or thing object that switches between different operation modes.
 
-**42. Cache when Final**
+**Principle 42. Cache when Final**
 
 When an object reaches one of its final lifecycle states, consider caching its derived properties.
 
-**43. Only Change State when Conducting Business**
+**Principle 43. Only Change State when Conducting Business**
 
 Allow only conduct business services to change an object's lifecycle or operational state properties.
 
@@ -112,14 +112,14 @@ field :status, Ecto.Enum,
 
 ## Complex Properties
 
-**44. Collapse Clutter Objects**
+**Principle 44. Collapse Clutter Objects**
 
 Collapse objects whose only purpose is to represent complex information into the properties.
 
-**45. Classify Roles**
+**Principle 45. Classify Roles**
 
 Use a role classification property to distinguish different levels of participation only if the participation level requires no history and no additional properties, behaviours, or collaborations.
 
-**46. Classify Types**
+**Principle 46. Classify Types**
 
 Use a type classification property to distinguish different object types only if the type requires no history and has no additional properties, behaviours, or collaborations.

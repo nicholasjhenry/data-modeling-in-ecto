@@ -77,6 +77,7 @@ defmodule Nomify.Teams.TeamMember do
 
   schema "team_members" do
     # SECTION: Fields
+    # SOM: Principle 73
     field :role, Ecto.Enum, values: [:admin, :chair, :member], default: :member
     field :privileges, Privileges, default: Privileges.none()
     field :security_level, Ecto.Enum, values: SecurityLevel.values(), default: :low
