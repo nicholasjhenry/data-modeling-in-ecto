@@ -26,8 +26,7 @@ defmodule Nomify.Umbrella.MixProject do
       main: "readme",
       api_reference: false,
       extras: [
-        "README.md",
-        "guides/agentic_coding.md"
+        "README.md"
       ],
       ignore_apps: apps()
     ]
